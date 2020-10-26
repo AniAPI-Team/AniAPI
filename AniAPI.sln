@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30503.244
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeScraper", "AnimeScraper/AnimeScraper.csproj", "{D90AF9D3-3C89-4F09-94A3-1F4219D9B01D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{D90AF9D3-3C89-4F09-94A3-1F4219D9B01D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D90AF9D3-3C89-4F09-94A3-1F4219D9B01D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D90AF9D3-3C89-4F09-94A3-1F4219D9B01D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D90AF9D3-3C89-4F09-94A3-1F4219D9B01D}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {3129C2ED-745C-40A2-9F1C-9C8166C18418}
+	EndGlobalSection
+EndGlobal
