@@ -3,7 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.30503.244
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AnimeScraper", "AnimeScraper/AnimeScraper.csproj", "{D90AF9D3-3C89-4F09-94A3-1F4219D9B01D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AnimeScraper", "AnimeScraper\AnimeScraper.csproj", "{D90AF9D3-3C89-4F09-94A3-1F4219D9B01D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoService", "Services\MongoService.csproj", "{655E72C7-C32F-4A40-88EF-8DB3CD714093}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Models", "Models\Models.csproj", "{B35A6338-679C-4134-AA09-2B66276714D3}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +19,14 @@ Global
 		{D90AF9D3-3C89-4F09-94A3-1F4219D9B01D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D90AF9D3-3C89-4F09-94A3-1F4219D9B01D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D90AF9D3-3C89-4F09-94A3-1F4219D9B01D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{655E72C7-C32F-4A40-88EF-8DB3CD714093}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{655E72C7-C32F-4A40-88EF-8DB3CD714093}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{655E72C7-C32F-4A40-88EF-8DB3CD714093}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{655E72C7-C32F-4A40-88EF-8DB3CD714093}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B35A6338-679C-4134-AA09-2B66276714D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B35A6338-679C-4134-AA09-2B66276714D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B35A6338-679C-4134-AA09-2B66276714D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B35A6338-679C-4134-AA09-2B66276714D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
