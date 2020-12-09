@@ -1,13 +1,12 @@
-﻿using GraphQL;
-using GraphQL.Client.Http;
-using GraphQL.Client.Serializer.Newtonsoft;
+﻿using AnimeScraper.Models;
 using Models;
-using MongoDB.Bson.IO;
 using MongoService;
 using MongoService.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Net.Http;
 using System.Text;
 using System.Threading;
 
@@ -28,21 +27,28 @@ namespace AnimeScraper.Helpers
 
         #endregion
 
+        #region Members
+
         private AnimeCollection _animeCollection = new AnimeCollection();
-        private GraphQLHttpClient _anilistClient = new GraphQLHttpClient("https://graphql.anilist.co", new NewtonsoftJsonSerializer());
-        private GraphQLRequest _anilistRequest = new GraphQLRequest()
+        private HttpClient _anilistClient = new HttpClient() { BaseAddress = new Uri("https://graphql.anilist.co") };
+        private GraphQLQuery _anilistQuery = new GraphQLQuery()
         {
             Query = @"
-            query($page: Int) {
+            query($page: Int, $format: MediaFormat) {
                 Page(page: $page, perPage: 50) {
                     pageInfo {
                         lastPage
                     }
-                    media {
+                    media(format: $format) {
                         id
                         idMal
                         format
                         status
+                        title {
+                            romaji
+                            native
+                        }
+                        description
                         startDate {
                             year
                             month
@@ -53,55 +59,123 @@ namespace AnimeScraper.Helpers
                             month
                             day
                         }
-                        title {
-                            romaji
-                            native
+                        season
+                        seasonYear
+                        episodes
+                        duration
+                        trailer {
+                            id
+                            site
                         }
-                        description
+                        coverImage {
+                            large
+                            color
+                        }
+                        bannerImage
+                        genres
+                        relations {
+                            edges {
+                                relationType
+                                node {
+                                    id
+                                    format
+                                }
+                            }
+                        }
+                        nextAiringEpisode {
+                            episode
+                        }
+                        averageScore
                     }
                 }
             }
-            "
+            ",
+            Variables = new Dictionary<string, object>()
         };
-        private int _totalPages = 2;
+        private int _totalPages = 1;
+        private List<string> _formatsFilter = new List<string>() { "TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA", "MUSIC" };
+
+        #endregion
 
         public async void Start()
         {
-            Stopwatch elapsedTime = new Stopwatch();
-            elapsedTime.Start();
+            int rateLimitRemaining = 90;
+            long rateLimitReset = DateTime.Now.Ticks;
 
-            for(int currentPage = 1; currentPage <= this._totalPages; currentPage++)
+            foreach(string formatFilter in this._formatsFilter)
             {
-                this._anilistRequest.Variables = new { page = currentPage };
+                this._anilistQuery.Variables["format"] = formatFilter;
+                Console.WriteLine($"Doing {formatFilter} format!");
 
-                var response = await this._anilistClient.SendQueryAsync<AnilistResponse>(this._anilistRequest);
-                
-                if(currentPage == 1)
+                for (int currentPage = 1; currentPage <= this._totalPages; currentPage++)
                 {
-                    this._totalPages = response.Data.Page.pageInfo.lastPage;
-                }
+                    this._anilistQuery.Variables["page"] = currentPage;
+                    Console.WriteLine($"Page: {currentPage}");
 
-                foreach(AnilistResponse.Media m in response.Data.Page.media)
-                {
-                    Anime a = new Anime(m);
-                    this._animeCollection.Add(ref a);
-                }
-
-                Console.WriteLine(currentPage);
-                if(currentPage != 1 && (currentPage - 1) % 90 == 0)
-                {
-                    elapsedTime.Stop();
-                    long timeToWait = (60 * 1000) - elapsedTime.ElapsedMilliseconds;
-
-                    if(timeToWait > 0)
+                    var request = new HttpRequestMessage
                     {
-                        Console.WriteLine($"Waiting {timeToWait} ms!");
-                        Thread.Sleep((int)timeToWait);
-                    }
+                        Method = HttpMethod.Post,
+                        Content = new StringContent(JsonConvert.SerializeObject(this._anilistQuery), Encoding.UTF8, "application/json")
+                    };
 
-                    elapsedTime.Start();
+                    try
+                    {
+                        using (var response = await this._anilistClient.SendAsync(request))
+                        {
+                            try
+                            {
+                                response.EnsureSuccessStatusCode();
+                            }
+                            catch (Exception ex)
+                            {
+                                if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                                {
+                                    rateLimitReset = Convert.ToInt64(((string[])response.Headers.GetValues("X-RateLimit-Reset"))[0]);
+                                }
+
+                                throw ex;
+                            }
+
+                            AnilistResponse anilistResponse = JsonConvert.DeserializeObject<AnilistResponse>(await response.Content.ReadAsStringAsync());
+
+                            if (currentPage == 1)
+                            {
+                                this._totalPages = anilistResponse.Data.Page.PageInfo.LastPage;
+                            }
+
+                            foreach (AnilistResponse.ResponseMedia m in anilistResponse.Data.Page.Media)
+                            {
+                                Anime a = new Anime(m);
+                                if (this._animeCollection.Exists(ref a))
+                                {
+                                    this._animeCollection.Edit(ref a);
+                                }
+                                else
+                                {
+                                    this._animeCollection.Add(ref a);
+                                }
+                            }
+
+                            rateLimitRemaining = Convert.ToInt32(((string[])response.Headers.GetValues("X-RateLimit-Remaining"))[0]);
+                            Console.WriteLine($"RateLimit: {((string[])response.Headers.GetValues("X-RateLimit-Remaining"))[0]}");
+                        }
+                    }
+                    catch(Exception ex)
+                    {
+                        currentPage--;
+
+                        DateTime timeOfReset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                        timeOfReset = timeOfReset.AddSeconds(rateLimitReset).ToLocalTime();
+
+                        TimeSpan timeToWait = timeOfReset - DateTime.Now;
+
+                        Console.WriteLine($"Waiting {timeToWait.TotalMilliseconds} ms!");
+                        Thread.Sleep((int)timeToWait.TotalMilliseconds + 1000);
+                    }
                 }
             }
+
+            Console.WriteLine("Ended");
         }
     }
 }

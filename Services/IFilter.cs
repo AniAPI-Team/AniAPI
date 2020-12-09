@@ -9,5 +9,8 @@ namespace MongoService
     {
         private string _locale = LocalizationEnum.English;
         public string Locale { get { return this._locale; } set { this._locale = value; } }
+
+        private int _page = 1;
+        public int Page { get { return this._page; } set { this._page = value; } }
     }
 }

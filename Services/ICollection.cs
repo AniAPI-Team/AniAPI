@@ -15,9 +15,10 @@ namespace MongoService
         public abstract void Add(ref TDocument document);
         public abstract long Count();
         public abstract void Delete(long id);
-        public abstract void Edit(long id, TDocument document);
+        public abstract void Edit(ref TDocument document);
+        public abstract bool Exists(ref TDocument document);
         public abstract TDocument Get(long id);
-        public abstract List<TDocument> GetList<TFilter>(IFilter<TFilter> filter);
+        public abstract Paging<TDocument> GetList<TFilter>(IFilter<TFilter> filter);
         protected long CalcNewId()
         {
             if (this.Count() == 0)

@@ -1,12 +1,5 @@
 ﻿using AnimeScraper.Helpers;
-using GraphQL;
-using GraphQL.Client.Http;
-using GraphQL.Client.Serializer.Newtonsoft;
-using Models;
-using MongoService;
-using MongoService.Models;
 using System;
-using System.Collections.Generic;
 
 namespace AnimeScraper
 {

@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Serialization;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,42 +8,156 @@ namespace Models
 {
     public class AnilistResponse
     {
-        public ResponsePage Page { get; set; }
+        [JsonProperty("data")]
+        public ResponseData Data { get; set; }
+
+        public class ResponseData
+        {
+            public ResponsePage Page { get; set; }
+        }
 
         public class ResponsePage
         {
-            public PageInfo pageInfo { get; set; }
-            public List<Media> media { get; set; }
+            [JsonProperty("pageInfo")]
+            public ResponsePageInfo PageInfo { get; set; }
+
+            [JsonProperty("media")]
+            public List<ResponseMedia> Media { get; set; }
         }
 
-        public class PageInfo
+        public class ResponsePageInfo
         {
-            public int lastPage { get; set; }
+            [JsonProperty("lastPage")]
+            public int LastPage { get; set; }
         }
 
-        public class Media
+        public class ResponseMedia
         {
-            public int id { get; set; }
-            public int idMal { get; set; }
-            public AnimeFormatEnum format { get; set; }
-            public AnimeStatusEnum status { get; set; }
-            public MediaDate startDate { get; set; }
-            public MediaDate endDate { get; set; }
-            public MediaTitle title { get; set; }
-            public string description { get; set; }
+            [JsonProperty("id")]
+            public int Id { get; set; }
+
+            [JsonProperty("idMal")]
+            public int? IdMal { get; set; }
+
+            [JsonProperty("format")]
+            public AnimeFormatEnum Format { get; set; }
+
+            [JsonProperty("status")]
+            public AnimeStatusEnum? Status { get; set; }
+
+            [JsonProperty("startDate")]
+            public MediaDate StartDate { get; set; }
+
+            [JsonProperty("endDate")]
+            public MediaDate EndDate { get; set; }
+
+            [JsonProperty("title")]
+            public MediaTitle Title { get; set; }
+
+            [JsonProperty("description")]
+            public string Description { get; set; }
+
+            [JsonProperty("season")]
+            public AnimeSeasonEnum? Season { get; set; }
+
+            [JsonProperty("seasonYear")]
+            public int? SeasonYear { get; set; }
+
+            [JsonProperty("episodes")]
+            public int? Episodes { get; set; }
+
+            [JsonProperty("duration")]
+            public int? Duration { get; set; }
+
+            [JsonProperty("trailer")]
+            public MediaTrailer Trailer { get; set; }
+
+            [JsonProperty("coverImage")]
+            public MediaCoverImage CoverImage { get; set; }
+
+            [JsonProperty("bannerImage")]
+            public string BannerImage { get; set; }
+
+            [JsonProperty("averageScore")]
+            public int? AverageScore { get; set; }
+
+            [JsonProperty("genres")]
+            public List<string> Genres { get; set; }
+
+            [JsonProperty("relations")]
+            public MediaRelations Relations { get; set; }
+
+            [JsonProperty("nextAiringEpisode")]
+            public MediaAiringEpisode? AiringEpisode { get; set; }
         }
 
         public class MediaTitle
         {
-            public string romaji { get; set; }
-            public string native { get; set; }
+            [JsonProperty("romaji")]
+            public string Romaji { get; set; }
+
+            [JsonProperty("native")]
+            public string Native { get; set; }
         }
 
         public class MediaDate
         {
-            public int? year { get; set; }
-            public int? month { get; set; }
-            public int? day { get; set; }
+            [JsonProperty("year")]
+            public int? Year { get; set; }
+
+            [JsonProperty("month")]
+            public int? Month { get; set; }
+
+            [JsonProperty("day")]
+            public int? Day { get; set; }
+        }
+
+        public class MediaTrailer
+        {
+            [JsonProperty("id")]
+            public string Id { get; set; }
+
+            [JsonProperty("site")]
+            public string Site { get; set; }
+        }
+
+        public class MediaCoverImage
+        {
+            [JsonProperty("large")]
+            public string Large { get; set; }
+
+            [JsonProperty("color")]
+            public string Color { get; set; }
+        }
+
+        public class MediaRelations
+        {
+            [JsonProperty("edges")]
+            public List<MediaRelationsEdge> Edges { get; set; }
+        }
+
+        public class MediaRelationsEdge
+        {
+            [JsonProperty("node")]
+            public MediaRelationsNode Node { get; set; }
+
+            [JsonProperty("relationType")]
+            public string Type { get; set; }
+        }
+
+        public class MediaRelationsNode
+        {
+            [JsonProperty("id")]
+            public int Id { get; set; }
+
+            [JsonProperty("format")]
+            public string Format { get; set; }
+        }
+
+        public class MediaAiringEpisode
+        {
+            [JsonProperty("episode")]
+            public int Episode { get; set; }
         }
     }
 }

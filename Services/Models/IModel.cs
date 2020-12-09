@@ -7,7 +7,7 @@ namespace MongoService.Models
 {
     public abstract class IModel
     {
-        [BsonElement("id")]
+        [BsonElement("_id")]
         public long Id { get; set; }
         
         [BsonElement("creation_date")]
