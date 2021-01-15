@@ -1,15 +1,10 @@
-﻿using MongoDB.Bson;
+﻿using Models.Filters;
+using MongoDB.Bson;
 using MongoDB.Driver;
-using MongoService.Filters;
-using MongoService.Helpers;
-using MongoService.Models;
+using MongoService;
 using System;
-using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Runtime.InteropServices.WindowsRuntime;
-using System.Text;
 
-namespace MongoService.Collections
+namespace Models.Collections
 {
     public class AnimeCollection : ICollection<Anime>
     {

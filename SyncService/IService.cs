@@ -1,6 +1,5 @@
 ﻿using Models;
-using MongoService.Collections;
-using MongoService.Models;
+using Models.Collections;
 using System;
 using System.Collections.Generic;
 using System.Text;

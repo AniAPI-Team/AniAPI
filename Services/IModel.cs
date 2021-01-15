@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace MongoService.Models
+namespace MongoService
 {
     public abstract class IModel
     {

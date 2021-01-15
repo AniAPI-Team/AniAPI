@@ -1,0 +1,14 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>WebAPI</name>
+    </assembly>
+    <members>
+        <member name="M:WebAPI.Controllers.AnimeController.GetOne(System.Int64)">
+            <summary>
+            Retrieves a specific anime by anime id
+            </summary>
+            <param name="id">The anime id</param>
+        </member>
+    </members>
+</doc>

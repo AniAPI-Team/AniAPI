@@ -1,10 +1,8 @@
 ﻿using MongoDB.Driver;
-using MongoService.Models;
+using MongoService;
 using System;
-using System.Collections.Generic;
-using System.Text;
 
-namespace MongoService.Collections
+namespace Models.Collections
 {
     public class ServicesLogCollection : ICollection<ServicesLog>
     {

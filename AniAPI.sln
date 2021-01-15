@@ -7,7 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MongoService", "Services\Mo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Models", "Models\Models.csproj", "{B35A6338-679C-4134-AA09-2B66276714D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SyncService", "SyncService\SyncService.csproj", "{F75AE06E-BD5F-47B0-A73D-7B16DCCA4A95}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SyncService", "SyncService\SyncService.csproj", "{F75AE06E-BD5F-47B0-A73D-7B16DCCA4A95}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebAPI", "WebAPI\WebAPI.csproj", "{5CEFD7BB-90E0-4AB9-A373-1752E03C69EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -27,6 +29,10 @@ Global
 		{F75AE06E-BD5F-47B0-A73D-7B16DCCA4A95}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F75AE06E-BD5F-47B0-A73D-7B16DCCA4A95}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F75AE06E-BD5F-47B0-A73D-7B16DCCA4A95}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5CEFD7BB-90E0-4AB9-A373-1752E03C69EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5CEFD7BB-90E0-4AB9-A373-1752E03C69EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5CEFD7BB-90E0-4AB9-A373-1752E03C69EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5CEFD7BB-90E0-4AB9-A373-1752E03C69EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

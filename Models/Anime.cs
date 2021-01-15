@@ -1,12 +1,11 @@
-﻿using Models;
+﻿using Models.Collections;
+using Models.Filters;
 using MongoDB.Bson.Serialization.Attributes;
-using MongoService.Collections;
-using MongoService.Filters;
+using MongoService;
 using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace MongoService.Models
+namespace Models
 {
     public class Anime : IModel
     {

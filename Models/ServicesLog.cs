@@ -1,9 +1,7 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Text;
+using MongoService;
 
-namespace MongoService.Models
+namespace Models
 {
     public class ServicesLog : IModel
     {

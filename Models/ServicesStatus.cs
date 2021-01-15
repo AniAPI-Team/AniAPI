@@ -1,10 +1,7 @@
-﻿using Models;
-using MongoDB.Bson.Serialization.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Text;
+﻿using MongoDB.Bson.Serialization.Attributes;
+using MongoService;
 
-namespace MongoService.Models
+namespace Models
 {
     public class ServicesStatus : IModel
     {
