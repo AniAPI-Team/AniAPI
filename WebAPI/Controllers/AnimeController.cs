@@ -8,7 +8,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using WebAPI.Models;
+using Models;
 
 namespace WebAPI.Controllers
 {
@@ -30,7 +30,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">The anime id</param>
         [HttpGet("{id}"), MapToApiVersion("1")]
-        public JsonResult GetOne(long id)
+        public Anime GetOne(long id)
         {
             try
             {
@@ -42,17 +42,19 @@ namespace WebAPI.Controllers
                         $"Anime with id {id} does not exists");
                 }
 
-                return ApiResponse.Success(HttpStatusCode.OK, anime);
+                return anime;
             }
             catch (ApiException ex)
             {
                 this._logger.LogError(ex.Message);
-                return ApiResponse.Error(ex);
+                //return ApiResponse.Error(ex);
+                return null;
             }
             catch (Exception ex)
             {
                 this._logger.LogError(ex.Message);
-                return ApiResponse.Error(ex);
+                //return ApiResponse.Error(ex);
+                return null;
             }
         }
 

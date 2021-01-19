@@ -1,0 +1,61 @@
+﻿@page "/AnimeDetail"
+@using Models;
+@inject IJSRuntime JS;
+
+@code {
+    [Parameter] public Anime Anime_Detail { get; set; }
+    string url = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        url = "https://work.streamingaw.online/DDL/ANIME/ShingekiNoKyojin4/ShingekiNoKyojin4_Ep_01_SUB_ITA.mp4";
+        //await JS.InvokeAsync<string>("SetVars");
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeAsync<string>("InitVideoVariables");
+        }
+    }
+}
+
+
+<h1>Pagina Dettaglio Anime</h1>
+
+@* TODO - MODIFICA - CONTENITORE TEMPORANEO*@
+<div class="container">
+    <VideoPlayer url="@url" />
+</div>
+
+@* TODO - MODIFICA - CONTENITORE TEMPORANEO*@
+<style>
+    :root {
+        --youtube-red: #FE0900;
+    }
+
+    html {
+        box-sizing: border-box;
+        font-family: "YouTube Noto",Roboto,Arial,Helvetica,sans-serif;
+        height: 100%;
+    }
+
+    *, *::before, *::after {
+        box-sizing: inherit;
+        margin: 0;
+        padding: 0;
+    }
+
+    body {
+        height: 100%;
+    }
+
+    .container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+</style>
