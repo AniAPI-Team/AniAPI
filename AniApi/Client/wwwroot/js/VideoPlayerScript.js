@@ -1,4 +1,4 @@
-﻿// Select elements here
+﻿//Definition vars
 var video;
 var videoControls;
 var playButton;
@@ -20,15 +20,10 @@ var fullscreenButton;
 var videoContainer;
 var fullscreenIcons;
 var pipButton;
-
-var videoWorks; // = !!document.createElement('video').canPlayType;
-//if (videoWorks) {
-//  video.controls = false;
-//  videoControls.classList.remove('hidden');
-//}
+var videoWorks;
 
 // Init Variabili
-function InitVideoVariables() {
+function initVideoVariables() {
     video = document.querySelectorAll('.video')[0];
     videoControls = document.querySelectorAll('.video-controls')[0];
     playButton = document.querySelectorAll('.play')[0];
@@ -52,11 +47,10 @@ function InitVideoVariables() {
     pipButton = document.getElementById('pip-button');
     videoWorks = !!document.createElement('video').canPlayType;
 
-    // Add eventlisteners here
+    // Add eventlisteners
     playButton.addEventListener('click', togglePlay);
     video.addEventListener('play', updatePlayButton);
     video.addEventListener('pause', updatePlayButton);
-    video.addEventListener('loadedmetadata', initializeVideo);
     video.addEventListener('timeupdate', updateTimeElapsed);
     video.addEventListener('timeupdate', updateProgress);
     video.addEventListener('volumechange', updateVolumeIcon);
@@ -72,11 +66,34 @@ function InitVideoVariables() {
     volumeButton.addEventListener('click', toggleMute);
     fullscreenButton.addEventListener('click', toggleFullScreen);
     pipButton.addEventListener('click', togglePip);
+    document.addEventListener('keyup', keyboardShortcuts);
+
+    //Initialize Video Player
+    video.addEventListener('loadedmetadata', initializeVideo);
 
     if (videoWorks) {
         video.controls = false;
         videoControls.classList.remove('hidden');
     }
+
+    if (!('pictureInPictureEnabled' in document)) {
+        pipButton.classList.add('hidden');
+    }
+}
+
+// initializeVideo sets the video duration, and maximum value of the
+// progressBar
+function initializeVideo() {
+  const videoDuration = Math.round(video.duration);
+  
+  if (isNaN(videoDuration))
+	  return;
+  
+  seek.setAttribute('max', videoDuration);
+  progressBar.setAttribute('max', videoDuration);
+  const time = formatTime(videoDuration);
+  duration.innerText = `${time.minutes}:${time.seconds}`;
+  duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
 }
 
 // togglePlay toggles the playback state of the video.
@@ -114,22 +131,6 @@ function formatTime(timeInSeconds) {
     minutes: result.substr(3, 2),
     seconds: result.substr(6, 2),
   };
-}
-
-// initializeVideo sets the video duration, and maximum value of the
-// progressBar
-function initializeVideo() {
-  SetVars();
-  const videoDuration = Math.round(video.duration);
-  
-  if (isNaN(videoDuration))
-	  return;
-  
-  seek.setAttribute('max', videoDuration);
-  progressBar.setAttribute('max', videoDuration);
-  const time = formatTime(videoDuration);
-  duration.innerText = `${time.minutes}:${time.seconds}`;
-  duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
 }
 
 // updateTimeElapsed indicates how far through the video
@@ -337,37 +338,7 @@ function keyboardShortcuts(event) {
   }
 }
 
-//// Add eventlisteners here
-//playButton.addEventListener('click', togglePlay);
-//video.addEventListener('play', updatePlayButton);
-//video.addEventListener('pause', updatePlayButton);
-//video.addEventListener('loadedmetadata', initializeVideo);
-//video.addEventListener('timeupdate', updateTimeElapsed);
-//video.addEventListener('timeupdate', updateProgress);
-//video.addEventListener('volumechange', updateVolumeIcon);
-//video.addEventListener('click', togglePlay);
-//video.addEventListener('click', animatePlayback);
-//video.addEventListener('mouseenter', showControls);
-//video.addEventListener('mouseleave', hideControls);
-//videoControls.addEventListener('mouseenter', showControls);
-//videoControls.addEventListener('mouseleave', hideControls);
-//seek.addEventListener('mousemove', updateSeekTooltip);
-//seek.addEventListener('input', skipAhead);
-//volume.addEventListener('input', updateVolume);
-//volumeButton.addEventListener('click', toggleMute);
-//fullscreenButton.addEventListener('click', toggleFullScreen);
-//pipButton.addEventListener('click', togglePip);
-
-document.addEventListener('DOMContentLoaded', () => {
-  if (!('pictureInPictureEnabled' in document)) {
-    pipButton.classList.add('hidden');
-  }
-});
-document.addEventListener('keyup', keyboardShortcuts);
-
-
 // Gestione SLIDE Prossimo Episodio
-
 const nextEpisodeWrapper = document.getElementById('nextEpisodeCountDown');
 const nextEpisodeDuration = 5;
 var nextEpisodeTimer;
@@ -387,7 +358,7 @@ function nextEpisodeStart() {
 	nextEpisodeWrapper.classList.remove("hide");
 	nextEpisodeWrapper.querySelectorAll('.slide')[0].classList.add("slideAnimation");
 }
- function nextEpisodeUpdate() {
+function nextEpisodeUpdate() {
   
   if (secs < 1)
   {

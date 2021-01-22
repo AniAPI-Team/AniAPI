@@ -1,23 +1,45 @@
-﻿@page "/AnimeDetail"
-@using Models;
+﻿@page "/AnimeDetail/{AnimeID}"
+@page "/AnimeDetail/{AnimeID}/Episodio/{NumeroEpisodio}"
+
 @inject IJSRuntime JS;
+@inject UIConfigurations uiConfigs
+@inject HttpClient client
+@inject NavigationManager navigationManager
+
+@using Models;
+
 
 @code {
-    [Parameter] public Anime Anime_Detail { get; set; }
-    string url = "";
+    [Parameter] public int AnimeID { get; set; }
+    [Parameter] public int? NumeroEpisodio { get; set; }
+    Anime anime = null;
+    AnimeEpisodi listEpisodi = null;
+    Episodio episodioAttuale = null;
 
     protected override async Task OnInitializedAsync()
     {
-        url = "https://work.streamingaw.online/DDL/ANIME/ShingekiNoKyojin4/ShingekiNoKyojin4_Ep_01_SUB_ITA.mp4";
-        //await JS.InvokeAsync<string>("SetVars");
+        if (AnimeID == 0)
+            navigationManager.NavigateTo("/");
+
+        //HttpRequestMessage response = await client.GetAsync(client.BaseAddress + "anime/" + AnimeID);
+        //anime = JsonConvert.DeserializeObject<Anime>(response.Content.ReadAsStringAsync());
+
+        anime = await client.GetFromJsonAsync<Anime>("/api/v1/anime/" + AnimeID);
+
+        listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
+        episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).FirstOrDefault();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await JS.InvokeAsync<string>("InitVideoVariables");
+            //Initialize Video Player
+            //await JS.InvokeAsync<string>("initVideoVariables");
         }
+
+        if (uiConfigs.UseCustomVideoPlayer)
+            await JS.InvokeAsync<string>("initVideoVariables");
     }
 }
 
@@ -25,9 +47,20 @@
 <h1>Pagina Dettaglio Anime</h1>
 
 @* TODO - MODIFICA - CONTENITORE TEMPORANEO*@
-<div class="container">
-    <VideoPlayer url="@url" />
-</div>
+@if (uiConfigs.UseCustomVideoPlayer)
+{
+    <div class="container">
+        <VideoPlayer url="@episodioAttuale.Url" />
+    </div>
+}
+else
+{
+    <div class="container">
+        <video class="video" preload="metadata" controls>
+            <source src="@episodioAttuale.Url" type="video/mp4" />
+        </video>
+    </div>
+}
 
 @* TODO - MODIFICA - CONTENITORE TEMPORANEO*@
 <style>
