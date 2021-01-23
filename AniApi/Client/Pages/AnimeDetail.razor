@@ -1,5 +1,5 @@
-﻿@page "/AnimeDetail/{AnimeID}"
-@page "/AnimeDetail/{AnimeID}/Episodio/{NumeroEpisodio}"
+﻿@page "/AnimeDetail/{AnimeID:int}"
+@page "/AnimeDetail/{AnimeID:int}/Episodio/{NumeroEpisodio:int}"
 
 @inject IJSRuntime JS;
 @inject UIConfigurations uiConfigs
@@ -11,22 +11,32 @@
 
 @code {
     [Parameter] public int AnimeID { get; set; }
-    [Parameter] public int? NumeroEpisodio { get; set; }
+    [Parameter] public int NumeroEpisodio { get; set; }
+
+    string url = "https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_934_SUB_ITA.mp4";
+
     Anime anime = null;
     AnimeEpisodi listEpisodi = null;
     Episodio episodioAttuale = null;
-    List<Episodio> episodiAlternativi = null; //Da usare?
+    //List<Episodio> episodiAlternativi = null; //Da usare?
 
     protected override async Task OnInitializedAsync()
     {
-        if (AnimeID == 0)
-            navigationManager.NavigateTo("/");
 
-        anime = await client.GetFromJsonAsync<Anime>("/api/v1/anime/" + AnimeID);
+        string x = "Pippo";
+        //if (AnimeID.HasValue)
+        //    navigationManager.NavigateTo("/");
 
-        listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
-        episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).FirstOrDefault();
-        episodiAlternativi = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).Where(ep => ep != episodioAttuale).ToList();
+        //anime = await client.GetFromJsonAsync<Anime>("/api/v1/anime/" + AnimeID);
+
+        //if (anime == null)
+        //{
+        //    navigationManager.NavigateTo("/");
+        //}
+
+        //listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
+        //episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).FirstOrDefault();
+        ////episodiAlternativi = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).Where(ep => ep != episodioAttuale).ToList();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -46,20 +56,20 @@
 <h1>Pagina Dettaglio Anime</h1>
 
 @* TODO - MODIFICA - CONTENITORE TEMPORANEO*@
-@if (uiConfigs.UseCustomVideoPlayer)
-{
-    <div class="container">
-        <VideoPlayer url="@episodioAttuale.Url" />
-    </div>
-}
-else
-{
-    <div class="container">
-        <video class="video" preload="metadata" controls>
-            <source src="@episodioAttuale.Url" type="video/mp4" />
-        </video>
-    </div>
-}
+@*@if (uiConfigs.UseCustomVideoPlayer)
+    {*@
+<div class="container">
+    <VideoPlayer url="@url" />
+</div>
+@*}
+    else
+    {
+        <div class="container">
+            <video class="video" preload="metadata" controls>
+                <source src="@episodioAttuale.Url" type="video/mp4" />
+            </video>
+        </div>
+    }*@
 
 @* TODO - MODIFICA - CONTENITORE TEMPORANEO*@
 <style>

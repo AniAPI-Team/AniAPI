@@ -22,6 +22,16 @@ var fullscreenIcons;
 var pipButton;
 var videoWorks;
 
+
+var nextEpisodeWrapper;
+var nextEpisodeDuration;
+var nextEpisodeTimer;
+var nextEpisodeTimeLeft;
+var nextEpisodeStarted;
+var secs;
+
+
+
 // Init Variabili
 function initVideoVariables() {
     video = document.querySelectorAll('.video')[0];
@@ -46,6 +56,15 @@ function initVideoVariables() {
     fullscreenIcons = document.querySelectorAll('.video-container i');
     pipButton = document.getElementById('pip-button');
     videoWorks = !!document.createElement('video').canPlayType;
+
+
+    nextEpisodeWrapper = document.getElementById('nextEpisodeCountDown');
+    nextEpisodeDuration = 5;
+    nextEpisodeTimeLeft = document.getElementById("nextEpisodeTimeLeft");
+    nextEpisodeStarted = false;
+    secs = nextEpisodeDuration;
+
+
 
     // Add eventlisteners
     playButton.addEventListener('click', togglePlay);
@@ -315,7 +334,7 @@ function showControls() {
 function keyboardShortcuts(event) {
   const { key } = event;
   switch (key) {
-    case 'k':
+    case ' ': //Spacebar
       togglePlay();
       animatePlayback();
       if (video.paused) {
@@ -334,17 +353,20 @@ function keyboardShortcuts(event) {
       break;
     case 'p':
       togglePip();
-      break;
+          break;
+    case 'Arrow':
+        togglePip();
+        break;
   }
 }
 
-// Gestione SLIDE Prossimo Episodio
-const nextEpisodeWrapper = document.getElementById('nextEpisodeCountDown');
-const nextEpisodeDuration = 5;
-var nextEpisodeTimer;
-var nextEpisodeTimeLeft = document.getElementById("nextEpisodeTimeLeft");
-var nextEpisodeStarted = false;
-var secs = nextEpisodeDuration;
+//// Gestione SLIDE Prossimo Episodio
+//const nextEpisodeWrapper = document.getElementById('nextEpisodeCountDown');
+//const nextEpisodeDuration = 5;
+//var nextEpisodeTimer;
+//var nextEpisodeTimeLeft = document.getElementById("nextEpisodeTimeLeft");
+//var nextEpisodeStarted = false;
+//var secs = nextEpisodeDuration;
 
 
 function nextEpisodeStart() {
