@@ -15,19 +15,18 @@
     Anime anime = null;
     AnimeEpisodi listEpisodi = null;
     Episodio episodioAttuale = null;
+    List<Episodio> episodiAlternativi = null; //Da usare?
 
     protected override async Task OnInitializedAsync()
     {
         if (AnimeID == 0)
             navigationManager.NavigateTo("/");
 
-        //HttpRequestMessage response = await client.GetAsync(client.BaseAddress + "anime/" + AnimeID);
-        //anime = JsonConvert.DeserializeObject<Anime>(response.Content.ReadAsStringAsync());
-
         anime = await client.GetFromJsonAsync<Anime>("/api/v1/anime/" + AnimeID);
 
         listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
         episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).FirstOrDefault();
+        episodiAlternativi = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).Where(ep => ep != episodioAttuale).ToList();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
