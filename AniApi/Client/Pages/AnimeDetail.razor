@@ -22,8 +22,10 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (NumeroEpisodio != 0)
+            url = string.Format("https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_{0}_SUB_ITA.mp4", NumeroEpisodio);
 
-        string x = "Pippo";
+
         //if (AnimeID.HasValue)
         //    navigationManager.NavigateTo("/");
 
@@ -47,8 +49,11 @@
             //await JS.InvokeAsync<string>("initVideoVariables");
         }
 
-        if (uiConfigs.UseCustomVideoPlayer)
-            await JS.InvokeAsync<string>("initVideoVariables");
+
+        //if (uiConfigs.UseCustomVideoPlayer)
+        //{
+        await JS.InvokeAsync<string>("initVideoVariables");
+        //}
     }
 }
 
