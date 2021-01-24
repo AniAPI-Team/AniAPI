@@ -133,9 +133,9 @@ function updatePlayButton() {
     playbackIcons.forEach((icon) => icon.classList.toggle('hidden'));
 
     if (video.paused) {
-        playButton.setAttribute('data-title', 'Play (k)');
+        playButton.setAttribute('data-title', 'Play (spacebar)');
     } else {
-        playButton.setAttribute('data-title', 'Pause (k)');
+        playButton.setAttribute('data-title', 'Pause (spacebar)');
     }
 }
 
@@ -220,11 +220,11 @@ function updateVolumeIcon() {
         icon.classList.add('hidden');
     });
 
-    volumeButton.setAttribute('data-title', 'Mute (m)');
+    volumeButton.setAttribute('data-title', 'Mute (M)');
 
     if (video.muted || video.volume === 0) {
         volumeMute.classList.remove('hidden');
-        volumeButton.setAttribute('data-title', 'Unmute (m)');
+        volumeButton.setAttribute('data-title', 'Unmute (M)');
     } else if (video.volume > 0 && video.volume <= 0.3) {
         volumeLow.classList.remove('hidden');
     } else if (video.volume > 0.3 && video.volume <= 0.6) {
@@ -294,9 +294,9 @@ function updateFullscreenButton() {
     fullscreenIcons.forEach((icon) => icon.classList.toggle('hidden'));
 
     if (document.fullscreenElement) {
-        fullscreenButton.setAttribute('data-title', 'Exit full screen (f)');
+        fullscreenButton.setAttribute('data-title', 'Exit full screen (F)');
     } else {
-        fullscreenButton.setAttribute('data-title', 'Full screen (f)');
+        fullscreenButton.setAttribute('data-title', 'Full screen (F)');
     }
 }
 
