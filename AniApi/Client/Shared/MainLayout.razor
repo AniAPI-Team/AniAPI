@@ -1,8 +1,13 @@
 ﻿@inherits LayoutComponentBase
+@using Models
+@inject ThemeManager theme
 
-@*<div class="sidebar">
-    <NavMenu />
-</div>*@
+<head>
+    @if (theme.isDarkTheme)
+    {
+        <link href="css/DarkTheme.css" rel="stylesheet" />
+    }
+</head>
 
 <div class="main">
     <div class="top-row px-4">
