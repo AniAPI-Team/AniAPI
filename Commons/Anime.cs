@@ -1,11 +1,11 @@
 ﻿using Commons.Collections;
 using Commons.Filters;
-using MongoDB.Bson.Serialization.Attributes;
 using MongoService;
 using System;
 using System.Collections.Generic;
-using System.Text.Json.Serialization;
 using Commons.Enums;
+using MongoDB.Bson.Serialization.Attributes;
+using System.Text.Json.Serialization;
 
 namespace Commons
 {
