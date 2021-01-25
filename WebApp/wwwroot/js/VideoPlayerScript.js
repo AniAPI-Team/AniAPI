@@ -30,7 +30,10 @@ var nextEpisodeTimeLeft;
 var nextEpisodeStarted;
 var secs;
 
-
+function ScroolToVideo() {
+    if(video)
+        video.scrollIntoView({ behavior: 'smooth' });
+}
 
 // Init Variabili
 function initVideoVariables() {
@@ -64,7 +67,8 @@ function initVideoVariables() {
     nextEpisodeStarted = false;
     secs = nextEpisodeDuration;
 
-
+    if (!playButton)
+        return;
 
     // Add eventlisteners
     playButton.addEventListener('click', togglePlay);

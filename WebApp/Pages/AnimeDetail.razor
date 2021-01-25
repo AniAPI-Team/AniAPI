@@ -84,7 +84,12 @@
 
         if (firstRender)
         {
+
         }
+
+        await JS.InvokeVoidAsync("initVideoVariables");
+        if (NumeroEpisodio != null && NumeroEpisodio.HasValue)
+            JS.InvokeVoidAsync("ScroolToVideo").AsTask().Start();
     }
 
     protected override bool ShouldRender()
@@ -182,15 +187,18 @@ else
                     </div>
                 </div>
                 <div class="media">
+                    <div class="VideoTitle">@(NumeroEpisodio != null && NumeroEpisodio.HasValue ? ("Episodio: " + NumeroEpisodio.Value.ToString()) : "Trailer")</div>
+
                     @*<div class="video">
-                            <iframe src="https://www.youtube.com/embed/fJm2nD3cv_4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>*@
+            <iframe src="https://www.youtube.com/embed/fJm2nD3cv_4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        </div>*@
                     <VideoPlayer url="@url" />
                     <div class="episodes">
                         @for (int i = 1; i <= anime.EpisodesCount; i++)
                         {
+                            <a href="/AnimeDetail/@AnimeID/Episodio/@i"><div class="episode @(NumeroEpisodio!= null && NumeroEpisodio.HasValue && NumeroEpisodio.Value == i ? "active" : "" )">@i</div></a>
                             @*<div class="episode @(NumeroEpisodio!= null && NumeroEpisodio.HasValue && NumeroEpisodio.Value == i ? "active" : "" )"><a href="/AnimeDetail/@AnimeID/Episodio/@i">@i</a></div>*@
-                            <div class="episode @(NumeroEpisodio!= null && NumeroEpisodio.HasValue && NumeroEpisodio.Value == i ? "active" : "" )">@i</div>
+                            @*<div class="episode @(NumeroEpisodio!= null && NumeroEpisodio.HasValue && NumeroEpisodio.Value == i ? "active" : "" )">@i</div>*@
                         }
                     </div>
                 </div>

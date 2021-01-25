@@ -377,17 +377,17 @@ body .material-icons {
     width: 60px;
     height: 24px;
     text-align: center;
-    padding-top: 6px;
+    padding-top: 3px;
+    padding-bottom: 3px;
 }
 
-.dock .media .episodes .episode a {
-    color: unset;
+.dock .media .episodes a {
     text-decoration: none;
+    color: unset;
 }
 
-.dock .media .episodes .episode:not(:last-child) {
-    margin-right: 9px;
-    margin-bottom: 6px;
+.dock .media .episodes .episode {
+    margin: 3px;
 }
 
 .dock .media .episodes .episode:hover,
