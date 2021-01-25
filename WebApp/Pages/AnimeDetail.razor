@@ -1,0 +1,201 @@
+﻿@page "/AnimeDetail/{AnimeID:int}"
+@page "/AnimeDetail/{AnimeID:int}/Episodio/{NumeroEpisodio:int}"
+
+@inject IJSRuntime JS;
+@inject UIConfiguration config;
+@inject HttpClient client;
+@inject NavigationManager navigationManager;
+@inject Generic generic;
+
+@using Commons;
+@using Commons.Enums;
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+
+
+@code {
+    [Parameter] public int AnimeID { get; set; }
+    [Parameter] public int? NumeroEpisodio { get; set; }
+
+    string url = "";
+
+    Anime anime;
+    Anime prequel;
+    Anime sequel;
+    AnimeEpisodi listEpisodi = null;
+    Episodio episodioAttuale = null;
+    //List<Episodio> episodiAlternativi = null; //Da usare?
+
+    protected override async Task OnInitializedAsync()
+    {
+        APIResponse ApiResponse = new APIResponse();
+        url = "https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_934_SUB_ITA.mp4";
+
+        if (NumeroEpisodio != null && NumeroEpisodio.HasValue)
+            url = string.Format("https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_{0}_SUB_ITA.mp4", NumeroEpisodio);
+
+        try
+        {
+            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + AnimeID, jso);
+            ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Generic Exception Catch: {ex.Message}");
+            navigationManager.NavigateTo("/");
+            return;
+        }
+
+        if (ApiResponse.statusCode != System.Net.HttpStatusCode.OK)
+        {
+            navigationManager.NavigateTo("/");
+            return;
+        }
+
+        anime = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
+
+
+        if (anime.Prequel != null && anime.Prequel.HasValue)
+        {
+            ApiResponse = null;
+            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Prequel);
+            ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+            if (ApiResponse.statusCode == System.Net.HttpStatusCode.OK)
+                prequel = (Anime)ApiResponse.result; ;
+        }
+
+        if (anime.Sequel != null && anime.Sequel.HasValue)
+        {
+            ApiResponse = null;
+            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Sequel);
+            ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+            if (ApiResponse.statusCode == System.Net.HttpStatusCode.OK)
+                sequel = (Anime)ApiResponse.result; ;
+        }
+
+        ////TODO - Estrarre Episodi Anime
+        //listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
+        //episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).FirstOrDefault();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        await base.OnAfterRenderAsync(firstRender);
+
+        if (firstRender)
+        {
+        }
+    }
+
+    protected override bool ShouldRender()
+    {
+        return base.ShouldRender();
+    }
+}
+@if (anime == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    <div class="content">
+        <div class="section no-p">
+            <div class="banner" style=" background-image: url(@anime.BannerImage);"></div>
+        </div>
+        <div class="section no-p">
+            <div class="container">
+                <div class="heading">
+                    <div class="cover" style=" background-image: url(@anime.CoverImage);"></div>
+                    <div class="head">
+                        <h1 class="title">@anime.Titles[LocalizationEnum.English]</h1>
+                        <p class="desc">
+                            @*The second cour of <i>Shingeki no Kyojin 3</i>.<br>
+                                <br>
+                                The battle to retake Wall Maria begins now! With Eren’s new hardening ability, the Scouts are confident they can seal the wall and take back Shiganshina District. If they succeed, Eren can finally unlock the secrets of the basement—and the world. But danger lies in wait as Reiner, Bertholdt, and the Beast Titan have plans of their own. Could this be humanity’s final battle for survival?<br>
+                                <br>
+                                (Source: Funimation)*@
+                            @anime.Descriptions[LocalizationEnum.English]
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="section main">
+            <div class="container">
+                <div class="siblings">
+                    @if (anime.Prequel != null && anime.Prequel.HasValue && prequel.MyAnimeListId != null)
+                    {
+                        <div class="sibling prequel" style="background-image: url(@prequel.BannerImage);">
+                            <span>Prequel</span>
+                            <h3 class="title">@prequel.Titles[LocalizationEnum.English]</h3>
+                        </div>
+                    }
+
+                    @if (anime.Sequel != null && anime.Sequel.HasValue && sequel.MyAnimeListId != null)
+                    {
+                        <div class="sibling sequel" style="background-image: url(@sequel.BannerImage);">
+                            <span>Sequel</span>
+                            <h3 class="title">@sequel.Titles[LocalizationEnum.English]</h3>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+        <div class="section dock">
+            <div class="container">
+                <div class="info">
+                    <div class="row">
+                        <span>Format</span>@anime.Format
+                    </div>
+                    <div class="row">
+                        <span>Episodes</span>@anime.EpisodesCount
+                    </div>
+                    @if (anime.EpisodeDuration != null && anime.EpisodeDuration.HasValue)
+                    {
+                        <div class="row">
+                            <span>Episode Duration</span>@anime.EpisodeDuration.Value minutes
+                        </div>
+                    }
+                    <div class="row">
+                        <span>Status</span>@anime.Status
+                    </div>
+                    @if (anime.StartDate != null && anime.StartDate.HasValue)
+                    {
+                        <div class="row">
+                            <span>Start Date</span>@anime.StartDate.Value.ToString("MMM dd, yyyy")
+                        </div>
+                    }
+                    @if (anime.EndDate != null && anime.EndDate.HasValue)
+                    {
+                        <div class="row">
+                            <span>End Date</span>@anime.EndDate.Value.ToString("MMM dd, yyyy")
+                        </div>
+                    }
+                    <div class="row">
+                        <span>Season</span>@anime.SeasonPeriod @(anime.SeasonYear!= null && anime.SeasonYear.HasValue ? anime.SeasonYear.Value.ToString() : "")
+                    </div>
+                    <div class="row">
+                        <span>Score</span> @anime.Score.ToString() %
+                    </div>
+                    <div class="row">
+                        <span>Genres</span>@String.Join(", ", anime.Genres.OrderBy(g => g))
+                    </div>
+                </div>
+                <div class="media">
+                    @*<div class="video">
+                            <iframe src="https://www.youtube.com/embed/fJm2nD3cv_4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>*@
+                    <VideoPlayer url="@url" />
+                    <div class="episodes">
+                        @for (int i = 1; i <= anime.EpisodesCount; i++)
+                        {
+                            @*<div class="episode @(NumeroEpisodio!= null && NumeroEpisodio.HasValue && NumeroEpisodio.Value == i ? "active" : "" )"><a href="/AnimeDetail/@AnimeID/Episodio/@i">@i</a></div>*@
+                            <div class="episode @(NumeroEpisodio!= null && NumeroEpisodio.HasValue && NumeroEpisodio.Value == i ? "active" : "" )">@i</div>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+}

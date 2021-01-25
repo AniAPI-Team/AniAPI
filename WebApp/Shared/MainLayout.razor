@@ -1,0 +1,19 @@
+﻿@inherits LayoutComponentBase
+@using Commons
+@inject UIConfiguration theme
+
+<head>
+    @if (theme.UseDarkTheme)
+    {
+        <link href="css/default.darktheme.css" rel="stylesheet" />
+    }
+</head>
+
+<div class="layout">
+
+    <NavMenu></NavMenu>
+
+    <div class="content px-4">
+        @Body
+    </div>
+</div>

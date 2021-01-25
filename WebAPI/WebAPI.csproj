@@ -18,7 +18,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\AniApi\Shared\AniApi.Shared.csproj" />
+    <ProjectReference Include="..\Commons\Commons.csproj" />
   </ItemGroup>
 
 </Project>
