@@ -1,5 +1,49 @@
-﻿@code{
-    [Parameter] public string url { get; set; }
+﻿@inject IJSRuntime JS;
+
+@using System.Text.Json;
+@using System.Text.Json.Serialization;
+
+@code{
+    [Parameter] public AnimeEpisodi listEpisodi { get; set; }
+    [Parameter] public int? NumeroEpisodio { get; set; }
+
+    private Episodio episodioAttuale;
+    private bool autoplay = false;
+    private string ProssimoVideoUrl;
+
+    protected override void OnParametersSet()
+    {
+        if (listEpisodi == null)
+            return;
+
+        if (NumeroEpisodio == null)
+            NumeroEpisodio = 1;
+
+        episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == NumeroEpisodio.Value).FirstOrDefault();
+
+        autoplay = true;
+
+        StateHasChanged();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        //if (!firstRender)
+        //{
+        await JS.InvokeVoidAsync("initVideoVariables");
+        //}
+
+        if (autoplay)
+        {
+            await JS.InvokeVoidAsync("ScroolToVideo");
+            Console.WriteLine($"AvviaVideo URL: {episodioAttuale.Url}");
+            await JS.InvokeVoidAsync("AvviaVideo", episodioAttuale.Url);
+        }
+
+        await base.OnAfterRenderAsync(firstRender);
+
+        autoplay = false;
+    }
 }
 
 <div class="video-container">
@@ -9,7 +53,7 @@
     </div>
 
     <video class="video" preload="metadata">
-        <source src="@url" type="video/mp4" />
+        <source src="@episodioAttuale.Url" type="video/mp4" />
     </video>
 
     <div class="video-controls hidden">

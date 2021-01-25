@@ -2,10 +2,8 @@
 @page "/AnimeDetail/{AnimeID:int}/Episodio/{NumeroEpisodio:int}"
 
 @inject IJSRuntime JS;
-@inject UIConfiguration config;
 @inject HttpClient client;
 @inject NavigationManager navigationManager;
-@inject Generic generic;
 
 @using Commons;
 @using Commons.Enums;
@@ -15,86 +13,134 @@
 
 @code {
     [Parameter] public int AnimeID { get; set; }
-    [Parameter] public int? NumeroEpisodio { get; set; }
+    [Parameter] public int? NumeroEpisodio { get; set; } = -1;
 
-    string url = "";
+    private VideoPlayer vp = new VideoPlayer();
 
     Anime anime;
     Anime prequel;
     Anime sequel;
-    AnimeEpisodi listEpisodi = null;
-    Episodio episodioAttuale = null;
-    //List<Episodio> episodiAlternativi = null; //Da usare?
+    AnimeEpisodi listEpisodi = new AnimeEpisodi();
+
+    protected override void OnParametersSet()
+    {
+        if (NumeroEpisodio != null && NumeroEpisodio.HasValue)
+        {
+            vp.NumeroEpisodio = NumeroEpisodio;
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
         APIResponse ApiResponse = new APIResponse();
-        url = "https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_934_SUB_ITA.mp4";
+        //url = "https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_934_SUB_ITA.mp4";
 
-        if (NumeroEpisodio != null && NumeroEpisodio.HasValue)
-            url = string.Format("https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_{0}_SUB_ITA.mp4", NumeroEpisodio);
+        //if (NumeroEpisodio != null && NumeroEpisodio.HasValue)
+        //{
+        //    Console.WriteLine($"NumeroEpisodio: {NumeroEpisodio.Value}");
+        //    url = $"https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_{NumeroEpisodio.Value}_SUB_ITA.mp4";
+        //    StateHasChanged();
+        //}
 
-        try
-        {
-            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + AnimeID, jso);
-            ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"Generic Exception Catch: {ex.Message}");
-            navigationManager.NavigateTo("/");
-            return;
-        }
+        ApiResponse = GetAnime();
 
-        if (ApiResponse.statusCode != System.Net.HttpStatusCode.OK)
-        {
-            navigationManager.NavigateTo("/");
-            return;
-        }
+        //try
+        //{
+        //    //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + AnimeID, jso);
+        //    ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+        //}
+        //catch (Exception ex)
+        //{
+        //    Console.WriteLine($"Generic Exception Catch: {ex.Message}");
+        //    navigationManager.NavigateTo("/");
+        //    return;
+        //}
 
-        anime = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
+        //if (ApiResponse.statusCode != System.Net.HttpStatusCode.OK)
+        //{
+        //    navigationManager.NavigateTo("/");
+        //    return;
+        //}
 
+        //anime = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
+        anime = (Anime)ApiResponse.result;
 
         if (anime.Prequel != null && anime.Prequel.HasValue)
         {
             ApiResponse = null;
             //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Prequel);
-            ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+            ApiResponse = GetAnime();
             if (ApiResponse.statusCode == System.Net.HttpStatusCode.OK)
-                prequel = (Anime)ApiResponse.result; ;
+                //prequel = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
+                prequel = (Anime)ApiResponse.result;
         }
 
         if (anime.Sequel != null && anime.Sequel.HasValue)
         {
             ApiResponse = null;
             //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Sequel);
-            ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+            ApiResponse = GetAnime();
             if (ApiResponse.statusCode == System.Net.HttpStatusCode.OK)
-                sequel = (Anime)ApiResponse.result; ;
+                //sequel = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
+                sequel = (Anime)ApiResponse.result;
         }
 
-        ////TODO - Estrarre Episodi Anime
-        //listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
-        //episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).FirstOrDefault();
+        //////TODO - Estrarre Episodi Anime
+        ////listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
+        listEpisodi = GetAnimeEpisodi();
+        ////episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).FirstOrDefault();
     }
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
+    private APIResponse GetAnime()
     {
-        await base.OnAfterRenderAsync(firstRender);
+        Anime animeMK = new Anime();
+        animeMK.Format = AnimeFormatEnum.TV;
+        animeMK.EpisodesCount = 35;
+        animeMK.EpisodeDuration = 23;
+        animeMK.Status = AnimeStatusEnum.FINISHED;
+        animeMK.StartDate = DateTime.Now;
+        animeMK.SeasonPeriod = AnimeSeasonEnum.SUMMER;
+        animeMK.SeasonYear = 2018;
+        animeMK.Score = 79;
+        animeMK.Genres = new List<string>() { "Action", "Drama", "Fantasy", "Mystery", "che ne so!!" };
+        animeMK.CoverImage = "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx104578-LaZYFkmhinfB.jpg";
+        animeMK.BannerImage = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/104578-z7SadpYEuAsy.jpg";
+        animeMK.Prequel = 2;
+        animeMK.TrailerUrl = "https://www.animeunityserver75.cloud/DDL/Anime/OnePieceITA/OnePiece_Ep_001_ITA.mp4";
 
-        if (firstRender)
+
+        animeMK.Titles = new Dictionary<string, string>();
+        animeMK.Titles.Add(LocalizationEnum.English, "Shingeki no Kyojin 3 Part 2");
+
+        animeMK.Descriptions = new Dictionary<string, string>();
+        animeMK.Descriptions.Add(LocalizationEnum.English, "The second cour of <i>Shingeki no Kyojin 3</i>.<br><br>The battle to retake Wall Maria begins now! With Eren’s new hardening ability, the Scouts are confident they can seal the wall and take back Shiganshina District. If they succeed, Eren can finally unlock the secrets of the basement—and the world. But danger lies in wait as Reiner, Bertholdt, and the Beast Titan have plans of their own. Could this be humanity’s final battle for survival?<br><br>(Source: Funimation)");
+
+
+        APIResponse response = new APIResponse();
+
+        response.statusCode = System.Net.HttpStatusCode.OK;
+        response.message = null;
+        response.result = animeMK;
+        response.apiVersion = "1.0.1.0";
+
+        return response;
+    }
+
+    private AnimeEpisodi GetAnimeEpisodi()
+    {
+        AnimeEpisodi listEp = new AnimeEpisodi();
+        listEp.Episodi = new List<Episodio>();
+        @for (int i = 1; i <= anime.EpisodesCount; i++)
         {
-
+            string fmt = "000";
+            string urlEp = $"https://www.animeunityserver75.cloud/DDL/Anime/OnePieceITA/OnePiece_Ep_{i.ToString(fmt)}_ITA.mp4";
+            Episodio ep = new Episodio() { NumeroEpisodio = i, Url = urlEp, Sorgente = "animeunity" };
+            listEp.Episodi.Add(ep);
         }
 
-        await JS.InvokeVoidAsync("initVideoVariables");
-        if (NumeroEpisodio != null && NumeroEpisodio.HasValue)
-            JS.InvokeVoidAsync("ScroolToVideo").AsTask().Start();
-    }
-
-    protected override bool ShouldRender()
-    {
-        return base.ShouldRender();
+        return listEp;
     }
 }
 @if (anime == null)
@@ -114,12 +160,7 @@ else
                     <div class="head">
                         <h1 class="title">@anime.Titles[LocalizationEnum.English]</h1>
                         <p class="desc">
-                            @*The second cour of <i>Shingeki no Kyojin 3</i>.<br>
-                                <br>
-                                The battle to retake Wall Maria begins now! With Eren’s new hardening ability, the Scouts are confident they can seal the wall and take back Shiganshina District. If they succeed, Eren can finally unlock the secrets of the basement—and the world. But danger lies in wait as Reiner, Bertholdt, and the Beast Titan have plans of their own. Could this be humanity’s final battle for survival?<br>
-                                <br>
-                                (Source: Funimation)*@
-                            @anime.Descriptions[LocalizationEnum.English]
+                            @((MarkupString)anime.Descriptions[LocalizationEnum.English]))
                         </p>
                     </div>
                 </div>
@@ -190,9 +231,9 @@ else
                     <div class="VideoTitle">@(NumeroEpisodio != null && NumeroEpisodio.HasValue ? ("Episodio: " + NumeroEpisodio.Value.ToString()) : "Trailer")</div>
 
                     @*<div class="video">
-            <iframe src="https://www.youtube.com/embed/fJm2nD3cv_4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>*@
-                    <VideoPlayer url="@url" />
+                            <iframe src="https://www.youtube.com/embed/fJm2nD3cv_4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>*@
+                    <VideoPlayer @ref="vp" listEpisodi="@listEpisodi" NumeroEpisodio="@NumeroEpisodio" />
                     <div class="episodes">
                         @for (int i = 1; i <= anime.EpisodesCount; i++)
                         {

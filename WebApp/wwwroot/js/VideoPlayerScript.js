@@ -1,4 +1,25 @@
-﻿//Definition vars
+﻿//window.exampleJsFunctions = {
+//    showPrompt: function (text) {
+//        return prompt(text, 'Type your name here');
+//    },
+//    displayWelcome: function (welcomeMessage) {
+//        document.getElementById('welcome').innerText = welcomeMessage;
+//    },
+//    returnArrayAsyncJs: function () {
+//        DotNet.invokeMethodAsync('BlazorWebAssemblySample', 'ReturnArrayAsync')
+//            .then(data => {
+//                data.push(4);
+//                console.log(data);
+//            });
+//    },
+//    sayHello: function (dotnetHelper) {
+//        return dotnetHelper.invokeMethodAsync('SayHello')
+//            .then(r => console.log(r));
+//    }
+//};
+
+
+//Definition vars
 var video;
 var videoControls;
 var playButton;
@@ -29,10 +50,23 @@ var nextEpisodeTimer;
 var nextEpisodeTimeLeft;
 var nextEpisodeStarted;
 var secs;
+var autoplay;
 
 function ScroolToVideo() {
-    if(video)
+    if (video) {
         video.scrollIntoView({ behavior: 'smooth' });
+    }
+}
+
+async function AvviaVideo(url) {
+    if (video) {
+        video.src = url; //
+        await video.load();
+        autoplay = true;
+        //video.removeEventListener('loadedmetadata');
+        //video.play();
+        //video.addEventListener('loadedmetadata', initializeVideo);
+    }
 }
 
 // Init Variabili
@@ -107,7 +141,7 @@ function initVideoVariables() {
 
 // initializeVideo sets the video duration, and maximum value of the
 // progressBar
-function initializeVideo() {
+async function initializeVideo() {
     const videoDuration = Math.round(video.duration);
 
     if (isNaN(videoDuration))
@@ -118,6 +152,13 @@ function initializeVideo() {
     const time = formatTime(videoDuration);
     duration.innerText = `${time.minutes}:${time.seconds}`;
     duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
+
+    if (autoplay) {
+        await video.play();
+        updatePlayButton();
+    }
+
+    autoplay = false;
 }
 
 // togglePlay toggles the playback state of the video.

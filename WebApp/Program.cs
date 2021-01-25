@@ -20,7 +20,7 @@ namespace WebApp
             string hostName = builder.Configuration["HostName"];
             string protocol = builder.Configuration["Protocol"];
             int port = int.Parse(builder.Configuration["Port"]);
-            builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri($"{protocol}://{hostName}:{port}/") });
+            builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri($"{protocol}://{hostName}:{port}/") });
 
             builder.Services.AddScoped<Generic>();
 
