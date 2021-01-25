@@ -4,6 +4,7 @@ using MongoDB.Bson.Serialization.Attributes;
 using MongoService;
 using System;
 using System.Collections.Generic;
+using System.Text.Json.Serialization;
 
 namespace Models
 {
@@ -50,7 +51,7 @@ namespace Models
             {
                 this.EpisodesCount = media.Episodes.Value;
             }
-            else if(media.Status == AnimeStatusEnum.RELEASING && media.AiringEpisode != null)
+            else if (media.Status == AnimeStatusEnum.RELEASING && media.AiringEpisode != null)
             {
                 this.EpisodesCount = media.AiringEpisode.Episode - 1;
             }
@@ -61,7 +62,7 @@ namespace Models
 
             this.EpisodeDuration = media.Duration;
 
-            if(media.Trailer != null)
+            if (media.Trailer != null)
             {
                 switch (media.Trailer.Site)
                 {
@@ -82,14 +83,14 @@ namespace Models
             this.Genres = media.Genres;
             this.Score = media.AverageScore.HasValue ? media.AverageScore.Value : 0;
 
-            foreach(var edge in media.Relations.Edges)
+            foreach (var edge in media.Relations.Edges)
             {
-                if(edge.Node.Format != "TV")
+                if (edge.Node.Format != "TV")
                 {
                     continue;
                 }
 
-                if(edge.Type == "SEQUEL" || edge.Type == "PREQUEL")
+                if (edge.Type == "SEQUEL" || edge.Type == "PREQUEL")
                 {
                     var query = this._animeCollection.GetList(new AnimeFilter()
                     {
@@ -97,7 +98,7 @@ namespace Models
                         Page = 1
                     });
 
-                    if(query.Count > 0)
+                    if (query.Count > 0)
                     {
                         int id = (int)query.Documents[0].Id;
                         if (edge.Type == "SEQUEL")
@@ -114,63 +115,83 @@ namespace Models
         }
 
         [BsonElement("anilist_id")]
+        [JsonPropertyNameAttribute("Anilistid")]
         public int AnilistId { get; set; }
 
         [BsonElement("mal_id")]
+        [JsonPropertyNameAttribute("MyAnimelistid")]
         public int? MyAnimeListId { get; set; }
 
         [BsonElement("format")]
+        [JsonPropertyNameAttribute("Format")]
         public AnimeFormatEnum Format { get; set; }
 
         [BsonElement("status")]
+        [JsonPropertyNameAttribute("Status")]
         public AnimeStatusEnum Status { get; set; }
 
         [BsonElement("titles")]
+        [JsonPropertyNameAttribute("Titles")]
         public Dictionary<string, string> Titles { get; set; }
 
         [BsonElement("descriptions")]
+        [JsonPropertyNameAttribute("Descriptions")]
         public Dictionary<string, string> Descriptions { get; set; }
 
         [BsonElement("start_date")]
+        [JsonPropertyNameAttribute("Startdate")]
         public DateTime? StartDate { get; set; }
 
         [BsonElement("end_date")]
+        [JsonPropertyNameAttribute("Enddate")]
         public DateTime? EndDate { get; set; }
 
         [BsonElement("season_period")]
+        [JsonPropertyNameAttribute("Seasonperiod")]
         public AnimeSeasonEnum SeasonPeriod { get; set; }
 
         [BsonElement("season_year")]
+        [JsonPropertyNameAttribute("Seasonyear")]
         public int? SeasonYear { get; set; }
 
         [BsonElement("episodes_count")]
+        [JsonPropertyNameAttribute("Episodescount")]
         public int EpisodesCount { get; set; }
 
         [BsonElement("episode_duration")]
+        [JsonPropertyNameAttribute("Episodeduration")]
         public int? EpisodeDuration { get; set; }
 
         [BsonElement("trailer_url")]
+        [JsonPropertyNameAttribute("Trailerurl")]
         public string TrailerUrl { get; set; }
 
         [BsonElement("cover_image")]
+        [JsonPropertyNameAttribute("Coverimage")]
         public string CoverImage { get; set; }
 
         [BsonElement("cover_color")]
+        [JsonPropertyNameAttribute("Covercolor")]
         public string CoverColor { get; set; }
 
         [BsonElement("banner_image")]
+        [JsonPropertyNameAttribute("Bannerimage")]
         public string BannerImage { get; set; }
 
         [BsonElement("genres")]
+        [JsonPropertyNameAttribute("Genres")]
         public List<string> Genres { get; set; }
 
         [BsonElement("sequel")]
+        [JsonPropertyNameAttribute("Sequel")]
         public int? Sequel { get; set; }
 
         [BsonElement("prequel")]
+        [JsonPropertyNameAttribute("Prequel")]
         public int? Prequel { get; set; }
 
         [BsonElement("score")]
+        [JsonPropertyNameAttribute("Score")]
         public int Score { get; set; }
 
     }

@@ -31,6 +31,10 @@ namespace MongoService.Helpers
                 if(this._database == null)
                 {
                     MongoClient client = new MongoClient(this._connectionString);
+#if DEBUG
+                    client.Settings.ConnectTimeout = new TimeSpan(0, 0, 0, 5);
+                    client.Settings.ServerSelectionTimeout = new TimeSpan(0, 0, 0, 5);
+#endif
                     this._database = client.GetDatabase(this._connectionDatabase);
                 }
 

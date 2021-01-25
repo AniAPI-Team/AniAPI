@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.Json;
 using System.Threading.Tasks;
 using WebAPI.Middlewares;
 
@@ -28,9 +29,21 @@ namespace WebAPI
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            // Add Cors
+            services.AddCors(o => o.AddPolicy("MyCorsPolicy", builder =>
+            {
+                builder.AllowAnyOrigin()
+                       .AllowAnyMethod()
+                       .AllowAnyHeader();
+            }));
+
             services.AddMvc(o =>
             {
                 o.UseGeneralRoutePrefix("api/v{version:apiVersion}");
+            }).AddJsonOptions(options => { 
+                options.JsonSerializerOptions.IgnoreNullValues = true;
+                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                //options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
             });
 
             services.AddApiVersioning(o =>
@@ -62,6 +75,10 @@ namespace WebAPI
                 app.UseSwagger();
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPI v1"));
             }
+
+            // Enable Cors
+            app.UseCors("MyCorsPolicy");
+
             app.UseRateLimitMiddleware();
 
             app.UseHttpsRedirection();
