@@ -1,5 +1,5 @@
-﻿using Models;
-using Models.Collections;
+﻿using Commons;
+using Commons.Collections;
 using Newtonsoft.Json;
 using SyncService.Models;
 using System;
@@ -7,6 +7,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
+using Commons.Enums;
 
 namespace SyncService.Services
 {

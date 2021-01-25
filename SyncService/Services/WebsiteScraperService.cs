@@ -1,5 +1,6 @@
 ﻿using AngleSharp;
-using Models;
+using Commons;
+using Commons.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
