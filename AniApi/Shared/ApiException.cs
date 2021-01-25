@@ -4,7 +4,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace WebAPI.Models
+namespace Models
 {
     public class ApiException : Exception
     {

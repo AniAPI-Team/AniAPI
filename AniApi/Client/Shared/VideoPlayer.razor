@@ -1,0 +1,81 @@
+﻿@code{
+    [Parameter] public string url { get; set; }
+}
+
+<div class="video-container">
+    <div class="playback-animation playback-icons">
+        <i class="fas fa-play large white"></i>
+        <i class="fas fa-pause large hidden white"></i>
+    </div>
+
+    <video class="video" preload="metadata">
+        <source src="@url" type="video/mp4" />
+    </video>
+
+    <div class="video-controls hidden">
+        <div class="video-progress">
+            <progress class="progress-bar" value="0" min="0"></progress>
+            <input class="seek" value="0" min="0" type="range" step="1">
+            <div class="seek-tooltip">00:00</div>
+        </div>
+
+        <div class="bottom-controls">
+            <div class="left-controls">
+                <button data-title="Play (spacebar)" class="play playback-icons">
+                    <i class="fas fa-play large white"></i>
+                    <i class="fas fa-pause large hidden white"></i>
+                </button>
+
+                <button data-title="Next (N)" id="next">
+                    <i class="fas fa-step-forward large white"></i>
+                </button>
+
+                <div class="volume-controls">
+                    <button data-title="Mute (M)" class="volume-button" id="volume-button">
+                        <i class="fas fa-volume-mute large hidden white"></i>
+                        <i class="fas fa-volume-down large hidden white"></i>
+                        <i class="fas fa-volume large hidden white"></i>
+                        <i class="fas fa-volume-up large white"></i>
+                    </button>
+
+                    <input class="volume" value="1"
+                           data-mute="0.5" type="range" max="1" min="0" step="0.01">
+                </div>
+
+                <div class="time">
+                    <time id="time-elapsed">00:00</time>
+                    <span> / </span>
+                    <time id="duration">00:00</time>
+                </div>
+            </div>
+
+            <div class="right-controls">
+                <button data-title="PIP (P)" class="pip-button" id="pip-button">
+                    <svg>
+                        <use href="#pip"></use>
+                    </svg>
+                </button>
+                <button data-title="Full screen (F)" class="fullscreen-button">
+                    <i class="fas fa-expand large white"></i>
+                    <i class="fas fa-compress large white hidden"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+@*Slider ultimi 5 secondi*@
+<div id="nextEpisodeCountDown" class="hide nextEpisodeCountDown">
+    <div class="Text">
+        Prossimo Episodio<span id="nextEpisodeTimeLeft"> 5 sec</span>
+    </div>
+    <div class="slide"></div>
+</div>
+
+
+<svg style="display: none">
+    <defs>
+        <symbol id="pip" viewBox="0 0 24 24">
+            <path d="M21 19.031v-14.063h-18v14.063h18zM23.016 18.984q0 0.797-0.609 1.406t-1.406 0.609h-18q-0.797 0-1.406-0.609t-0.609-1.406v-14.016q0-0.797 0.609-1.383t1.406-0.586h18q0.797 0 1.406 0.586t0.609 1.383v14.016zM18.984 11.016v6h-7.969v-6h7.969z"></path>
+        </symbol>
+    </defs>
+</svg>
