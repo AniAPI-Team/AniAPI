@@ -4,12 +4,12 @@
 @inject IJSRuntime JS;
 @inject HttpClient client;
 @inject NavigationManager navigationManager;
+@inject Generic generic;
 
 @using Commons;
 @using Commons.Enums;
 @using System.Text.Json;
 @using System.Text.Json.Serialization;
-
 
 @code {
     [Parameter] public int AnimeID { get; set; }
@@ -32,67 +32,65 @@
 
     protected override async Task OnInitializedAsync()
     {
-
-
         APIResponse ApiResponse = new APIResponse();
-        //url = "https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_934_SUB_ITA.mp4";
 
-        //if (NumeroEpisodio != null && NumeroEpisodio.HasValue)
-        //{
-        //    Console.WriteLine($"NumeroEpisodio: {NumeroEpisodio.Value}");
-        //    url = $"https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_{NumeroEpisodio.Value}_SUB_ITA.mp4";
-        //    StateHasChanged();
-        //}
-
-        ApiResponse = GetAnime();
-
-        //try
-        //{
-        //    //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + AnimeID, jso);
-        //    ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
-        //}
-        //catch (Exception ex)
-        //{
-        //    Console.WriteLine($"Generic Exception Catch: {ex.Message}");
-        //    navigationManager.NavigateTo("/");
-        //    return;
-        //}
-
-        //if (ApiResponse.statusCode != System.Net.HttpStatusCode.OK)
-        //{
-        //    navigationManager.NavigateTo("/");
-        //    return;
-        //}
-
-        //anime = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
-        anime = (Anime)ApiResponse.result;
-
-        if (anime.Prequel != null && anime.Prequel.HasValue)
+        try
         {
-            ApiResponse = null;
-            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Prequel);
-            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+            //    //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + AnimeID, jso);
+            //    ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+            //    ApiResponse = generic.GetSingleRequest<APIResponse>("/api/v1/anime/MockUpResponse");
             ApiResponse = GetAnime();
-            if (ApiResponse.statusCode == System.Net.HttpStatusCode.OK)
-                //prequel = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
-                prequel = (Anime)ApiResponse.result;
+            anime = (Anime)ApiResponse.result;
+
+            if (ApiResponse.statusCode != System.Net.HttpStatusCode.OK)
+            {
+                navigationManager.NavigateTo("/");
+                return;
+            }
+
+            anime = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
+
+            if (anime.Prequel != null && anime.Prequel.HasValue)
+            {
+                ApiResponse = null;
+                //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Prequel);
+                //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+                ApiResponse = GetAnime();
+                if (ApiResponse.statusCode == System.Net.HttpStatusCode.OK)
+                    //prequel = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
+                    prequel = (Anime)ApiResponse.result;
+            }
+
+            if (anime.Sequel != null && anime.Sequel.HasValue)
+            {
+                ApiResponse = null;
+                //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Sequel);
+                //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+                ApiResponse = GetAnime();
+                if (ApiResponse.statusCode == System.Net.HttpStatusCode.OK)
+                    //sequel = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
+                    sequel = (Anime)ApiResponse.result;
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Generic Exception Catch: {ex.Message}");
+            navigationManager.NavigateTo("/");
+            return;
         }
 
-        if (anime.Sequel != null && anime.Sequel.HasValue)
+        try
         {
-            ApiResponse = null;
-            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Sequel);
-            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
-            ApiResponse = GetAnime();
-            if (ApiResponse.statusCode == System.Net.HttpStatusCode.OK)
-                //sequel = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
-                sequel = (Anime)ApiResponse.result;
+            //////TODO - Estrarre Episodi Anime
+            ////listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
+            listEpisodi = GetAnimeEpisodi();
         }
-
-        //////TODO - Estrarre Episodi Anime
-        ////listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
-        listEpisodi = GetAnimeEpisodi();
-        ////episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).FirstOrDefault();
+        catch (Exception)
+        {
+            Console.WriteLine($"Generic Exception Catch: {ex.Message}");
+            navigationManager.NavigateTo("/");
+            return;
+        }
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -100,13 +98,11 @@
         vp.VideoNumeroEpisodioChanged += ChildFiredEvent;
     }
 
-
     public void ChildFiredEvent(int _numEpisodio)
     {
         NumeroEpisodio = _numEpisodio;
         StateHasChanged();
     }
-
 
     private APIResponse GetAnime()
     {
@@ -158,6 +154,7 @@
         return listEp;
     }
 }
+
 @if (anime == null)
 {
     <p><em>Loading...</em></p>
@@ -243,18 +240,14 @@ else
                     </div>
                 </div>
                 <div class="media">
-                    <div class="VideoTitle">@(NumeroEpisodio != null && NumeroEpisodio.HasValue ? ("Episodio: " + NumeroEpisodio.Value.ToString()) : "Trailer")</div>
-
-                    @*<div class="video">
-                            <iframe src="https://www.youtube.com/embed/fJm2nD3cv_4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-                        </div>*@
+                    <div class="VideoTitle">
+                        @(NumeroEpisodio != null && NumeroEpisodio.HasValue ? ("Episodio: " + NumeroEpisodio.Value.ToString()) : "Trailer")
+                    </div>
                     <VideoPlayer @ref="vp" listEpisodi="@listEpisodi" @bind-VideoNumeroEpisodio="@NumeroEpisodio" />
                     <div class="episodes">
                         @for (int i = 1; i <= anime.EpisodesCount; i++)
                         {
                             <a href="/AnimeDetail/@AnimeID/Episodio/@i"><div class="episode @(NumeroEpisodio!= null && NumeroEpisodio.HasValue && NumeroEpisodio.Value == i ? "active" : "" )">@i</div></a>
-                            @*<div class="episode @(NumeroEpisodio!= null && NumeroEpisodio.HasValue && NumeroEpisodio.Value == i ? "active" : "" )"><a href="/AnimeDetail/@AnimeID/Episodio/@i">@i</a></div>*@
-                            @*<div class="episode @(NumeroEpisodio!= null && NumeroEpisodio.HasValue && NumeroEpisodio.Value == i ? "active" : "" )">@i</div>*@
                         }
                     </div>
                 </div>

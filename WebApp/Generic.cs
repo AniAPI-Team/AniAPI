@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Commons;
+using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace WebApp
@@ -26,13 +29,20 @@ namespace WebApp
             
             try
             {
+                JsonSerializerOptions jso = new JsonSerializerOptions()
+                {
+                    IgnoreNullValues = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
                 string absoluteUrl = string.Format("{0}{1}", this._httpClient.BaseAddress, urlApi);
-                HttpResponseMessage responsePost = await this._httpClient.PostAsJsonAsync<Z>(absoluteUrl, data);
+                HttpResponseMessage responsePost = await this._httpClient.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
                 res = JsonConvert.DeserializeObject<T>(await responsePost.Content.ReadAsStringAsync());
+
             }
             catch (Exception ex)
             {
-                //SetErrorData(res, 500, ex.Message);
+                ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
             return res;
@@ -44,13 +54,21 @@ namespace WebApp
 
             try
             {
+                JsonSerializerOptions jso = new JsonSerializerOptions()
+                {
+                    IgnoreNullValues = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
+
                 string absoluteUrl = string.Format("{0}{1}", this._httpClient.BaseAddress, urlApi);
-                HttpResponseMessage responsePost = await this._httpClient.PostAsJsonAsync<Z>(absoluteUrl, data);
+                HttpResponseMessage responsePost = await this._httpClient.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
                 res = JsonConvert.DeserializeObject<List<T>>(await responsePost.Content.ReadAsStringAsync());
 
             }
-            catch (Exception)
-            { }
+            catch (Exception ex)
+            {
+                ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
 
             return res;
         }
@@ -61,14 +79,17 @@ namespace WebApp
 
             try
             {
-                string absoluteUrl = string.Format("{0}{1}", this._httpClient.BaseAddress, urlApi);
-                HttpResponseMessage responseGet = await this._httpClient.GetAsync(absoluteUrl);
-                res = JsonConvert.DeserializeObject<T>(await responseGet.Content.ReadAsStringAsync());
+                JsonSerializerOptions jso = new JsonSerializerOptions()
+                {
+                    IgnoreNullValues = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
 
+                res = await _httpClient.GetFromJsonAsync<T>(urlApi, jso);
             }
             catch (Exception ex)
             {
-                //SetErrorData(res, 500, ex.Message);
+                ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
             return res;
@@ -80,13 +101,18 @@ namespace WebApp
 
             try
             {
-                string absoluteUrl = string.Format("{0}{1}", this._httpClient.BaseAddress, urlApi);
-                HttpResponseMessage responseGet = await this._httpClient.GetAsync(absoluteUrl);
-                res = JsonConvert.DeserializeObject<List<T>>(await responseGet.Content.ReadAsStringAsync());
+                JsonSerializerOptions jso = new JsonSerializerOptions()
+                {
+                    IgnoreNullValues = true,
+                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+                };
 
+                res = await _httpClient.GetFromJsonAsync<List<T>>(urlApi, jso);
             }
-            catch (Exception)
-            { }
+            catch (Exception ex)
+            {
+                ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+            }
 
             return res;
         }

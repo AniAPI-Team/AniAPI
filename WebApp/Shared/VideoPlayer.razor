@@ -8,18 +8,11 @@
     [Parameter] public int? VideoNumeroEpisodio { get; set; }
     [Parameter] public Action<int> VideoNumeroEpisodioChanged { get; set; }
 
-    //private static Action NextEpisodeAction;
     private Episodio episodioAttuale;
-    private string ProssimoVideoUrl;
-
-    protected override async Task OnInitializedAsync()
-    {
-#if DEBUG
-        //await Task.Delay(5000);
-#endif
-
-        //NextEpisodeAction = NextEpisode;
-    }
+    bool isPlaying = false;
+    bool showControls = false;
+    bool fullScreen = false;
+    bool caricaVideo = false;
 
     protected override void OnParametersSet()
     {
@@ -29,67 +22,100 @@
         if (VideoNumeroEpisodio == null)
             VideoNumeroEpisodio = 1;
 
+        Episodio episodioPrecedente = episodioAttuale;
+
         episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == VideoNumeroEpisodio.Value).FirstOrDefault();
+
+        if (episodioPrecedente != null && episodioAttuale.Url != episodioPrecedente.Url)
+            caricaVideo = true;
 
         StateHasChanged();
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        //if (!firstRender)
-        //{
         await JS.InvokeVoidAsync("initVideoVariables");
-        //}
 
-        //if (autoplay)
-        //{
-        await JS.InvokeVoidAsync("ScroolToVideo");
-        //    Console.WriteLine($"AvviaVideo URL: {episodioAttuale.Url}");
-        await JS.InvokeVoidAsync("AvviaVideo", episodioAttuale.Url);
-        //}
+        if (!firstRender)
+        {
+            await JS.InvokeVoidAsync("ScroolToVideo");
+        }
+
+        if (caricaVideo)
+            await CaricaVideo();
+
+        caricaVideo = false;
 
         await base.OnAfterRenderAsync(firstRender);
-
-        //autoplay = false;
     }
 
-    public void NextEpisode()
+    private async Task CaricaVideo()
     {
-        //return Task.FromResult(new int[] { 1, 2, 3 });
+        isPlaying = false;
+        await JS.InvokeVoidAsync("VideoHelper_PlayPause", isPlaying);
+        await JS.InvokeVoidAsync("VideoHelper_Load", episodioAttuale.Url);
+    }
+
+    private bool ShowControls(bool mouseIn)
+    {
+        if (!mouseIn && !isPlaying)
+        {
+            showControls = true;
+            return true;
+        }
+
+        showControls = mouseIn;
+        return false;
+    }
+
+    private async Task togglePlay(MouseEventArgs args)
+    {
+        isPlaying = !isPlaying;
+
+        await JS.InvokeVoidAsync("VideoHelper_PlayPause", isPlaying);
+    }
+
+    private async Task toggleFullScreen()
+    {
+        fullScreen = !fullScreen;
+
+        await JS.InvokeVoidAsync("toggleFullScreen", fullScreen);
+    }
+
+    private async Task NextEpisode()
+    {
         if (VideoNumeroEpisodio + 1 <= listEpisodi.Episodi.Count)
         {
             VideoNumeroEpisodio++;
-            //CallBackNextEpisode.InvokeAsync(NumeroEpisodio.Value);
             VideoNumeroEpisodioChanged?.Invoke(VideoNumeroEpisodio.Value);
-
-            //OnParametersSet();
-            //StateHasChanged();
+            isPlaying = false;
+            await CaricaVideo();
         }
     }
 }
 
-<div class="video-container">
+<div class="video-container" @ondblclick="@(() => toggleFullScreen())" @onmouseover="@(() => ShowControls(true))" @onmouseout="@(() => ShowControls(false))">
     <div class="playback-animation playback-icons">
-        <i class="fas fa-play large white"></i>
-        <i class="fas fa-pause large hidden white"></i>
+        <i class="fas fa-play large white @(isPlaying ? "hidden" : "")"></i>
+        <i class="fas fa-pause large white @(!isPlaying ? "hidden" : "")"></i>
     </div>
 
-    <video class="video" preload="metadata">
+    <video class="video" preload="metadata" style="@(fullScreen ? "height: auto;" : "")" @onclick="togglePlay">
         <source src="@episodioAttuale.Url" type="video/mp4" />
     </video>
 
-    <div class="video-controls hidden">
+    <div class="video-controls @(!showControls ? "hidden" : "")">
         <div class="video-progress">
             <progress class="progress-bar" value="0" min="0"></progress>
             <input class="seek" value="0" min="0" type="range" step="1">
             <div class="seek-tooltip">00:00</div>
         </div>
 
-        <div class="bottom-controls">
+        <div class="bottom-controls ">
             <div class="left-controls">
-                <button data-title="Play (spacebar)" class="play playback-icons">
-                    <i class="fas fa-play large white"></i>
-                    <i class="fas fa-pause large hidden white"></i>
+                <button data-title="@(isPlaying ? "Pause (spacebar)" : "Play (spacebar)")" class="play playback-icons" @onclick="togglePlay">
+                    <i class="fas fa-play large white @(isPlaying ? "hidden" : "")"></i>
+                    <i class="fas fa-pause large white @(!isPlaying ? "hidden" : "")"></i>
                 </button>
 
                 @if (VideoNumeroEpisodio + 1 < listEpisodi.Episodi.Count)
@@ -107,8 +133,7 @@
                         <i class="fas fa-volume-up large white"></i>
                     </button>
 
-                    <input class="volume" value="1"
-                           data-mute="0.5" type="range" max="1" min="0" step="0.01">
+                    <input class="volume" value="1" data-mute="0.5" type="range" max="1" min="0" step="0.01">
                 </div>
 
                 <div class="time">
@@ -124,9 +149,9 @@
                         <use href="#pip"></use>
                     </svg>
                 </button>
-                <button data-title="Full screen (F)" class="fullscreen-button">
-                    <i class="fas fa-expand large white"></i>
-                    <i class="fas fa-compress large white hidden"></i>
+                <button data-title="@(fullScreen ? "Exit full screen (F)" : "Full screen (F)")" class="fullscreen-button" @onclick="@(() => toggleFullScreen())">
+                    <i class="fas fa-expand large white @(!fullScreen ? "hidden" : "")"></i>
+                    <i class="fas fa-compress large white @(fullScreen ? "hidden" : "")"></i>
                 </button>
             </div>
         </div>
