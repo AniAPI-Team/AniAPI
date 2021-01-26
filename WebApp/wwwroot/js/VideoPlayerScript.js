@@ -42,6 +42,7 @@ var videoContainer;
 var fullscreenIcons;
 var pipButton;
 var videoWorks;
+//var nextButton;
 
 
 var nextEpisodeWrapper;
@@ -50,7 +51,7 @@ var nextEpisodeTimer;
 var nextEpisodeTimeLeft;
 var nextEpisodeStarted;
 var secs;
-var autoplay;
+//var autoplay;
 
 function ScroolToVideo() {
     if (video) {
@@ -62,7 +63,7 @@ async function AvviaVideo(url) {
     if (video) {
         video.src = url; //
         await video.load();
-        autoplay = true;
+        //autoplay = true;
         //video.removeEventListener('loadedmetadata');
         //video.play();
         //video.addEventListener('loadedmetadata', initializeVideo);
@@ -93,6 +94,7 @@ function initVideoVariables() {
     fullscreenIcons = document.querySelectorAll('.video-container i');
     pipButton = document.getElementById('pip-button');
     videoWorks = !!document.createElement('video').canPlayType;
+    //nextButton = document.querySelectorAll('.next-button')[0];
 
 
     nextEpisodeWrapper = document.getElementById('nextEpisodeCountDown');
@@ -125,6 +127,7 @@ function initVideoVariables() {
     fullscreenButton.addEventListener('click', toggleFullScreen);
     pipButton.addEventListener('click', togglePip);
     document.addEventListener('keyup', keyboardShortcuts);
+    //nextButton.addEventListener('click', NextEpisode);
 
     //Initialize Video Player
     video.addEventListener('loadedmetadata', initializeVideo);
@@ -153,12 +156,9 @@ async function initializeVideo() {
     duration.innerText = `${time.minutes}:${time.seconds}`;
     duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
 
-    if (autoplay) {
-        await video.play();
-        updatePlayButton();
-    }
-
-    autoplay = false;
+    //autoplay = false;
+    updatePlayButton()
+    video.play();
 }
 
 // togglePlay toggles the playback state of the video.

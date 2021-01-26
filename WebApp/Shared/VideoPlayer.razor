@@ -5,23 +5,31 @@
 
 @code{
     [Parameter] public AnimeEpisodi listEpisodi { get; set; }
-    [Parameter] public int? NumeroEpisodio { get; set; }
+    [Parameter] public int? VideoNumeroEpisodio { get; set; }
+    [Parameter] public Action<int> VideoNumeroEpisodioChanged { get; set; }
 
+    //private static Action NextEpisodeAction;
     private Episodio episodioAttuale;
-    private bool autoplay = false;
     private string ProssimoVideoUrl;
+
+    protected override async Task OnInitializedAsync()
+    {
+#if DEBUG
+        //await Task.Delay(5000);
+#endif
+
+        //NextEpisodeAction = NextEpisode;
+    }
 
     protected override void OnParametersSet()
     {
         if (listEpisodi == null)
             return;
 
-        if (NumeroEpisodio == null)
-            NumeroEpisodio = 1;
+        if (VideoNumeroEpisodio == null)
+            VideoNumeroEpisodio = 1;
 
-        episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == NumeroEpisodio.Value).FirstOrDefault();
-
-        autoplay = true;
+        episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == VideoNumeroEpisodio.Value).FirstOrDefault();
 
         StateHasChanged();
     }
@@ -33,16 +41,30 @@
         await JS.InvokeVoidAsync("initVideoVariables");
         //}
 
-        if (autoplay)
-        {
-            await JS.InvokeVoidAsync("ScroolToVideo");
-            Console.WriteLine($"AvviaVideo URL: {episodioAttuale.Url}");
-            await JS.InvokeVoidAsync("AvviaVideo", episodioAttuale.Url);
-        }
+        //if (autoplay)
+        //{
+        await JS.InvokeVoidAsync("ScroolToVideo");
+        //    Console.WriteLine($"AvviaVideo URL: {episodioAttuale.Url}");
+        await JS.InvokeVoidAsync("AvviaVideo", episodioAttuale.Url);
+        //}
 
         await base.OnAfterRenderAsync(firstRender);
 
-        autoplay = false;
+        //autoplay = false;
+    }
+
+    public void NextEpisode()
+    {
+        //return Task.FromResult(new int[] { 1, 2, 3 });
+        if (VideoNumeroEpisodio + 1 <= listEpisodi.Episodi.Count)
+        {
+            VideoNumeroEpisodio++;
+            //CallBackNextEpisode.InvokeAsync(NumeroEpisodio.Value);
+            VideoNumeroEpisodioChanged?.Invoke(VideoNumeroEpisodio.Value);
+
+            //OnParametersSet();
+            //StateHasChanged();
+        }
     }
 }
 
@@ -70,9 +92,12 @@
                     <i class="fas fa-pause large hidden white"></i>
                 </button>
 
-                <button data-title="Next (N)" id="next">
-                    <i class="fas fa-step-forward large white"></i>
-                </button>
+                @if (VideoNumeroEpisodio + 1 < listEpisodi.Episodi.Count)
+                {
+                    <button data-title="Next (N)" id="next" class="next-button" @onclick="NextEpisode">
+                        <i class="fas fa-step-forward large white"></i>
+                    </button>
+                }
 
                 <div class="volume-controls">
                     <button data-title="Mute (M)" class="volume-button" id="volume-button">

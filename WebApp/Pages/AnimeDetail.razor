@@ -26,12 +26,14 @@
     {
         if (NumeroEpisodio != null && NumeroEpisodio.HasValue)
         {
-            vp.NumeroEpisodio = NumeroEpisodio;
+            vp.VideoNumeroEpisodio = NumeroEpisodio;
         }
     }
 
     protected override async Task OnInitializedAsync()
     {
+
+
         APIResponse ApiResponse = new APIResponse();
         //url = "https://www.animeunityserver77.cloud/DDL/Anime/OnePiece/OnePiece_Ep_934_SUB_ITA.mp4";
 
@@ -92,6 +94,19 @@
         listEpisodi = GetAnimeEpisodi();
         ////episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == (NumeroEpisodio.HasValue ? 1 : NumeroEpisodio.Value)).FirstOrDefault();
     }
+
+    protected override void OnAfterRender(bool firstRender)
+    {
+        vp.VideoNumeroEpisodioChanged += ChildFiredEvent;
+    }
+
+
+    public void ChildFiredEvent(int _numEpisodio)
+    {
+        NumeroEpisodio = _numEpisodio;
+        StateHasChanged();
+    }
+
 
     private APIResponse GetAnime()
     {
@@ -233,7 +248,7 @@ else
                     @*<div class="video">
                             <iframe src="https://www.youtube.com/embed/fJm2nD3cv_4" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                         </div>*@
-                    <VideoPlayer @ref="vp" listEpisodi="@listEpisodi" NumeroEpisodio="@NumeroEpisodio" />
+                    <VideoPlayer @ref="vp" listEpisodi="@listEpisodi" @bind-VideoNumeroEpisodio="@NumeroEpisodio" />
                     <div class="episodes">
                         @for (int i = 1; i <= anime.EpisodesCount; i++)
                         {
