@@ -6,17 +6,19 @@ using System.Threading.Tasks;
 
 namespace Commons
 {
-    public class ApiException : Exception
+    public class APIException : Exception
     {
         public HttpStatusCode StatusCode { get; set; }
         public string Message { get; set; }
         public string Description { get; set; }
+        public string Version { get; set; }
 
-        public ApiException(HttpStatusCode statusCode, string message, string description)
+        public APIException(HttpStatusCode statusCode, string message, string description, string version = "1")
         {
             this.StatusCode = statusCode;
             this.Message = message;
             this.Description = description;
+            this.Version = version;
         }
     }
 }

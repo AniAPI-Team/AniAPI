@@ -2,65 +2,27 @@
 
 namespace Commons
 {
-    public static class ApiResponseManager
-    {
-
-        public static APIResponse CreateSuccessResponse(object _result = null,
-            string _apiVersion = "1.0.0.0")
-        {
-            APIResponse response = new APIResponse();
-
-            response.statusCode = HttpStatusCode.OK;
-            response.message = null;
-            response.result = _result;
-            response.apiVersion = _apiVersion;
-
-            return response;
-        }
-
-        public static APIResponse CreateErrorResponse(HttpStatusCode _statusCode,
-            string _message,
-            object _result = null,
-            //ApiException _apiError = null,
-            string _apiVersion = "1.0.0.0")
-        {
-            APIResponse response = new APIResponse();
-
-            response.statusCode = _statusCode;
-            response.message = _message;
-            response.result = _result;
-            response.apiVersion = _apiVersion;
-
-            return response;
-        }
-    }
     public class APIResponse
     {
-        public APIResponse(HttpStatusCode _statusCode,
-            string _message = "",
-            object _result = null,
-            //ApiException _apiError = null,
-            string _apiVersion = "1.0.0.0")
+        public HttpStatusCode StatusCode { get; set; }
+        public string Message { get; set; }
+        public object Data { get; set; }
+        public string Version { get; set; }
+
+        public APIResponse(HttpStatusCode statusCode,string message = "", object data = null, string version = "1")
         {
-            this.statusCode = _statusCode;
-            this.message = _message;
-            this.result = _result;
-            //this.apiError = _apiError;
-            this.apiVersion = _apiVersion;
+            this.StatusCode = statusCode;
+            this.Message = message;
+            this.Data = data;
+            this.Version = version;
         }
 
         public APIResponse()
         {
-            this.statusCode = HttpStatusCode.InternalServerError;
-            this.message = "";
-            this.result = null;
-            //this.apiError = null;
-            this.apiVersion = "1.0.0.0";
+            this.StatusCode = HttpStatusCode.InternalServerError;
+            this.Message = "Something bad happened";
+            this.Data = null;
+            this.Version = "1";
         }
-
-        public HttpStatusCode statusCode { get; set; }
-        public string message { get; set; }
-        public object result { get; set; }
-        public string apiVersion { get; set; }
     }
 }
