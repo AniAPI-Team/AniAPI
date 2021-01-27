@@ -32,6 +32,8 @@
 
     protected override async Task OnInitializedAsync()
     {
+        await Task.Delay(5000);
+
         APIResponse ApiResponse = new APIResponse();
 
         try
@@ -48,7 +50,8 @@
                 return;
             }
 
-            anime = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
+            //anime = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
+            anime = (Anime)ApiResponse.result;
 
             if (anime.Prequel != null && anime.Prequel.HasValue)
             {
@@ -85,7 +88,7 @@
             ////listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
             listEpisodi = GetAnimeEpisodi();
         }
-        catch (Exception)
+        catch (Exception ex)
         {
             Console.WriteLine($"Generic Exception Catch: {ex.Message}");
             navigationManager.NavigateTo("/");
@@ -118,6 +121,7 @@
         animeMK.Genres = new List<string>() { "Action", "Drama", "Fantasy", "Mystery", "che ne so!!" };
         animeMK.CoverImage = "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx104578-LaZYFkmhinfB.jpg";
         animeMK.BannerImage = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/104578-z7SadpYEuAsy.jpg";
+        animeMK.Sequel = 2;
         animeMK.Prequel = 2;
         animeMK.TrailerUrl = "https://www.animeunityserver75.cloud/DDL/Anime/OnePieceITA/OnePiece_Ep_001_ITA.mp4";
 
@@ -181,7 +185,7 @@ else
         <div class="section main">
             <div class="container">
                 <div class="siblings">
-                    @if (anime.Prequel != null && anime.Prequel.HasValue && prequel.MyAnimeListId != null)
+                    @if (anime.Prequel != null && anime.Prequel.HasValue)
                     {
                         <div class="sibling prequel" style="background-image: url(@prequel.BannerImage);">
                             <span>Prequel</span>
@@ -189,7 +193,7 @@ else
                         </div>
                     }
 
-                    @if (anime.Sequel != null && anime.Sequel.HasValue && sequel.MyAnimeListId != null)
+                    @if (anime.Sequel != null && anime.Sequel.HasValue)
                     {
                         <div class="sibling sequel" style="background-image: url(@sequel.BannerImage);">
                             <span>Sequel</span>
