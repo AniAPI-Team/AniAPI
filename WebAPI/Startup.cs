@@ -63,7 +63,8 @@ namespace WebAPI
             });
 
             services.AddHttpContextAccessor();
-            //services.AddSingleton<IRateLimitMiddleware, RateLimitMiddleware>();
+
+            services.AddSingleton<IRateLimitDependency, RateLimitDependency>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
