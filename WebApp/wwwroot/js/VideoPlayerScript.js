@@ -24,7 +24,7 @@ var nextEpisodeTimeLeft;
 var nextEpisodeStarted;
 var secs;
 
-async function ScroolToVideo() { video && video.scrollIntoView({ behavior: "smooth" }) }
+async function ScroolToVideo() { video && video.scrollIntoView({ behavior: "smooth", block: 'center' }) }
 
 async function AvviaVideo(url) {
     if (video) {
