@@ -116,84 +116,91 @@ namespace Commons
         }
 
         [BsonElement("anilist_id")]
-        [JsonPropertyNameAttribute("Anilistid")]
+        [JsonPropertyName("anilist_id")]
         public int AnilistId { get; set; }
 
         [BsonElement("mal_id")]
-        [JsonPropertyNameAttribute("MyAnimelistid")]
+        [JsonPropertyName("mal_id")]
         public int? MyAnimeListId { get; set; }
 
         [BsonElement("format")]
-        [JsonPropertyNameAttribute("Format")]
+        [JsonPropertyName("format")]
         public AnimeFormatEnum Format { get; set; }
 
         [BsonElement("status")]
-        [JsonPropertyNameAttribute("Status")]
+        [JsonPropertyName("status")]
         public AnimeStatusEnum Status { get; set; }
 
         [BsonElement("titles")]
-        [JsonPropertyNameAttribute("Titles")]
+        [JsonPropertyName("titles")]
         public Dictionary<string, string> Titles { get; set; }
 
         [BsonElement("descriptions")]
-        [JsonPropertyNameAttribute("Descriptions")]
+        [JsonPropertyName("descriptions")]
         public Dictionary<string, string> Descriptions { get; set; }
 
         [BsonElement("start_date")]
-        [JsonPropertyNameAttribute("Startdate")]
+        [JsonPropertyName("start_date")]
         public DateTime? StartDate { get; set; }
 
         [BsonElement("end_date")]
-        [JsonPropertyNameAttribute("Enddate")]
+        [JsonPropertyName("end_date")]
         public DateTime? EndDate { get; set; }
 
         [BsonElement("season_period")]
-        [JsonPropertyNameAttribute("Seasonperiod")]
+        [JsonPropertyName("season_period")]
         public AnimeSeasonEnum SeasonPeriod { get; set; }
 
         [BsonElement("season_year")]
-        [JsonPropertyNameAttribute("Seasonyear")]
+        [JsonPropertyName("season_year")]
         public int? SeasonYear { get; set; }
 
         [BsonElement("episodes_count")]
-        [JsonPropertyNameAttribute("Episodescount")]
+        [JsonPropertyName("episodes_count")]
         public int EpisodesCount { get; set; }
 
         [BsonElement("episode_duration")]
-        [JsonPropertyNameAttribute("Episodeduration")]
+        [JsonPropertyName("episode_duration")]
         public int? EpisodeDuration { get; set; }
 
         [BsonElement("trailer_url")]
-        [JsonPropertyNameAttribute("Trailerurl")]
+        [JsonPropertyName("trailer_url")]
         public string TrailerUrl { get; set; }
 
         [BsonElement("cover_image")]
-        [JsonPropertyNameAttribute("Coverimage")]
+        [JsonPropertyName("cover_image")]
         public string CoverImage { get; set; }
 
         [BsonElement("cover_color")]
-        [JsonPropertyNameAttribute("Covercolor")]
+        [JsonPropertyName("cover_color")]
         public string CoverColor { get; set; }
 
         [BsonElement("banner_image")]
-        [JsonPropertyNameAttribute("Bannerimage")]
+        [JsonPropertyName("banner_image")]
         public string BannerImage { get; set; }
 
         [BsonElement("genres")]
-        [JsonPropertyNameAttribute("Genres")]
+        [JsonPropertyName("genres")]
         public List<string> Genres { get; set; }
 
         [BsonElement("sequel")]
-        [JsonPropertyNameAttribute("Sequel")]
+        [JsonPropertyName("sequel")]
         public int? Sequel { get; set; }
 
         [BsonElement("prequel")]
-        [JsonPropertyNameAttribute("Prequel")]
+        [JsonPropertyName("prequel")]
         public int? Prequel { get; set; }
 
         [BsonElement("score")]
-        [JsonPropertyNameAttribute("Score")]
+        [JsonPropertyName("score")]
         public int Score { get; set; }
 
+        [BsonElement("opening")]
+        [JsonPropertyName("opening")]
+        public AnimeSong Opening { get; set; }
+
+        [BsonElement("ending")]
+        [JsonPropertyName("ending")]
+        public AnimeSong Ending { get; set; }
     }
 }

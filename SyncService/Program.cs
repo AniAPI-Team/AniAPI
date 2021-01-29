@@ -12,7 +12,7 @@ namespace SyncService
             List<IService> services = new List<SyncService.IService>()
             {
                 new AnimeScraperService(),
-                new WebsiteScraperService()
+                //new WebsiteScraperService()
             };
 
             foreach(IService service in services)

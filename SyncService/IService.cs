@@ -90,7 +90,7 @@ namespace SyncService
                 this._serviceStatusCollection.Add(ref servicesStatus);
             }
 
-            Console.WriteLine($"[{this.ServiceStatus.Name}/{from}/{DateTime.Now.ToString("dd-MM-yyyy HH:mm.ms")}]: Status to {status}");
+            Console.WriteLine($"[{this.ServiceStatus.Name}/{from}/{DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss.fff")}]: Status to {status}");
         }
 
         protected string GetProgress(double actualValue, double maxValue)
@@ -114,7 +114,7 @@ namespace SyncService
             };
             this._ServicesLogCollection.Add(ref log);
             
-            Console.WriteLine($"[{this.ServiceStatus.Name}/{this.ServiceStatus.Status}/{DateTime.Now.ToString("dd-MM-yyyy HH:mm.ms")}]: {message}");
+            Console.WriteLine($"[{this.ServiceStatus.Name}/{this.ServiceStatus.Status}/{DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss.fff")}]: {message}");
         }
 
         #endregion
