@@ -95,7 +95,7 @@ namespace SyncService
 
         protected string GetProgress(double actualValue, double maxValue)
         {
-            double progress = (actualValue / maxValue) * 100;
+            int progress = (int)((actualValue / maxValue) * 100);
 
             if (progress < 10)
             {
@@ -103,6 +103,18 @@ namespace SyncService
             }
 
             return progress.ToString("F0");
+        }
+
+        protected string GetProgressD(double actualValue, double maxValue)
+        {
+            double progress = (actualValue / maxValue) * 100;
+
+            if (progress < 10)
+            {
+                return "0" + progress.ToString("F2");
+            }
+
+            return progress.ToString("F2");
         }
 
         protected void Log(string message)

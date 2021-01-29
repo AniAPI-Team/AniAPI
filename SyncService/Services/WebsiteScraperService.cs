@@ -15,11 +15,7 @@ namespace SyncService.Services
 
         protected override ServicesStatus GetServiceStatus()
         {
-            return new ServicesStatus()
-            {
-                Name = "WebsiteScraper",
-                Status = ServiceStatusEnum.NONE
-            };
+            return new ServicesStatus("WebsiteScraper");
         }
 
         public override async void Work()

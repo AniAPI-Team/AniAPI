@@ -12,12 +12,14 @@ namespace SyncService
             List<IService> services = new List<SyncService.IService>()
             {
                 new AnimeScraperService(),
-                //new WebsiteScraperService()
+                //new WebsiteScraperService(),
+                new SongScraperService(),
             };
 
             foreach(IService service in services)
             {
                 new Thread(service.Start).Start();
+                Thread.Sleep(60 * 1000);
             }
 
             Console.ReadLine();

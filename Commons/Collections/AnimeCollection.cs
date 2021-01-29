@@ -42,16 +42,18 @@ namespace Commons.Collections
             return this.Collection.Find(x => x.Id == id).FirstOrDefault();
         }
 
-        public override bool Exists(ref Anime document)
+        public override bool Exists(ref Anime document, bool updateValues = true)
         {
             int anilistId = document.AnilistId;
             Anime reference = this.Collection.Find(x => x.AnilistId == anilistId).FirstOrDefault();
 
-            if(reference != null)
+            if(reference != null && updateValues)
             {
                 document.Id = reference.Id;
                 document.CreationDate = reference.CreationDate;
                 document.UpdateDate = reference.UpdateDate;
+                document.Ending = reference.Ending;
+                document.Opening = reference.Opening;
                 return true;
             }
 
