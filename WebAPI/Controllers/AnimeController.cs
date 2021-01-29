@@ -7,6 +7,7 @@ using Commons.Filters;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using WebAPI.Models;
 
 namespace WebAPI.Controllers
 {
@@ -35,21 +36,21 @@ namespace WebAPI.Controllers
                 Anime anime = this._animeCollection.Get(id);
                 if (anime == null)
                 {
-                    throw new ApiException(HttpStatusCode.NotFound,
-                        "Anime not found :(",
+                    throw new APIException(HttpStatusCode.NotFound,
+                        "Anime not found",
                         $"Anime with id {id} does not exists");
                 }
 
-                //return anime;
-                return ApiResponseManager.CreateSuccessResponse(_result: anime);
+                return APIManager.SuccessResponse("Anime found", anime);
             }
-            catch (Exception ex)
+            catch (APIException ex)
             {
-                return ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
-
-                //this._logger.LogError(ex.Message);
-                //return ApiResponse.Error(ex);
-                //return null;
+                return APIManager.ErrorResponse(ex);
+            }
+            catch(Exception ex)
+            {
+                this._logger.LogError(ex.Message);
+                return APIManager.ErrorResponse();
             }
         }
 
@@ -75,7 +76,7 @@ namespace WebAPI.Controllers
             anime.Descriptions = new Dictionary<string, string>();
             anime.Descriptions.Add(LocalizationEnum.English, "The second cour of <i>Shingeki no Kyojin 3</i>.<br><br>The battle to retake Wall Maria begins now! With Eren’s new hardening ability, the Scouts are confident they can seal the wall and take back Shiganshina District. If they succeed, Eren can finally unlock the secrets of the basement—and the world. But danger lies in wait as Reiner, Bertholdt, and the Beast Titan have plans of their own. Could this be humanity’s final battle for survival?<br><br>(Source: Funimation)");
 
-            return ApiResponseManager.CreateSuccessResponse(_result: anime);
+            return APIManager.SuccessResponse("Have fun with testing", anime);
         }
 
         [HttpGet, MapToApiVersion("1")]

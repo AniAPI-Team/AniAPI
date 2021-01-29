@@ -1,22 +1,57 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Commons;
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using System;
+using System.Net;
 using System.Threading.Tasks;
+using WebAPI.Models;
 
 namespace WebAPI.Middlewares
 {
-    public class RateLimitMiddleware : IRateLimitMiddleware
+    public class RateLimitMiddleware
     {
         private readonly RequestDelegate _next;
-        private int count = 0;
+        private readonly IRateLimitDependency _rateLimitDependency;
 
-        public RateLimitMiddleware(RequestDelegate next)
+        public RateLimitMiddleware(RequestDelegate next, IRateLimitDependency rateLimitDependency)
         {
             _next = next;
+            _rateLimitDependency = rateLimitDependency;
         }
 
-        public async Task InvokeAsync(HttpContext httpContext)
+        public async Task Invoke(HttpContext httpContext)
         {
-            count++;
+            APIRequestIP requestIP = _rateLimitDependency.CanRequest(httpContext.Connection.RemoteIpAddress.ToString());
+
+            httpContext.Response.Headers.Add("X-RateLimit-Limit", "90");
+
+            int usesLeft = 90 - requestIP.Count;
+            httpContext.Response.Headers.Add("X-RateLimit-Remaining", usesLeft.ToString());
+
+            int secondsLeft = (int)(requestIP.FirstRequest.AddMinutes(1) - DateTime.Now).TotalSeconds;
+
+            if(secondsLeft < 0)
+            {
+                secondsLeft = 0;
+            }
+
+            httpContext.Response.Headers.Add("X-RateLimit-Reset", secondsLeft.ToString());
+
+            if (!requestIP.RateLimitOK)
+            {
+                httpContext.Response.StatusCode = (int)HttpStatusCode.TooManyRequests;
+
+                APIResponse response = new APIResponse()
+                {
+                    StatusCode = HttpStatusCode.TooManyRequests,
+                    Message = "Too many requests",
+                    Data = "You reached the limit of 90 requests per minute"
+                };
+
+                await httpContext.Response.WriteAsJsonAsync(response);
+                return;
+            }
+
             await _next(httpContext);
         }
     }
