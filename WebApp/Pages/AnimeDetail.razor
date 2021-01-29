@@ -42,16 +42,16 @@
             //    ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
             //    ApiResponse = generic.GetSingleRequest<APIResponse>("/api/v1/anime/MockUpResponse");
             ApiResponse = GetAnime();
-            anime = (Anime)ApiResponse.result;
+            anime = (Anime)ApiResponse.Data;
 
-            if (ApiResponse.statusCode != System.Net.HttpStatusCode.OK)
+            if (ApiResponse.StatusCode != System.Net.HttpStatusCode.OK)
             {
                 navigationManager.NavigateTo("/");
                 return;
             }
 
             //anime = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
-            anime = (Anime)ApiResponse.result;
+            anime = (Anime)ApiResponse.Data;
 
             if (anime.Prequel != null && anime.Prequel.HasValue)
             {
@@ -59,9 +59,9 @@
                 //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Prequel);
                 //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
                 ApiResponse = GetAnime();
-                if (ApiResponse.statusCode == System.Net.HttpStatusCode.OK)
+                if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
                     //prequel = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
-                    prequel = (Anime)ApiResponse.result;
+                    prequel = (Anime)ApiResponse.Data;
             }
 
             if (anime.Sequel != null && anime.Sequel.HasValue)
@@ -70,9 +70,9 @@
                 //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Sequel);
                 //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
                 ApiResponse = GetAnime();
-                if (ApiResponse.statusCode == System.Net.HttpStatusCode.OK)
+                if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
                     //sequel = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
-                    sequel = (Anime)ApiResponse.result;
+                    sequel = (Anime)ApiResponse.Data;
             }
         }
         catch (Exception ex)
@@ -135,10 +135,10 @@
 
         APIResponse response = new APIResponse();
 
-        response.statusCode = System.Net.HttpStatusCode.OK;
-        response.message = null;
-        response.result = animeMK;
-        response.apiVersion = "1.0.1.0";
+        response.StatusCode = System.Net.HttpStatusCode.OK;
+        response.Message = null;
+        response.Data = animeMK;
+        response.Version = "1.0.1.0";
 
         return response;
     }

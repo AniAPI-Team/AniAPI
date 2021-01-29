@@ -1,3 +1,4 @@
+using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -23,6 +24,10 @@ namespace WebApp
             builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri($"{protocol}://{hostName}:{port}/") });
 
             builder.Services.AddScoped<Generic>();
+
+            // local storage
+            builder.Services.AddBlazoredLocalStorage();
+
 
             bool useCustomVideoPlayer = bool.Parse(builder.Configuration["UseCustomVideoPlayer"]);
             bool useDarkTheme = bool.Parse(builder.Configuration["UseDarkTheme"]);

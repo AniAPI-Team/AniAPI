@@ -42,7 +42,8 @@ namespace WebApp
             }
             catch (Exception ex)
             {
-                ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                
+                //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
             return res;
@@ -67,7 +68,7 @@ namespace WebApp
             }
             catch (Exception ex)
             {
-                ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
             return res;
@@ -89,7 +90,7 @@ namespace WebApp
             }
             catch (Exception ex)
             {
-                ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                //ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
             return res;
@@ -111,7 +112,7 @@ namespace WebApp
             }
             catch (Exception ex)
             {
-                ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                //ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
             return res;

@@ -9,6 +9,8 @@
 
 
   <ItemGroup>
+	  <PackageReference Include="Blazored.LocalStorage" Version="3.0.0" />
+	  <PackageReference Include="Blazored.SessionStorage" Version="1.0.13" />
 	  <PackageReference Include="BuildBundlerMinifier" Version="3.2.449" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="3.2.1" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.Build" Version="3.2.1" PrivateAssets="all" />
