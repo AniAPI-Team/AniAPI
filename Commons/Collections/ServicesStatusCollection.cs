@@ -35,12 +35,12 @@ namespace Commons.Collections
             this.Collection.ReplaceOne(filter, document);
         }
 
-        public override bool Exists(ref ServicesStatus document)
+        public override bool Exists(ref ServicesStatus document, bool updateValues = true)
         {
             string name = document.Name;
             ServicesStatus reference = this.Collection.Find(x => x.Name == name).FirstOrDefault();
 
-            if (reference != null)
+            if (reference != null && updateValues)
             {
                 document.Id = reference.Id;
                 document.CreationDate = reference.CreationDate;

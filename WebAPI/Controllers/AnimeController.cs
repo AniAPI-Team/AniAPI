@@ -80,27 +80,27 @@ namespace WebAPI.Controllers
         }
 
         [HttpGet, MapToApiVersion("1")]
-        public JsonResult GetMore([FromQuery] AnimeFilter filter)
+        public APIResponse GetMore([FromQuery] AnimeFilter filter)
         {
-            return new JsonResult(null);
+            return APIManager.SuccessResponse();
         }
 
         [HttpPut, MapToApiVersion("1")]
-        public JsonResult Create([FromBody] Anime model)
+        public APIResponse Create([FromBody] Anime model)
         {
-            return new JsonResult(null);
+            return APIManager.SuccessResponse();
         }
 
         [HttpPost, MapToApiVersion("1")]
-        public JsonResult Update([FromBody] Anime model)
+        public APIResponse Update([FromBody] Anime model)
         {
-            return new JsonResult(null);
+            return APIManager.SuccessResponse();
         }
 
         [HttpDelete("{id}"), MapToApiVersion("1")]
-        public JsonResult Delete(long id)
+        public APIResponse Delete(long id)
         {
-            return new JsonResult(null);
+            return APIManager.SuccessResponse();
         }
     }
 }

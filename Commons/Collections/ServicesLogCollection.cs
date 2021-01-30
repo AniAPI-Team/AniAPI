@@ -32,7 +32,7 @@ namespace Commons.Collections
             throw new NotImplementedException();
         }
 
-        public override bool Exists(ref ServicesLog document)
+        public override bool Exists(ref ServicesLog document, bool updateValues = true)
         {
             throw new NotImplementedException();
         }

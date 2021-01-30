@@ -11,5 +11,13 @@ namespace Commons
 
         [BsonElement("status")]
         public ServiceStatusEnum Status { get; set; }
+
+        public ServicesStatus() { }
+
+        public ServicesStatus(string name)
+        {
+            this.Name = name;
+            this.Status = ServiceStatusEnum.NONE;
+        }
     }
 }

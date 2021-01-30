@@ -8,6 +8,9 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using Commons.Enums;
+using System.Threading.Tasks;
+using PuppeteerSharp;
+using SpotifyAPI.Web;
 
 namespace SyncService.Services
 {
@@ -89,11 +92,7 @@ namespace SyncService.Services
         
         protected override ServicesStatus GetServiceStatus()
         {
-            return new ServicesStatus()
-            {
-                Name = "AnimeScraper",
-                Status = ServiceStatusEnum.NONE
-            };
+            return new ServicesStatus("AnimeScraper");
         }
 
         public override void Start()
@@ -151,14 +150,15 @@ namespace SyncService.Services
 
                                 foreach (AnilistResponse.ResponseMedia m in anilistResponse.Data.Page.Media)
                                 {
-                                    Anime a = new Anime(m);
-                                    if (this._animeCollection.Exists(ref a))
+                                    Anime anime = new Anime(m);
+
+                                    if (this._animeCollection.Exists(ref anime))
                                     {
-                                        this._animeCollection.Edit(ref a);
+                                        this._animeCollection.Edit(ref anime);
                                     }
                                     else
                                     {
-                                        this._animeCollection.Add(ref a);
+                                        this._animeCollection.Add(ref anime);
                                     }
                                 }
 
@@ -185,7 +185,7 @@ namespace SyncService.Services
 
                 this.Wait();
             }
-            catch
+            catch(Exception ex)
             {
                 this.Stop();
             }
