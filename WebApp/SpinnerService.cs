@@ -17,7 +17,7 @@ namespace WebApp
         
         public void Hide()
         {
-            ((Console.WriteLine($"Chiamato Hide: {DateTime.Now.ToString()}");
+            //Console.WriteLine($"Chiamato Hide: {DateTime.Now.ToString()}");
             OnHideSpinner?.Invoke();
         }
 
