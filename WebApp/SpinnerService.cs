@@ -1,21 +1,24 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace WebApp
 {
     public class SpinnerService
     {
-        public Action ShowSpinner;
-        public Action HideSpinner;
+        public Action OnShowSpinner;
+        public Action OnHideSpinner;
 
 
         public void Show()
         {
-            ShowSpinner?.Invoke();
+            //Console.WriteLine($"Chiamato Show: {DateTime.Now.ToString()}");
+            OnShowSpinner?.Invoke();
         }
         
         public void Hide()
         {
-            HideSpinner?.Invoke();
+            ((Console.WriteLine($"Chiamato Hide: {DateTime.Now.ToString()}");
+            OnHideSpinner?.Invoke();
         }
 
     }

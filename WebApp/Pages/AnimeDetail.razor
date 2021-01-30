@@ -1,10 +1,11 @@
 ﻿@page "/AnimeDetail/{AnimeID:int}"
 @page "/AnimeDetail/{AnimeID:int}/Episodio/{NumeroEpisodio:int}"
 
-@inject IJSRuntime JS;
-@inject HttpClient client;
-@inject NavigationManager navigationManager;
-@inject Generic generic;
+@inject IJSRuntime JS
+@inject HttpClient client
+@inject NavigationManager navigationManager
+@inject Generic generic
+@inject SpinnerService spinner
 
 @using Commons;
 @using Commons.Enums;
@@ -17,9 +18,9 @@
 
     private VideoPlayer vp = new VideoPlayer();
 
-    Anime anime;
-    Anime prequel;
-    Anime sequel;
+    Anime anime = new Anime();
+    Anime prequel = new Anime();
+    Anime sequel = new Anime();
     AnimeEpisodi listEpisodi = new AnimeEpisodi();
 
     protected override void OnParametersSet()
@@ -32,7 +33,8 @@
 
     protected override async Task OnInitializedAsync()
     {
-        await Task.Delay(5000);
+        spinner.Show();
+        //await Task.Delay(5000);
 
         APIResponse ApiResponse = new APIResponse();
 
@@ -94,6 +96,10 @@
             navigationManager.NavigateTo("/");
             return;
         }
+
+
+
+        spinner.Hide();
     }
 
     protected override void OnAfterRender(bool firstRender)
@@ -159,12 +165,12 @@
     }
 }
 
-@if (anime == null)
+@*@if (anime == null)
 {
     <p><em>Loading...</em></p>
 }
 else
-{
+{*@
     <div class="content">
         <div class="section no-p">
             <div class="banner" style=" background-image: url(@anime.BannerImage);"></div>
@@ -174,9 +180,9 @@ else
                 <div class="heading">
                     <div class="cover" style=" background-image: url(@anime.CoverImage);"></div>
                     <div class="head">
-                        <h1 class="title">@anime.Titles[LocalizationEnum.English]</h1>
+                        <h1 class="title">@(anime.Titles != null ? anime.Titles[LocalizationEnum.English] : "No Title")</h1>
                         <p class="desc">
-                            @((MarkupString)anime.Descriptions[LocalizationEnum.English]))
+                            @((MarkupString)(anime.Descriptions != null ? anime.Descriptions[LocalizationEnum.English] : "No Description"))
                         </p>
                     </div>
                 </div>
@@ -237,17 +243,23 @@ else
                         <span>Season</span>@anime.SeasonPeriod @(anime.SeasonYear!= null && anime.SeasonYear.HasValue ? anime.SeasonYear.Value.ToString() : "")
                     </div>
                     <div class="row">
-                        <span>Score</span> @anime.Score.ToString() %
+                        <span>Score</span> @anime.Score %
                     </div>
-                    <div class="row">
-                        <span>Genres</span>@String.Join(", ", anime.Genres.OrderBy(g => g))
-                    </div>
+                    @if (anime.Genres != null)
+                    {
+                        <div class="row">
+                            <span>Genres</span>@String.Join(", ", anime.Genres.OrderBy(g => g))
+                        </div>
+                    }
                 </div>
                 <div class="media">
                     <div class="VideoTitle">
                         @(NumeroEpisodio != null && NumeroEpisodio.HasValue ? ("Episodio: " + NumeroEpisodio.Value.ToString()) : "Trailer")
                     </div>
-                    <VideoPlayer @ref="vp" listEpisodi="@listEpisodi" @bind-VideoNumeroEpisodio="@NumeroEpisodio" />
+                    @if(listEpisodi.Episodi != null)
+                    {
+                        <VideoPlayer @ref="vp" listEpisodi="@listEpisodi" @bind-VideoNumeroEpisodio="@NumeroEpisodio" />
+                    }
                     <div class="episodes">
                         @for (int i = 1; i <= anime.EpisodesCount; i++)
                         {
@@ -259,4 +271,4 @@ else
         </div>
     </div>
 
-}
+@*}*@

@@ -5,7 +5,7 @@
 
 @code{
     [Parameter] public AnimeEpisodi listEpisodi { get; set; }
-    [Parameter] public int? VideoNumeroEpisodio { get; set; }
+    [Parameter] public int? VideoNumeroEpisodio { get; set; } = -99;
     [Parameter] public Action<int> VideoNumeroEpisodioChanged { get; set; }
 
     private Episodio episodioAttuale;
@@ -19,17 +19,18 @@
         if (listEpisodi == null)
             return;
 
-        if (VideoNumeroEpisodio == null)
-            VideoNumeroEpisodio = 1;
+        if (listEpisodi.Episodi != null)
+        {
 
-        Episodio episodioPrecedente = episodioAttuale;
+            Episodio episodioPrecedente = episodioAttuale;
 
-        episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == VideoNumeroEpisodio.Value).FirstOrDefault();
+            episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == VideoNumeroEpisodio.Value).FirstOrDefault();
 
-        if (episodioPrecedente != null && episodioAttuale.Url != episodioPrecedente.Url)
-            caricaVideo = true;
+            if (episodioPrecedente != null && episodioAttuale.Url != episodioPrecedente.Url)
+                caricaVideo = true;
 
-        StateHasChanged();
+            //StateHasChanged();
+        }
     }
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
@@ -101,7 +102,7 @@
     </div>
 
     <video class="video" preload="metadata" style="@(fullScreen ? "height: auto;" : "")" @onclick="togglePlay">
-        <source src="@episodioAttuale.Url" type="video/mp4" />
+        <source src="@(episodioAttuale!= null ? episodioAttuale.Url : "")" type="video/mp4" />
     </video>
 
     <div class="video-controls @(!showControls ? "hidden" : "")">
