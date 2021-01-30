@@ -5,7 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
-namespace WebAPI.Models
+namespace Commons
 {
     public static class APIManager
     {
