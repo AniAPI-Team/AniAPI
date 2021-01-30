@@ -1,4 +1,9 @@
-﻿@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+﻿@using System.Net.Http
+@inject HttpClient Http
+@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
+@inject Generic generic;
+@inject SpinnerService spinnerService;
+
 
 <style>
     /*zona di Dalzo!*/
@@ -6,18 +11,48 @@
 
 
 <select class="@Class" @onchange="ChangeGlobalization">
-    <option value="it">IT</option>
-    <option value="en">EN-US</option>
+    @foreach (var option in DropDownOptions)
+    {
+        <option value="@option.Key">@option.Value</option>
+    }
 </select>
 
 
-@code {
+@code
+{
     [Parameter] public string Class { get; set; }
+
+    private Dictionary<string, string> DropDownOptions { get; set; } = new Dictionary<string, string>();
+
+
+    // chiamata solo la prima volta che carica la pagina
+    protected override async Task OnInitializedAsync()
+    {
+        // caricamento globalization da DB
+        //DropDownOptions = await generic.GetSingleRequest<Dictionary<string, string>>("/api/v1/Settings/GetGlobalization");
+
+        DropDownOptions = new Dictionary<string, string>()
+    {
+            { "it", "IT" },
+            { "en", "EN" },
+            { "es", "ES" },
+        };
+    }
 
 
     private void ChangeGlobalization(ChangeEventArgs e)
     {
         // butto dentro roba
         localStorage.SetItem<string>("globalization", e.Value.ToString());
+
+        if (e.Value.ToString() == "it")
+        {
+            spinnerService.Show();
+        }
+        else
+        {
+            spinnerService.Hide();
+
+        }
     }
 }

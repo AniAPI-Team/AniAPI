@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
+using WebApp.Shared;
 
 namespace WebApp
 {
@@ -27,6 +28,9 @@ namespace WebApp
 
             // local storage
             builder.Services.AddBlazoredLocalStorage();
+
+            // microservice spinner
+            builder.Services.AddScoped<SpinnerService>();
 
 
             bool useCustomVideoPlayer = bool.Parse(builder.Configuration["UseCustomVideoPlayer"]);
