@@ -40,9 +40,13 @@ namespace WebApp
                 res = JsonConvert.DeserializeObject<T>(await responsePost.Content.ReadAsStringAsync());
 
             }
+            catch (APIException ex)
+            {
+                APIManager.ErrorResponse(ex);
+            }
             catch (Exception ex)
             {
-                
+                throw ex;
                 //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
@@ -66,8 +70,13 @@ namespace WebApp
                 res = JsonConvert.DeserializeObject<List<T>>(await responsePost.Content.ReadAsStringAsync());
 
             }
+            catch (APIException ex)
+            {
+                APIManager.ErrorResponse(ex);
+            }
             catch (Exception ex)
             {
+                throw ex;
                 //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
@@ -88,9 +97,14 @@ namespace WebApp
 
                 res = await _httpClient.GetFromJsonAsync<T>(urlApi, jso);
             }
+            catch (APIException ex)
+            {
+                APIManager.ErrorResponse(ex);
+            }
             catch (Exception ex)
             {
-                //ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                throw ex;
+                //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
             return res;
@@ -110,9 +124,14 @@ namespace WebApp
 
                 res = await _httpClient.GetFromJsonAsync<List<T>>(urlApi, jso);
             }
+            catch (APIException ex)
+            {
+                APIManager.ErrorResponse(ex);
+            }
             catch (Exception ex)
             {
-                //ApiResponseManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                throw ex;
+                //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
 
             return res;

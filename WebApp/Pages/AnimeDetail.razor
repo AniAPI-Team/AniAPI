@@ -14,25 +14,27 @@
 
 @code {
     [Parameter] public int AnimeID { get; set; }
-    [Parameter] public int? NumeroEpisodio { get; set; } = -1;
+    [Parameter] public int NumeroEpisodio { get; set; }
 
     private VideoPlayer vp = new VideoPlayer();
 
     Anime anime = new Anime();
-    Anime prequel = new Anime();
-    Anime sequel = new Anime();
+    Anime prequel;
+    Anime sequel;
     AnimeEpisodi listEpisodi = new AnimeEpisodi();
 
     protected override void OnParametersSet()
     {
-        if (NumeroEpisodio != null && NumeroEpisodio.HasValue)
-        {
-            vp.VideoNumeroEpisodio = NumeroEpisodio;
-        }
+        if (NumeroEpisodio == 0)
+            NumeroEpisodio = -1;
+
+        base.OnParametersSet();
     }
+
 
     protected override async Task OnInitializedAsync()
     {
+        Console.WriteLine($"OnInitializedAsync - Numero Episodio: {NumeroEpisodio}");
         spinner.Show();
         //await Task.Delay(5000);
 
@@ -104,6 +106,7 @@
 
     protected override void OnAfterRender(bool firstRender)
     {
+        Console.WriteLine($"OnAfterRender - Numero Episodio: {NumeroEpisodio}");
         vp.VideoNumeroEpisodioChanged += ChildFiredEvent;
     }
 
@@ -254,7 +257,7 @@ else
                 </div>
                 <div class="media">
                     <div class="VideoTitle">
-                        @(NumeroEpisodio != null && NumeroEpisodio.HasValue ? ("Episodio: " + NumeroEpisodio.Value.ToString()) : "Trailer")
+                        @(NumeroEpisodio != -1 ? ("Episodio: " + NumeroEpisodio.ToString()) : "Trailer")
                     </div>
                     @if(listEpisodi.Episodi != null)
                     {
@@ -263,7 +266,7 @@ else
                     <div class="episodes">
                         @for (int i = 1; i <= anime.EpisodesCount; i++)
                         {
-                            <a href="/AnimeDetail/@AnimeID/Episodio/@i"><div class="episode @(NumeroEpisodio!= null && NumeroEpisodio.HasValue && NumeroEpisodio.Value == i ? "active" : "" )">@i</div></a>
+                            <a href="/AnimeDetail/@AnimeID/Episodio/@i"><div class="episode @(NumeroEpisodio!= -1 && NumeroEpisodio == i ? "active" : "" )">@i</div></a>
                         }
                     </div>
                 </div>
