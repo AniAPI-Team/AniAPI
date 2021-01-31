@@ -1,0 +1,167 @@
+﻿@page "/Login"
+@layout LoginLayout
+
+@inject Generic generic
+@inject HttpClient client
+@inject NavigationManager navigationManager
+@inject ISyncLocalStorageService localStorage
+
+@using System.Text.RegularExpressions;
+
+
+@if (mode == 'L')
+{
+    <div>
+        <div>
+            <h2>Log In</h2>
+            <br />
+            <h4>Become a member. <a href="" @onclick="SwitchMode" @onclick:preventDefault>Join</a></h4>
+        </div>
+        <br />
+        <div>
+            <div>
+                <label>Username</label>
+            </div>
+            <div>
+                <input type="text" placeholder="Insert username" @bind="user" />
+            </div>
+        </div>
+        <br />
+        <div>
+            <div>
+                <label>Password</label>
+            </div>
+            <div>
+                <input type="password" placeholder="Insert password" @bind="password" />
+            </div>
+        </div>
+        <br />
+        <div>
+            <button @onclick="Log_In">Login</button>
+        </div>
+    </div>
+}
+else
+{
+<div>
+    <div>
+        <h2>Register</h2>
+        <br />
+        <h4>Already a member? <a href="" @onclick="SwitchMode" @onclick:preventDefault>Log In</a></h4>
+    </div>
+    <br />
+    <div>
+        <div>
+            <label>Username</label>
+        </div>
+        <div>
+            <input type="text" placeholder="username" @bind="user" />
+        </div>
+    </div>
+    <br />
+    <div>
+        <div>
+            <label>Password</label>
+        </div>
+        <div>
+            <input type="password" placeholder="password" @bind="password" />
+            <br />
+            <label style="color:red">@pwdMessage</label>
+        </div>
+    </div>
+    <br />
+    <div>
+        <div>
+            <label>Email</label>
+        </div>
+        <div>
+            <input type="text" placeholder="Add your email" @bind="email" />
+        </div>
+    </div>
+    <br />
+    <div>
+        <div>
+            <label>Confirm Email</label>
+        </div>
+        <div>
+            <input type="text" placeholder="Confirm your email" @bind="confirmationEmail" />
+        </div>
+    </div>
+    <br />
+    <div>
+        <button @onclick="Register">Register</button>
+    </div>
+</div>
+}
+
+
+@code {
+    private char mode { get; set; } = 'L';
+    private string user { get; set; }
+    private string password { get; set; }
+    private string pwdMessage { get; set; }
+    private string email { get; set; }
+    private string confirmationEmail { get; set; }
+
+
+    private Task OnPasswordChanged(ChangeEventArgs e)
+    {
+        string pwd = e.Value.ToString();
+
+        if (PasswordValid(pwd))
+            pwdMessage = "";
+        else
+            pwdMessage = "La password non rispetta i criteri di sicurezza.";
+
+        return Task.CompletedTask;
+    }
+
+    private void SwitchMode()
+    {
+        if (mode == 'L')
+            mode = 'R';
+        else
+            mode = 'L';
+
+        StateHasChanged();
+    }
+
+    private bool PasswordValid(string password)
+    {
+        Regex hasNumber = new Regex(@"[0-9]+");
+        Regex hasUpperChar = new Regex(@"[A-Z]+");
+        Regex hasMinimumChars = new Regex(@".{8,}"); // minimo di 8 caratteri
+
+        return  hasNumber.IsMatch(password) &&
+                hasUpperChar.IsMatch(password) &&
+                hasMinimumChars.IsMatch(password);
+    }
+
+    private void Log_In()
+    {
+        string user = this.user;
+        string password = this.password;
+
+        localStorage.SetItem<string>("token", "imAToken");
+
+        // chiamata api per controllo login
+
+        // redirect
+        navigationManager.NavigateTo("/");
+    }
+
+    private void Register()
+    {
+        string user = this.user;
+        string password = this.password;
+
+        // chiamata api di registrazione
+
+
+        // redirect
+
+
+    }
+
+
+}
