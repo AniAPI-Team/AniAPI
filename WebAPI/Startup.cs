@@ -1,3 +1,5 @@
+using Commons;
+using Commons.Collections;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -9,6 +11,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -45,6 +48,13 @@ namespace WebAPI
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
                 //options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
             });
+
+            IConfiguration config = new ConfigurationBuilder().
+                SetBasePath(Directory.GetCurrentDirectory()).
+                AddInMemoryCollection(new AppSettingsCollection().GetConfiguration()).
+                Build();
+
+            services.Configure<AppSettings>(config);
 
             services.AddApiVersioning(o =>
             {
