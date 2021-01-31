@@ -25,16 +25,17 @@ namespace WebApp
             int port = int.Parse(builder.Configuration["Port"]);
             builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri($"{protocol}://{hostName}:{port}/") });
 
+            // Middlewhere - FE & API
             builder.Services.AddScoped<Generic>();
 
-            // local storage
+            // Local/Session storage
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddBlazoredSessionStorage();
 
             // microservice spinner
             builder.Services.AddScoped<SpinnerService>();
 
-
+            // UIConfiguration
             bool useCustomVideoPlayer = bool.Parse(builder.Configuration["UseCustomVideoPlayer"]);
             bool useDarkTheme = bool.Parse(builder.Configuration["UseDarkTheme"]);
             builder.Services.AddSingleton<UIConfiguration>(_ => new UIConfiguration(useCustomVideoPlayer, useDarkTheme));
