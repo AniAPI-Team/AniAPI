@@ -1,8 +1,5 @@
 ﻿//Definition vars
 var video;
-var videoControls;
-var playButton;
-var playbackIcons;
 var timeElapsed;
 var duration;
 var progressBar;
@@ -16,11 +13,8 @@ var volumeMiddle;
 var volumeHigh;
 var volume;
 var playbackAnimation;
-var fullscreenButton;
 var videoContainer;
-var fullscreenIcons;
 var pipButton;
-var videoWorks;
 
 
 var nextEpisodeWrapper;
@@ -30,14 +24,74 @@ var nextEpisodeTimeLeft;
 var nextEpisodeStarted;
 var secs;
 
+async function ScroolToVideo() { video && video.scrollIntoView({ behavior: "smooth", block: 'center' }) }
 
+async function AvviaVideo(url) {
+    if (video) {
+        video.src = url; //
+        await video.load();
+        //autoplay = true;
+        //video.removeEventListener('loadedmetadata');
+        //video.play();
+        //video.addEventListener('loadedmetadata', initializeVideo);
+    }
+}
+
+// toggleFullScreen toggles the full screen state of the video
+// If the browser is currently in fullscreen mode,
+// then it should exit and vice versa.
+async function toggleFullScreen(isFull) {
+
+    if (isFull) {
+        if (videoContainer.webkitRequestFullscreen) {
+            // Need this to support Safari
+            videoContainer.webkitRequestFullscreen();
+        } else {
+            videoContainer.requestFullscreen();
+        }
+    }
+    else {
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        } else if (document.webkitFullscreenElement) {
+            // Need this to support Safari
+            document.webkitExitFullscreen();
+        }
+    }
+}
+
+async function VideoHelper_Load(url) {
+    if (video.src != url) {
+        video.src = url;
+        await video.load();
+    }
+}
+
+async function VideoHelper_PlayPause(isPlaying) {
+    if (isPlaying)
+        await video.play();
+    else
+        await video.pause();
+}
+
+// initializeVideo sets the video duration, and maximum value of the
+// progressBar
+async function initializeVideo() {
+    const videoDuration = Math.round(video.duration);
+
+    if (isNaN(videoDuration))
+        return;
+
+    seek.setAttribute('max', videoDuration);
+    progressBar.setAttribute('max', videoDuration);
+    const time = formatTime(videoDuration);
+    duration.innerText = `${time.minutes}:${time.seconds}`;
+    duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
+}
 
 // Init Variabili
 function initVideoVariables() {
     video = document.querySelectorAll('.video')[0];
-    videoControls = document.querySelectorAll('.video-controls')[0];
-    playButton = document.querySelectorAll('.play')[0];
-    playbackIcons = document.querySelectorAll('.playback-icons i');
     timeElapsed = document.getElementById('time-elapsed');
     duration = document.getElementById('duration');
     progressBar = document.querySelectorAll('.progress-bar')[0];
@@ -51,11 +105,8 @@ function initVideoVariables() {
     volumeHigh = document.querySelectorAll('.fa-volume-up')[0];
     volume = document.querySelectorAll('.volume')[0];
     playbackAnimation = document.querySelectorAll('.playback-animation')[0];
-    fullscreenButton = document.querySelectorAll('.fullscreen-button')[0];
     videoContainer = document.querySelectorAll('.video-container')[0];
-    fullscreenIcons = document.querySelectorAll('.video-container i');
     pipButton = document.getElementById('pip-button');
-    videoWorks = !!document.createElement('video').canPlayType;
 
 
     nextEpisodeWrapper = document.getElementById('nextEpisodeCountDown');
@@ -64,78 +115,24 @@ function initVideoVariables() {
     nextEpisodeStarted = false;
     secs = nextEpisodeDuration;
 
-
-
     // Add eventlisteners
-    playButton.addEventListener('click', togglePlay);
-    video.addEventListener('play', updatePlayButton);
-    video.addEventListener('pause', updatePlayButton);
     video.addEventListener('timeupdate', updateTimeElapsed);
     video.addEventListener('timeupdate', updateProgress);
     video.addEventListener('volumechange', updateVolumeIcon);
-    video.addEventListener('click', togglePlay);
     video.addEventListener('click', animatePlayback);
-    video.addEventListener('mouseenter', showControls);
-    video.addEventListener('mouseleave', hideControls);
-    videoControls.addEventListener('mouseenter', showControls);
-    videoControls.addEventListener('mouseleave', hideControls);
     seek.addEventListener('mousemove', updateSeekTooltip);
-    //seek.addEventListener('input', skipAhead);
     seek.addEventListener('click', skipAhead);
     volume.addEventListener('input', updateVolume);
     volumeButton.addEventListener('click', toggleMute);
-    fullscreenButton.addEventListener('click', toggleFullScreen);
     pipButton.addEventListener('click', togglePip);
     document.addEventListener('keyup', keyboardShortcuts);
 
     //Initialize Video Player
     video.addEventListener('loadedmetadata', initializeVideo);
 
-    if (videoWorks) {
-        video.controls = false;
-        videoControls.classList.remove('hidden');
-    }
 
     if (!('pictureInPictureEnabled' in document)) {
         pipButton.classList.add('hidden');
-    }
-}
-
-// initializeVideo sets the video duration, and maximum value of the
-// progressBar
-function initializeVideo() {
-    const videoDuration = Math.round(video.duration);
-
-    if (isNaN(videoDuration))
-        return;
-
-    seek.setAttribute('max', videoDuration);
-    progressBar.setAttribute('max', videoDuration);
-    const time = formatTime(videoDuration);
-    duration.innerText = `${time.minutes}:${time.seconds}`;
-    duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
-}
-
-// togglePlay toggles the playback state of the video.
-// If the video playback is paused or ended, the video is played
-// otherwise, the video is paused
-function togglePlay() {
-    if (video.paused || video.ended) {
-        video.play();
-    } else {
-        video.pause();
-    }
-}
-
-// updatePlayButton updates the playback icon and tooltip
-// depending on the playback state
-function updatePlayButton() {
-    playbackIcons.forEach((icon) => icon.classList.toggle('hidden'));
-
-    if (video.paused) {
-        playButton.setAttribute('data-title', 'Play (spacebar)');
-    } else {
-        playButton.setAttribute('data-title', 'Pause (spacebar)');
     }
 }
 
@@ -269,37 +266,6 @@ function animatePlayback() {
     );
 }
 
-// toggleFullScreen toggles the full screen state of the video
-// If the browser is currently in fullscreen mode,
-// then it should exit and vice versa.
-function toggleFullScreen() {
-    if (document.fullscreenElement) {
-        document.exitFullscreen();
-    } else if (document.webkitFullscreenElement) {
-        // Need this to support Safari
-        document.webkitExitFullscreen();
-    } else if (videoContainer.webkitRequestFullscreen) {
-        // Need this to support Safari
-        videoContainer.webkitRequestFullscreen();
-    } else {
-        videoContainer.requestFullscreen();
-    }
-
-    updateFullscreenButton();
-}
-
-// updateFullscreenButton changes the icon of the full screen button
-// and tooltip to reflect the current full screen state of the video
-function updateFullscreenButton() {
-    fullscreenIcons.forEach((icon) => icon.classList.toggle('hidden'));
-
-    if (document.fullscreenElement) {
-        fullscreenButton.setAttribute('data-title', 'Exit full screen (F)');
-    } else {
-        fullscreenButton.setAttribute('data-title', 'Full screen (F)');
-    }
-}
-
 // togglePip toggles Picture-in-Picture mode on the video
 async function togglePip() {
     try {
@@ -316,21 +282,6 @@ async function togglePip() {
     }
 }
 
-// hideControls hides the video controls when not in use
-// if the video is paused, the controls must remain visible
-function hideControls() {
-    if (video.paused) {
-        return;
-    }
-
-    videoControls.classList.add('hide');
-}
-
-// showControls displays the video controls
-function showControls() {
-    videoControls.classList.remove('hide');
-}
-
 // keyboardShortcuts executes the relevant functions for
 // each supported shortcut key
 function keyboardShortcuts(event) {
@@ -340,11 +291,11 @@ function keyboardShortcuts(event) {
             togglePlay();
             animatePlayback();
             if (video.paused) {
-                showControls();
+                //showControls();
             } else {
-                setTimeout(() => {
-                    hideControls();
-                }, 2000);
+                //setTimeout(() => {
+                //    hideControls();
+                //}, 2000);
             }
             break;
         case 'm':
