@@ -1,10 +1,7 @@
 ﻿using Commons;
-using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -15,18 +12,16 @@ namespace WebApp
     public class Generic
     {
         private readonly HttpClient _httpClient;
-        public readonly NavigationManager _navigationManager;
 
         //Costruttore
-        public Generic(NavigationManager navigationManager, HttpClient httpClient)
+        public Generic(HttpClient httpClient)
         {
-            this._navigationManager = navigationManager;
             this._httpClient = httpClient;
         }
         public async Task<T> PostSingleRequest<T, Z>(string urlApi, Z data) where T : new()
         {
             T res = new T();
-            
+
             try
             {
                 JsonSerializerOptions jso = new JsonSerializerOptions()

@@ -15,364 +15,243 @@ var volume;
 var playbackAnimation;
 var videoContainer;
 var pipButton;
+var fullScreenButton;
+var videoControls;
+var playbackControls;
+var fullscreenIcons;
 
 
-var nextEpisodeWrapper;
-var nextEpisodeDuration;
-var nextEpisodeTimer;
-var nextEpisodeTimeLeft;
-var nextEpisodeStarted;
-var secs;
+//var nextEpisodeWrapper;
+//var nextEpisodeDuration;
+//var nextEpisodeTimer;
+//var nextEpisodeTimeLeft;
+//var nextEpisodeStarted;
+//var secs;
 
-async function ScroolToVideo() { video && video.scrollIntoView({ behavior: "smooth", block: 'center' }) }
+window.VideoPlayer = {
+    InitVideoVariables: function () {
+        if (video)
+            return;
 
-async function AvviaVideo(url) {
-    if (video) {
-        video.src = url; //
+        //Container
+        videoContainer = document.querySelectorAll('.video-container')[0];
+
+        //Video
+        video = document.querySelectorAll('.video')[0];
+        duration = document.getElementById('duration');
+
+        //Controls
+        videoControls = document.querySelectorAll('.video-controls')[0];
+        playbackControls = document.querySelectorAll('.playback-animation')[0];
+        fullscreenIcons = document.querySelectorAll('.fullscreen-button i');
+        playIcons = document.querySelectorAll('.play i');
+
+        //Progress
+        timeElapsed = document.getElementById('time-elapsed');
+        progressBar = document.querySelectorAll('.progress-bar')[0];
+        seek = document.querySelectorAll('.seek')[0];
+        seekTooltip = document.querySelectorAll('.seek-tooltip')[0];
+
+        //Volume
+        volumeButton = document.getElementById('volume-button');
+        volumeIcons = document.querySelectorAll('.volume-button i');
+        volumeMute = document.querySelectorAll('.fa-volume-mute')[0];
+        volumeLow = document.querySelectorAll('.fa-volume-down')[0];
+        volumeMiddle = document.querySelectorAll('.fa-volume')[0];
+        volumeHigh = document.querySelectorAll('.fa-volume-up')[0];
+        volume = document.querySelectorAll('.volume')[0];
+
+        //Video Size
+        pipButton = document.querySelectorAll('.pip-button')[0];
+        fullScreenButton = document.querySelectorAll('.fullscreen-button')[0];
+
+        // Add eventlisteners
+        video.addEventListener('timeupdate', VideoPlayer.UpdateProgress);
+        seek.addEventListener('mousemove', VideoPlayer.updateSeekTooltip);
+
+        volume.addEventListener('input', VideoPlayer.UpdateVolume);
+        volumeButton.addEventListener('click', VideoPlayer.ToggleMute);
+
+        pipButton.addEventListener('click', VideoPlayer.TogglePip);
+
+        seek.addEventListener('click', VideoPlayer.SkipAhead);
+
+        video.addEventListener('loadedmetadata', VideoPlayer.VideoLoaded);
+    },
+    VideoLoaded: function () {
+        const videoDuration = Math.round(video.duration);
+
+        if (isNaN(videoDuration))
+            return;
+
+        seek.setAttribute('max', videoDuration);
+        progressBar.setAttribute('max', videoDuration);
+
+        const result = new Date(videoDuration * 1000).toISOString().substr(11, 8);
+        const time = {
+            minutes: result.substr(3, 2),
+            seconds: result.substr(6, 2)
+        };
+        duration.innerText = `${time.minutes}:${time.seconds}`;
+        duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
+
+        document.querySelectorAll('.play .fa-play').forEach((icon) => icon.classList.remove('hidden'));
+        document.querySelectorAll('.play .fa-pause').forEach((icon) => icon.classList.add('hidden'));
+    },
+    ChangeVideoUrl: async function (newUrl) {
+        //Render senza modifica url
+        if (video.url == newUrl)
+            return;
+
+        video.url = newUrl;
         await video.load();
-        //autoplay = true;
-        //video.removeEventListener('loadedmetadata');
-        //video.play();
-        //video.addEventListener('loadedmetadata', initializeVideo);
-    }
-}
 
-// toggleFullScreen toggles the full screen state of the video
-// If the browser is currently in fullscreen mode,
-// then it should exit and vice versa.
-async function toggleFullScreen(isFull) {
-
-    if (isFull) {
-        if (videoContainer.webkitRequestFullscreen) {
-            // Need this to support Safari
-            videoContainer.webkitRequestFullscreen();
-        } else {
-            videoContainer.requestFullscreen();
+        VideoPlayer.VideoLoaded();
+    },
+    ShowVideoControls: function () {
+        videoControls.classList.remove('hide');
+        playbackControls.classList.remove('hide');
+    },
+    HideVideoControls: function () {
+        videoControls.classList.add('hide');
+        playbackControls.classList.add('hide');
+    },
+    TogglePlay: function (isPlay) {
+        if (!video.paused) {
+            video.pause();
+            VideoPlayer.ShowVideoControls();
         }
-    }
-    else {
+        else {
+            video.play();
+            setTimeout(VideoPlayer.HideVideoControls, 1000);
+        }
+
+        playIcons.forEach((icon) => icon.classList.toggle('hidden'));
+        playbackControls.animate([{ opacity: 1, transform: 'scale(1)', }, { opacity: 0, transform: 'scale(1.3)' }], { duration: 1000, });
+    },
+    UpdateProgress: function () {
+        //Update time
+        const result = new Date(Math.round(video.currentTime) * 1000).toISOString().substr(11, 8);
+        const time = {
+            minutes: result.substr(3, 2),
+            seconds: result.substr(6, 2)
+        };
+
+        //const time = formatTime(Math.round(video.currentTime));
+        timeElapsed.innerText = `${time.minutes}:${time.seconds}`;
+        timeElapsed.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
+
+        //Update progressBar
+        seek.value = Math.round(video.currentTime);
+        progressBar.value = Math.round(video.currentTime);
+
+        if ((video.duration - video.currentTime) <= 6) {
+            nextEpisodeStart();
+        }
+    },
+    updateSeekTooltip: function (event) {
+        const skipTo = Math.round(
+            (event.offsetX / event.target.clientWidth) *
+            parseInt(event.target.getAttribute('max'), 10)
+        );
+
+        if (isNaN(skipTo))
+            return;
+
+        seek.setAttribute('data-seek', skipTo);
+
+
+        const result = new Date(skipTo * 1000).toISOString().substr(11, 8);
+        const t = {
+            minutes: result.substr(3, 2),
+            seconds: result.substr(6, 2)
+        };
+        seekTooltip.textContent = `${t.minutes}:${t.seconds}`;
+        const rect = video.getBoundingClientRect();
+        seekTooltip.style.left = `${event.pageX - rect.left}px`;
+    },
+    UpdateVolume: function () {
+        video.volume = volume.value;
+
+        volumeIcons.forEach((icon) => {
+            icon.classList.add('hidden');
+        });
+
+        volumeButton.setAttribute('data-title', 'Mute (M)');
+
+        if (video.muted || video.volume === 0) {
+            volumeMute.classList.remove('hidden');
+            volumeButton.setAttribute('data-title', 'Unmute (M)');
+        } else if (video.volume > 0 && video.volume <= 0.3) {
+            volumeLow.classList.remove('hidden');
+        } else if (video.volume > 0.3 && video.volume <= 0.6) {
+            volumeMiddle.classList.remove('hidden');
+        } else {
+            volumeHigh.classList.remove('hidden');
+        }
+    },
+    ToggleMute: function () {
+        video.muted = !video.muted;
+
+        if (video.muted) {
+            volume.setAttribute('data-volume', volume.value);
+            volume.dataset.volume = volume.value;
+            volume.value = 0;
+        } else {
+            volume.value = volume.dataset.volume;
+        }
+        VideoPlayer.UpdateVolume();
+        volume.blur();
+    },
+    TogglePip: async function () {
+        try {
+            if (video !== document.pictureInPictureElement) {
+                pipButton.disabled = true;
+                await video.requestPictureInPicture();
+            } else {
+                await document.exitPictureInPicture();
+            }
+        } catch (error) {
+            console.error(error);
+        } finally {
+            pipButton.disabled = false;
+        }
+    },
+    SkipAhead: function (event) {
+
+        const skipTo = event.target.dataset.seek
+            ? event.target.dataset.seek
+            : event.target.value;
+        video.currentTime = skipTo;
+        progressBar.value = skipTo;
+        seek.value = skipTo;
+        seek.blur();
+    },
+    ToggleFullScreen: function () {
         if (document.fullscreenElement) {
             document.exitFullscreen();
         } else if (document.webkitFullscreenElement) {
             // Need this to support Safari
             document.webkitExitFullscreen();
-        }
-    }
-}
-
-async function VideoHelper_Load(url) {
-    if (video.src != url) {
-        video.src = url;
-        await video.load();
-    }
-}
-
-async function VideoHelper_PlayPause(isPlaying) {
-    if (isPlaying)
-        await video.play();
-    else
-        await video.pause();
-}
-
-// initializeVideo sets the video duration, and maximum value of the
-// progressBar
-async function initializeVideo() {
-    const videoDuration = Math.round(video.duration);
-
-    if (isNaN(videoDuration))
-        return;
-
-    seek.setAttribute('max', videoDuration);
-    progressBar.setAttribute('max', videoDuration);
-    const time = formatTime(videoDuration);
-    duration.innerText = `${time.minutes}:${time.seconds}`;
-    duration.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
-}
-
-// Init Variabili
-function initVideoVariables() {
-    video = document.querySelectorAll('.video')[0];
-    timeElapsed = document.getElementById('time-elapsed');
-    duration = document.getElementById('duration');
-    progressBar = document.querySelectorAll('.progress-bar')[0];
-    seek = document.querySelectorAll('.seek')[0];
-    seekTooltip = document.querySelectorAll('.seek-tooltip')[0];
-    volumeButton = document.getElementById('volume-button');
-    volumeIcons = document.querySelectorAll('.volume-button i');
-    volumeMute = document.querySelectorAll('.fa-volume-mute')[0];
-    volumeLow = document.querySelectorAll('.fa-volume-down')[0];
-    volumeMiddle = document.querySelectorAll('.fa-volume')[0];
-    volumeHigh = document.querySelectorAll('.fa-volume-up')[0];
-    volume = document.querySelectorAll('.volume')[0];
-    playbackAnimation = document.querySelectorAll('.playback-animation')[0];
-    videoContainer = document.querySelectorAll('.video-container')[0];
-    pipButton = document.getElementById('pip-button');
-
-
-    nextEpisodeWrapper = document.getElementById('nextEpisodeCountDown');
-    nextEpisodeDuration = 5;
-    nextEpisodeTimeLeft = document.getElementById("nextEpisodeTimeLeft");
-    nextEpisodeStarted = false;
-    secs = nextEpisodeDuration;
-
-    // Add eventlisteners
-    video.addEventListener('timeupdate', updateTimeElapsed);
-    video.addEventListener('timeupdate', updateProgress);
-    video.addEventListener('volumechange', updateVolumeIcon);
-    video.addEventListener('click', animatePlayback);
-    seek.addEventListener('mousemove', updateSeekTooltip);
-    seek.addEventListener('click', skipAhead);
-    volume.addEventListener('input', updateVolume);
-    volumeButton.addEventListener('click', toggleMute);
-    pipButton.addEventListener('click', togglePip);
-    document.addEventListener('keyup', keyboardShortcuts);
-
-    //Initialize Video Player
-    video.addEventListener('loadedmetadata', initializeVideo);
-
-
-    if (!('pictureInPictureEnabled' in document)) {
-        pipButton.classList.add('hidden');
-    }
-}
-
-// formatTime takes a time length in seconds and returns the time in
-// minutes and seconds
-function formatTime(timeInSeconds) {
-    if (isNaN(timeInSeconds))
-        return;
-
-    const result = new Date(timeInSeconds * 1000).toISOString().substr(11, 8);
-
-    return {
-        minutes: result.substr(3, 2),
-        seconds: result.substr(6, 2),
-    };
-}
-
-// updateTimeElapsed indicates how far through the video
-// the current playback is by updating the timeElapsed element
-function updateTimeElapsed() {
-    const time = formatTime(Math.round(video.currentTime));
-    timeElapsed.innerText = `${time.minutes}:${time.seconds}`;
-    timeElapsed.setAttribute('datetime', `${time.minutes}m ${time.seconds}s`);
-}
-
-// updateProgress indicates how far through the video
-// the current playback is by updating the progress bar
-function updateProgress() {
-    seek.value = Math.round(video.currentTime);
-    progressBar.value = Math.round(video.currentTime);
-
-    if ((video.duration - video.currentTime) <= 6) {
-        nextEpisodeStart();
-    }
-}
-
-// updateSeekTooltip uses the position of the mouse on the progress bar to
-// roughly work out what point in the video the user will skip to if
-// the progress bar is clicked at that point
-function updateSeekTooltip(event) {
-    const skipTo = Math.round(
-        (event.offsetX / event.target.clientWidth) *
-        parseInt(event.target.getAttribute('max'), 10)
-    );
-
-    if (isNaN(skipTo))
-        return;
-
-    seek.setAttribute('data-seek', skipTo);
-    const t = formatTime(skipTo);
-    seekTooltip.textContent = `${t.minutes}:${t.seconds}`;
-    const rect = video.getBoundingClientRect();
-    seekTooltip.style.left = `${event.pageX - rect.left}px`;
-}
-
-// skipAhead jumps to a different point in the video when the progress bar
-// is clicked
-function skipAhead(event) {
-    const skipTo = event.target.dataset.seek
-        ? event.target.dataset.seek
-        : event.target.value;
-    video.currentTime = skipTo;
-    progressBar.value = skipTo;
-    seek.value = skipTo;
-    seek.blur();
-}
-
-// updateVolume updates the video's volume
-// and disables the muted state if active
-function updateVolume() {
-    if (video.muted) {
-        video.muted = false;
-    }
-
-    video.volume = volume.value;
-}
-
-// updateVolumeIcon updates the volume icon so that it correctly reflects
-// the volume of the video
-function updateVolumeIcon() {
-    volumeIcons.forEach((icon) => {
-        icon.classList.add('hidden');
-    });
-
-    volumeButton.setAttribute('data-title', 'Mute (M)');
-
-    if (video.muted || video.volume === 0) {
-        volumeMute.classList.remove('hidden');
-        volumeButton.setAttribute('data-title', 'Unmute (M)');
-    } else if (video.volume > 0 && video.volume <= 0.3) {
-        volumeLow.classList.remove('hidden');
-    } else if (video.volume > 0.3 && video.volume <= 0.6) {
-        volumeMiddle.classList.remove('hidden');
-    } else {
-        volumeHigh.classList.remove('hidden');
-    }
-}
-
-// toggleMute mutes or unmutes the video when executed
-// When the video is unmuted, the volume is returned to the value
-// it was set to before the video was muted
-function toggleMute() {
-    video.muted = !video.muted;
-
-    if (video.muted) {
-        volume.setAttribute('data-volume', volume.value);
-        volume.value = 0;
-    } else {
-        volume.value = volume.dataset.volume;
-    }
-    volume.blur();
-}
-
-// animatePlayback displays an animation when
-// the video is played or paused
-function animatePlayback() {
-    playbackAnimation.animate(
-        [
-            {
-                opacity: 1,
-                transform: 'scale(1)',
-            },
-            {
-                opacity: 0,
-                transform: 'scale(1.3)',
-            },
-        ],
-        {
-            duration: 500,
-        }
-    );
-}
-
-// togglePip toggles Picture-in-Picture mode on the video
-async function togglePip() {
-    try {
-        if (video !== document.pictureInPictureElement) {
-            pipButton.disabled = true;
-            await video.requestPictureInPicture();
+        } else if (videoContainer.webkitRequestFullscreen) {
+            // Need this to support Safari
+            videoContainer.webkitRequestFullscreen();
         } else {
-            await document.exitPictureInPicture();
+            videoContainer.requestFullscreen();
         }
-    } catch (error) {
-        console.error(error);
-    } finally {
-        pipButton.disabled = false;
+
+        fullscreenIcons.forEach((icon) => icon.classList.toggle('hidden'));
+
+        if (document.fullscreenElement || document.webkitFullscreenElement) {
+            fullScreenButton.setAttribute('data-title', 'Exit full screen (f)');
+            video.classList.remove("h-auto");
+        } else {
+            fullScreenButton.setAttribute('data-title', 'Full screen (f)');
+            video.classList.add("h-auto");
+        }
+    },
+    ScroolToVideo: function () {
+        //video && video.scrollIntoView({ behavior: "smooth", block: 'center' });
+        video && video.scrollIntoView();
     }
-}
-
-// keyboardShortcuts executes the relevant functions for
-// each supported shortcut key
-function keyboardShortcuts(event) {
-    const { key } = event;
-    switch (key) {
-        case ' ': //Spacebar
-            togglePlay();
-            animatePlayback();
-            if (video.paused) {
-                //showControls();
-            } else {
-                //setTimeout(() => {
-                //    hideControls();
-                //}, 2000);
-            }
-            break;
-        case 'm':
-            toggleMute();
-            break;
-        case 'f':
-            toggleFullScreen();
-            break;
-        case 'p':
-            togglePip();
-            break;
-        case 'ArrowRight':
-            var NextStop = parseInt(progressBar.value) + 10;
-            if (video.duration <= NextStop)
-                seek.value = video.duration;
-
-            video.currentTime = NextStop;
-            progressBar.value = NextStop;
-            seek.value = NextStop;
-            break;
-        case 'ArrowLeft':
-            var NextStop = parseInt(progressBar.value) - 10;
-            if (NextStop <= 0)
-                seek.value = 0;
-
-            video.currentTime = NextStop;
-            progressBar.value = NextStop;
-            seek.value = NextStop;
-            break;
-        case 'ArrowUp':
-            if ((parseFloat(volume.value) + 0.2) >= 1) {
-                volume.value = 1;
-            }
-            volume.value = parseFloat(volume.value) + 0.2;
-            updateVolume();
-            break;
-        case 'ArrowDown':
-            if ((parseFloat(volume.value) - 0.2) <= 0) {
-                volume.value = 0;
-            }
-            volume.value = parseFloat(volume.value) - 0.2;
-            updateVolume();
-            break;
-    }
-}
-
-//// Gestione SLIDE Prossimo Episodio
-//const nextEpisodeWrapper = document.getElementById('nextEpisodeCountDown');
-//const nextEpisodeDuration = 5;
-//var nextEpisodeTimer;
-//var nextEpisodeTimeLeft = document.getElementById("nextEpisodeTimeLeft");
-//var nextEpisodeStarted = false;
-//var secs = nextEpisodeDuration;
-
-
-function nextEpisodeStart() {
-    if (!nextEpisodeStarted) {
-        secs = nextEpisodeDuration;
-        nextEpisodeTimer = setInterval(nextEpisodeUpdate, 1000);
-        nextEpisodeStarted = true;
-    }
-
-    nextEpisodeWrapper.classList.remove("hide");
-    nextEpisodeWrapper.querySelectorAll('.slide')[0].classList.add("slideAnimation");
-}
-function nextEpisodeUpdate() {
-  
-  if (secs < 1)
-  {
-    nextEpisodeTimeLeft.innerHTML = "";
-    clearInterval(nextEpisodeTimer);
-	nextEpisodeStarted = false;
-	//AVVIA PROSSIMO EPISODIO!!!
-	return;
-  }
-  
-  secs--;
-  nextEpisodeTimeLeft.innerHTML = ' in ' + secs + ' sec.';        
-  
- }
+};

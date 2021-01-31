@@ -301,7 +301,7 @@ svg {
     cursor: pointer;
 }
 
-.VideoTitle {
+.video-title {
     background-color: white;
     border-radius: 5px;
     margin-bottom: 24px;
@@ -346,6 +346,11 @@ svg {
 .slideAnimation {
     transition: 5s !important;
     left: 0 !important;
+}
+
+.h-auto {
+    height: auto !important;
+    max-height: 100%;
 }
 
 /* FINE GESTIONE SLIDER PROSSIMO EPISODIO */

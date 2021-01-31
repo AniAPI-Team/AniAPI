@@ -154,6 +154,12 @@
 
         return listEp;
     }
+
+    //private Task CambioEpisodio(int NumEp)
+    //{
+    //    NumeroEpisodio = NumEp;
+    //    return Task.CompletedTask;
+    //}
 }
 
 <div class="content">
@@ -238,7 +244,7 @@
                 }
             </div>
             <div class="media">
-                <div class="VideoTitle">
+                <div class="video-title">
                     @(NumeroEpisodio != -1 ? ("Episodio: " + NumeroEpisodio.ToString()) : "Trailer")
                 </div>
                 @if(listEpisodi.Episodi != null)
@@ -249,6 +255,8 @@
                     @for (int i = 1; i <= anime.EpisodesCount; i++)
                     {
                         <a href="/AnimeDetail/@AnimeID/Episodio/@i"><div class="episode @(NumeroEpisodio!= -1 && NumeroEpisodio == i ? "active" : "" )">@i</div></a>
+                        //int Ep = i;
+                        @*<a @onclick="@(() => (CambioEpisodio(Ep)))"><div class="episode @(NumeroEpisodio!= -1 && NumeroEpisodio == i ? "active" : "" )">@i</div></a>*@
                     }
                 </div>
             </div>

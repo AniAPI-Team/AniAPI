@@ -1,18 +1,11 @@
-﻿@inject IJSRuntime JS;
-
-@using System.Text.Json;
-@using System.Text.Json.Serialization;
+﻿@inject IJSRuntime JS
 
 @code{
     [Parameter] public AnimeEpisodi listEpisodi { get; set; }
     [Parameter] public int VideoNumeroEpisodio { get; set; }
     [Parameter] public Action<int> VideoNumeroEpisodioChanged { get; set; }
 
-    private Episodio episodioAttuale;
-    bool isPlaying = false;
-    bool showControls = false;
-    bool fullScreen = false;
-    bool caricaVideo = false;
+    private Episodio episodioAttuale = new Episodio();
 
     protected override void OnParametersSet()
     {
@@ -22,12 +15,12 @@
         if (listEpisodi.Episodi != null)
         {
 
-            Episodio episodioPrecedente = episodioAttuale;
-
             episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == VideoNumeroEpisodio).FirstOrDefault();
 
-            if (episodioPrecedente != null && episodioAttuale.Url != episodioPrecedente.Url)
-                caricaVideo = true;
+            if (episodioAttuale != null && episodioAttuale.Url != null)
+            {
+                JS.InvokeVoidAsync("VideoPlayer.ChangeVideoUrl", episodioAttuale.Url);
+            }
 
             //StateHasChanged();
         }
@@ -35,77 +28,50 @@
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        await JS.InvokeVoidAsync("initVideoVariables");
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("VideoPlayer.InitVideoVariables");
+        }
 
         if (!firstRender)
         {
-            await JS.InvokeVoidAsync("ScroolToVideo");
+            await JS.InvokeVoidAsync("VideoPlayer.ScroolToVideo");
         }
-
-        if (caricaVideo)
-            await CaricaVideo();
-
-        caricaVideo = false;
 
         await base.OnAfterRenderAsync(firstRender);
     }
 
-    private async Task CaricaVideo()
-    {
-        isPlaying = false;
-        await JS.InvokeVoidAsync("VideoHelper_PlayPause", isPlaying);
-        await JS.InvokeVoidAsync("VideoHelper_Load", episodioAttuale.Url);
-    }
-
-    private bool ShowControls(bool mouseIn)
-    {
-        if (!mouseIn && !isPlaying)
-        {
-            showControls = true;
-            return true;
-        }
-
-        showControls = mouseIn;
-        return false;
-    }
-
-    private async Task togglePlay(MouseEventArgs args)
-    {
-        isPlaying = !isPlaying;
-
-        await JS.InvokeVoidAsync("VideoHelper_PlayPause", isPlaying);
-    }
-
-    private async Task toggleFullScreen()
-    {
-        fullScreen = !fullScreen;
-
-        await JS.InvokeVoidAsync("toggleFullScreen", fullScreen);
-    }
-
-    private async Task NextEpisode()
+    private void NextEpisode()
     {
         if (VideoNumeroEpisodio + 1 <= listEpisodi.Episodi.Count)
         {
             VideoNumeroEpisodio++;
             VideoNumeroEpisodioChanged?.Invoke(VideoNumeroEpisodio);
-            isPlaying = false;
-            await CaricaVideo();
         }
+    }
+
+    private async Task ToggleFullScreen()
+    {
+        await JS.InvokeVoidAsync("VideoPlayer.ToggleFullScreen");
+    }
+
+    private async Task TogglePlay()
+    {
+        await JS.InvokeVoidAsync("VideoPlayer.TogglePlay");
     }
 }
 
-<div class="video-container" @ondblclick="@(() => toggleFullScreen())" @onmouseover="@(() => ShowControls(true))" @onmouseout="@(() => ShowControls(false))">
-    <div class="playback-animation playback-icons">
-        <i class="fas fa-play large white @(isPlaying ? "hidden" : "")"></i>
-        <i class="fas fa-pause large white @(!isPlaying ? "hidden" : "")"></i>
+<div class="video-container" @ondblclick="@(() => ToggleFullScreen())">
+    <div class="playback-animation playback-icons play">
+        <i class="fas fa-play large white"></i>
+        <i class="fas fa-pause large white hidden"></i>
     </div>
 
-    <video class="video" preload="metadata" style="@(fullScreen ? "height: auto;" : "")" @onclick="togglePlay">
-        <source src="@(episodioAttuale!= null ? episodioAttuale.Url : "")" type="video/mp4" />
+    <video class="video" preload="metadata" @onclick="TogglePlay">
+        <source src="@(episodioAttuale != null ? episodioAttuale.Url : "")" type="video/mp4" />
     </video>
 
-    <div class="video-controls @(!showControls ? "hidden" : "")">
+    <div class="video-controls">
         <div class="video-progress">
             <progress class="progress-bar" value="0" min="0"></progress>
             <input class="seek" value="0" min="0" type="range" step="1">
@@ -114,9 +80,9 @@
 
         <div class="bottom-controls ">
             <div class="left-controls">
-                <button data-title="@(isPlaying ? "Pause (spacebar)" : "Play (spacebar)")" class="play playback-icons" @onclick="togglePlay">
-                    <i class="fas fa-play large white @(isPlaying ? "hidden" : "")"></i>
-                    <i class="fas fa-pause large white @(!isPlaying ? "hidden" : "")"></i>
+                <button data-title="Play (spacebar)" class="play playback-icons" @onclick="TogglePlay">
+                    <i class="fas fa-play large white"></i>
+                    <i class="fas fa-pause large white hidden"></i>
                 </button>
 
                 @if (VideoNumeroEpisodio + 1 < listEpisodi.Episodi.Count)
@@ -150,21 +116,22 @@
                         <use href="#pip"></use>
                     </svg>
                 </button>
-                <button data-title="@(fullScreen ? "Exit full screen (F)" : "Full screen (F)")" class="fullscreen-button" @onclick="@(() => toggleFullScreen())">
-                    <i class="fas fa-expand large white @(!fullScreen ? "hidden" : "")"></i>
-                    <i class="fas fa-compress large white @(fullScreen ? "hidden" : "")"></i>
+                <button data-title="Full screen (F)" class="fullscreen-button" @onclick="ToggleFullScreen">
+                    <i class="fas fa-expand large white"></i>
+                    <i class="fas fa-compress large white hidden"></i>
                 </button>
             </div>
         </div>
     </div>
 </div>
+
 @*Slider ultimi 5 secondi*@
-<div id="nextEpisodeCountDown" class="hide nextEpisodeCountDown">
+@*<div id="nextEpisodeCountDown" class="hide nextEpisodeCountDown">
     <div class="Text">
         Prossimo Episodio<span id="nextEpisodeTimeLeft"> 5 sec</span>
     </div>
     <div class="slide"></div>
-</div>
+</div>*@
 
 
 <svg style="display: none">
