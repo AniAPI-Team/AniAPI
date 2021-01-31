@@ -136,5 +136,10 @@ namespace WebApp
 
             return res;
         }
+
+        public void RedirectTo(string url)
+        {
+            _navigationManager.NavigateTo(url);
+        }
     }
 }
