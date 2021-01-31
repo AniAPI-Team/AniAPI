@@ -46,42 +46,31 @@
             ApiResponse = GetAnime();
             anime = (Anime)ApiResponse.Data;
 
-            if (ApiResponse.StatusCode != System.Net.HttpStatusCode.OK)
-            {
-                navigationManager.NavigateTo("/");
-                return;
-            }
-
-            //anime = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
-            anime = (Anime)ApiResponse.Data;
-
-            if (anime.Prequel != null && anime.Prequel.HasValue)
-            {
-                ApiResponse = null;
-                //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Prequel);
-                //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
-                ApiResponse = GetAnime();
-                if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
-                    //prequel = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
-                    prequel = (Anime)ApiResponse.Data;
-            }
-
-            if (anime.Sequel != null && anime.Sequel.HasValue)
-            {
-                ApiResponse = null;
-                //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Sequel);
-                //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
-                ApiResponse = GetAnime();
-                if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
-                    //sequel = JsonSerializer.Deserialize<Anime>(ApiResponse.result.ToString());
-                    sequel = (Anime)ApiResponse.Data;
-            }
-        }
-        catch (Exception ex)
+        if (ApiResponse.StatusCode != System.Net.HttpStatusCode.OK)
         {
-            Console.WriteLine($"Generic Exception Catch: {ex.Message}");
             navigationManager.NavigateTo("/");
             return;
+        }
+
+        anime = JsonSerializer.Deserialize<Anime>(ApiResponse.Data.ToString());
+
+
+        if (anime.Prequel != null && anime.Prequel.HasValue)
+        {
+            ApiResponse = null;
+            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Prequel);
+            ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+            if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                prequel = (Anime)ApiResponse.Data;
+        }
+
+        if (anime.Sequel != null && anime.Sequel.HasValue)
+        {
+            ApiResponse = null;
+            //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Sequel);
+            ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+            if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                sequel = (Anime)ApiResponse.Data;
         }
 
         try
