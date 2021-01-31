@@ -1,4 +1,7 @@
 ﻿
+:root {
+    --youtube-red: #FE0900;
+}
 /* INIZIO GESTIONE VIDEO PLAYER */
 
 .video-container {
@@ -297,9 +300,17 @@ svg {
     stroke: #fff;
     cursor: pointer;
 }
+
+.VideoTitle {
+    background-color: white;
+    border-radius: 5px;
+    margin-bottom: 24px;
+    padding: 12px;
+    color: rgba(0, 0, 0, .87);
+    font-weight: 500;
+    font-size: 14px;
+}
 /* FINE GESTIONE VIDEO PLAYER */
-
-
 /* INIZIO GESTIONE SLIDER PROSSIMO EPISODIO */
 .nextEpisodeCountDown {
     position: absolute;
