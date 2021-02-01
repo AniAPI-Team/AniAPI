@@ -110,7 +110,7 @@ namespace WebAPI.Controllers
 
                 collisions.AddRange(this._userCollection.GetList(new UserFilter()
                 {
-                    Username = model.Username
+                    username = model.Username
                 }).Documents);
 
                 if(collisions.Count > 0)
@@ -122,7 +122,7 @@ namespace WebAPI.Controllers
 
                 collisions.AddRange(this._userCollection.GetList(new UserFilter()
                 {
-                    Email = model.Email
+                    email = model.Email
                 }).Documents);
 
                 if (collisions.Count > 0)

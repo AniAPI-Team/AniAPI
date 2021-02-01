@@ -67,17 +67,17 @@ namespace Commons.Collections
             var builder = Builders<Anime>.Filter;
             FilterDefinition<Anime> queryFilter = builder.Empty;
 
-            if (!string.IsNullOrEmpty(animeFilter.Title))
+            if (!string.IsNullOrEmpty(animeFilter.title))
             {
-                queryFilter = queryFilter & builder.Regex($"titles.{animeFilter.Locale}", new BsonRegularExpression($".*{animeFilter.Title}.*"));
+                queryFilter = queryFilter & builder.Regex($"titles.{animeFilter.locale}", new BsonRegularExpression($".*{animeFilter.title}.*"));
             }
 
-            if(animeFilter.AnilistId != 0)
+            if(animeFilter.anilist_id != 0)
             {
-                queryFilter = queryFilter & builder.Eq("anilist_id", animeFilter.AnilistId);
+                queryFilter = queryFilter & builder.Eq("anilist_id", animeFilter.anilist_id);
             }
 
-            return new Paging<Anime>(this.Collection, animeFilter.Page, queryFilter);
+            return new Paging<Anime>(this.Collection, animeFilter.page, queryFilter);
         }
     }
 }
