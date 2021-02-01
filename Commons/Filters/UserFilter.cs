@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿//using Microsoft.AspNetCore.Mvc;
 using MongoService;
 using System;
 using System.Collections.Generic;
@@ -10,10 +10,10 @@ namespace Commons.Filters
 {
     public class UserFilter : IFilter<UserFilter>
     {
-        [FromQuery(Name = "username")]
+        //[FromQuery(Name = "username")]
         public string Username { get; set; }
 
-        [FromQuery(Name = "email")]
+        //[FromQuery(Name = "email")]
         public string Email { get; set; }
     }
 }

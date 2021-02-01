@@ -18,7 +18,7 @@ namespace WebApp
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("app");
+            builder.RootComponents.Add<App>("#app");
 
             string hostName = builder.Configuration["HostName"];
             string protocol = builder.Configuration["Protocol"];
