@@ -1,4 +1,5 @@
 using Blazored.LocalStorage;
+using Blazored.SessionStorage;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,22 +18,24 @@ namespace WebApp
         public static async Task Main(string[] args)
         {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
-            builder.RootComponents.Add<App>("app");
+            builder.RootComponents.Add<App>("#app");
 
             string hostName = builder.Configuration["HostName"];
             string protocol = builder.Configuration["Protocol"];
             int port = int.Parse(builder.Configuration["Port"]);
             builder.Services.AddScoped(_ => new HttpClient { BaseAddress = new Uri($"{protocol}://{hostName}:{port}/") });
 
+            // Middlewhere - FE & API
             builder.Services.AddScoped<Generic>();
 
-            // local storage
+            // Local/Session storage
             builder.Services.AddBlazoredLocalStorage();
+            builder.Services.AddBlazoredSessionStorage();
 
             // microservice spinner
             builder.Services.AddScoped<SpinnerService>();
 
-
+            // UIConfiguration
             bool useCustomVideoPlayer = bool.Parse(builder.Configuration["UseCustomVideoPlayer"]);
             bool useDarkTheme = bool.Parse(builder.Configuration["UseDarkTheme"]);
             builder.Services.AddSingleton<UIConfiguration>(_ => new UIConfiguration(useCustomVideoPlayer, useDarkTheme));
