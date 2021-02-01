@@ -32,7 +32,6 @@ namespace WebApp.Pages.AnimePages
             base.OnParametersSet();
         }
 
-
         protected override async Task OnInitializedAsync()
         {
             Console.WriteLine($"OnInitializedAsync - Numero Episodio: {NumeroEpisodio}");
@@ -87,21 +86,14 @@ namespace WebApp.Pages.AnimePages
                 return;
             }
 
-
-
             spinner.Hide();
-        }
-
-        protected override void OnAfterRender(bool firstRender)
-        {
-            Console.WriteLine($"OnAfterRender - Numero Episodio: {NumeroEpisodio}");
-            vp.VideoNumeroEpisodioChanged += ChildFiredEvent;
         }
 
         public void ChildFiredEvent(int _numEpisodio)
         {
             NumeroEpisodio = _numEpisodio;
-            StateHasChanged();
+            //StateHasChanged();
+            InvokeAsync(StateHasChanged);
         }
 
         private APIResponse GetAnime()

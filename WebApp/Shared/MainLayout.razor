@@ -1,10 +1,4 @@
-﻿@inherits LayoutComponentBase
-@inject UIConfiguration theme
-@inject NavigationManager navigationManager
-@inject Blazored.LocalStorage.ISyncLocalStorageService localStorage
-
-@using Commons
-
+﻿@inherits LayoutBaseComponent
 
 <head>
     @if (theme.UseDarkTheme)
@@ -19,25 +13,3 @@
         @Body
     </div>
 </div>
-
-
-@code
-{
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        // controlli local storage
-        if (string.IsNullOrEmpty(localStorage.GetItem<string>("token")))
-        {
-
-            navigationManager.NavigateTo("/Login");
-        }
-
-        if (localStorage.GetItem<string>("token") == "!isValid")
-        {
-            navigationManager.NavigateTo("/Login");
-        }
-    }
-
-}

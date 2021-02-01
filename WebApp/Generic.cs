@@ -9,18 +9,8 @@ using System.Threading.Tasks;
 
 namespace WebApp
 {
-    public class Generic
+    public class Generic : BaseComponent
     {
-        private readonly HttpClient _httpClient;
-        private readonly SpinnerService _spinner;
-
-        //Costruttore
-        public Generic(HttpClient httpClient, SpinnerService spinner)
-        {
-            this._httpClient = httpClient;
-            this._spinner = spinner;
-        }
-
         /// <summary>
         /// Post to Server Data and receive an Object with type defined in parameters
         /// </summary>
@@ -33,7 +23,7 @@ namespace WebApp
         public async Task<T> PostSingleRequest<T, Z>(string urlApi, Z data, bool useSpinner = false) where T : new()
         {
             if (useSpinner)
-                _spinner.Show();
+                spinner.Show();
             T res = new T();
 
             try
@@ -44,8 +34,8 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                string absoluteUrl = string.Format("{0}{1}", this._httpClient.BaseAddress, urlApi);
-                HttpResponseMessage responsePost = await this._httpClient.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
+                string absoluteUrl = string.Format("{0}{1}", client.BaseAddress, urlApi);
+                HttpResponseMessage responsePost = await client.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
                 res = JsonConvert.DeserializeObject<T>(await responsePost.Content.ReadAsStringAsync());
 
             }
@@ -61,7 +51,7 @@ namespace WebApp
             finally
             {
                 if (useSpinner)
-                    _spinner.Hide();
+                    spinner.Hide();
             }
 
             return res;
@@ -79,7 +69,7 @@ namespace WebApp
         public async Task<List<T>> PostListRequest<T, Z>(string urlApi, Z data, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
-                _spinner.Show();
+                spinner.Show();
             List<T> res = new List<T>();
 
             try
@@ -90,8 +80,8 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                string absoluteUrl = string.Format("{0}{1}", this._httpClient.BaseAddress, urlApi);
-                HttpResponseMessage responsePost = await this._httpClient.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
+                string absoluteUrl = string.Format("{0}{1}", client.BaseAddress, urlApi);
+                HttpResponseMessage responsePost = await client.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
                 res = JsonConvert.DeserializeObject<List<T>>(await responsePost.Content.ReadAsStringAsync());
 
             }
@@ -107,7 +97,7 @@ namespace WebApp
             finally
             {
                 if (useSpinner)
-                    _spinner.Hide();
+                    spinner.Hide();
             }
 
             return res;
@@ -123,7 +113,7 @@ namespace WebApp
         public async Task<T> GetSingleRequest<T>(string urlApi, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
-                _spinner.Show();
+                spinner.Show();
             T res = new T();
 
             try
@@ -134,7 +124,7 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                res = await _httpClient.GetFromJsonAsync<T>(urlApi, jso);
+                res = await client.GetFromJsonAsync<T>(urlApi, jso);
             }
             catch (APIException ex)
             {
@@ -148,7 +138,7 @@ namespace WebApp
             finally
             {
                 if (useSpinner)
-                    _spinner.Hide();
+                    spinner.Hide();
             }
 
             return res;
@@ -164,7 +154,7 @@ namespace WebApp
         public async Task<List<T>> GetListRequest<T>(string urlApi, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
-                _spinner.Show();
+                spinner.Show();
             List<T> res = new List<T>();
 
             try
@@ -175,7 +165,7 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                res = await _httpClient.GetFromJsonAsync<List<T>>(urlApi, jso);
+                res = await client.GetFromJsonAsync<List<T>>(urlApi, jso);
             }
             catch (APIException ex)
             {
@@ -189,7 +179,7 @@ namespace WebApp
             finally
             {
                 if (useSpinner)
-                    _spinner.Hide();
+                    spinner.Hide();
             }
 
             return res;

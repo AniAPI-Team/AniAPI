@@ -90,7 +90,7 @@
                 </div>
                 @if (listEpisodi.Episodi != null)
                 {
-                    <VideoPlayer @ref="vp" listEpisodi="@listEpisodi" @bind-VideoNumeroEpisodio="@NumeroEpisodio" />
+                    <VideoPlayer @ref="vp" listEpisodi="@listEpisodi" VideoNumeroEpisodio="@NumeroEpisodio" VideoNumeroEpisodioChanged="ChildFiredEvent" />
                 }
                 <div class="episodes">
                     @for (int i = 1; i <= anime.EpisodesCount; i++)

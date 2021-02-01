@@ -1,6 +1,4 @@
-﻿@inject ISyncLocalStorageService localStorage
-@inject NavigationManager navigationManager
-
+﻿@inherits BaseComponent
 
 <div class="navbar">
     <div class="logo">
@@ -39,12 +37,3 @@
         </a>
     </div>
 </div>
-
-@code
-{
-    private void Logout()
-    {
-        localStorage.RemoveItem("token");
-        navigationManager.NavigateTo("/Login");
-    }
-}
