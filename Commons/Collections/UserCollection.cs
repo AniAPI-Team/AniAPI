@@ -68,17 +68,17 @@ namespace Commons.Collections
             var builder = Builders<User>.Filter;
             FilterDefinition<User> queryFilter = builder.Empty;
 
-            if (!string.IsNullOrEmpty(userFilter.Username))
+            if (!string.IsNullOrEmpty(userFilter.username))
             {
-                queryFilter = queryFilter & builder.Regex($"username", new BsonRegularExpression($".*{userFilter.Username}.*"));
+                queryFilter = queryFilter & builder.Regex($"username", new BsonRegularExpression($".*{userFilter.username}.*"));
             }
 
-            if (!string.IsNullOrEmpty(userFilter.Email))
+            if (!string.IsNullOrEmpty(userFilter.email))
             {
-                queryFilter = queryFilter & builder.Regex($"email", new BsonRegularExpression($".*{userFilter.Email}.*"));
+                queryFilter = queryFilter & builder.Regex($"email", new BsonRegularExpression($".*{userFilter.email}.*"));
             }
 
-            return new Paging<User>(this.Collection, userFilter.Page, queryFilter);
+            return new Paging<User>(this.Collection, userFilter.page, queryFilter);
         }
     }
 }

@@ -95,8 +95,8 @@ namespace Commons
                 {
                     var query = this._animeCollection.GetList(new AnimeFilter()
                     {
-                        AnilistId = edge.Node.Id,
-                        Page = 1
+                        anilist_id = edge.Node.Id,
+                        page = 1
                     });
 
                     if (query.Count > 0)

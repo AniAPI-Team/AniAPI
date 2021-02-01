@@ -6,21 +6,44 @@ using System.Text;
 
 namespace MongoService
 {
-    public class Paging<T>
+    /// <summary>
+    /// List of IModel MongoDB documents
+    /// </summary>
+    /// <typeparam name="TDocument">IModel derived child class</typeparam>
+    public class Paging<TDocument>
     {
         private int _documentsPerPage = 50;
 
+        /// <summary>
+        /// The current list page
+        /// </summary>
         public int CurrentPage { get; set; }
 
+        /// <summary>
+        /// The list documents count
+        /// </summary>
         public long Count { get; set; }
 
-        public List<T> Documents { get; set; }
+        /// <summary>
+        /// The current page documents
+        /// </summary>
+        public List<TDocument> Documents { get; set; }
 
         private int _skip => (this.CurrentPage - 1) * this._documentsPerPage;
         private int _limit => this._documentsPerPage;
+
+        /// <summary>
+        /// The last page available
+        /// </summary>
         public int LastPage => (int)Math.Ceiling((double)this.Count / this._documentsPerPage);
 
-        public Paging(IMongoCollection<T> collection, int page, FilterDefinition<T> filter)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="collection">A MongoDB collection reference</param>
+        /// <param name="page">A page number</param>
+        /// <param name="filter">A MongoDB query filter</param>
+        public Paging(IMongoCollection<TDocument> collection, int page, FilterDefinition<TDocument> filter)
         {
             this.CurrentPage = page;
             this.Count = collection.CountDocuments(filter);
