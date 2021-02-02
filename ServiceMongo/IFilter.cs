@@ -21,5 +21,8 @@ namespace MongoService
         /// Number of page
         /// </summary>
         public int page { get { return this._page; } set { this._page = value; } }
+
+        private int _per_page = 100;
+        public int per_page { get { return this._per_page; } set { this._per_page = value; } }
     }
 }

@@ -10,11 +10,15 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Security.Claims;
 using System.Text;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// Controller for authentication requests
+    /// </summary>
     [ApiVersion("1")]
     [Route("auth")]
     [ApiController]
@@ -24,12 +28,22 @@ namespace WebAPI.Controllers
         private readonly ILogger<AuthController> _logger;
         private UserCollection _userCollection = new UserCollection();
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logger"></param>
+        /// <param name="configuration"></param>
         public AuthController(ILogger<AuthController> logger, IConfiguration configuration)
         {
             _configuration = configuration;
             _logger = logger;
         }
 
+        /// <summary>
+        /// Authenticate an user
+        /// </summary>
+        /// <param name="credentials">The user credentials</param>
+        /// <returns></returns>
         [HttpPost, MapToApiVersion("1")]
         public APIResponse Login([FromBody] APICredentials credentials)
         {
@@ -44,7 +58,7 @@ namespace WebAPI.Controllers
                     Password = credentials.Password
                 };
 
-                if(!this._userCollection.Exists(ref user, true))
+                if (!this._userCollection.Exists(ref user, true))
                 {
                     throw new APIException(System.Net.HttpStatusCode.Unauthorized,
                         "Invalid login",
@@ -73,22 +87,58 @@ namespace WebAPI.Controllers
 
                 SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
                 {
-                    Subject = new ClaimsIdentity(new [] { new Claim("id", user.Id.ToString()) }),
+                    Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
                     Expires = DateTime.UtcNow.AddDays(7),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
                 SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
-                
+
                 user.Token = tokenHandler.WriteToken(token);
                 user.PasswordHash = null;
-                
+
                 return APIManager.SuccessResponse("Login done", user);
             }
-            catch(APIException ex)
+            catch (APIException ex)
             {
                 return APIManager.ErrorResponse(ex);
             }
-            catch(Exception ex)
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex.Message);
+                return APIManager.ErrorResponse();
+            }
+        }
+
+        /// <summary>
+        /// Verify an user email address
+        /// </summary>
+        /// <param name="id">The user id</param>
+        /// <returns></returns>
+        [HttpGet("{id}"), MapToApiVersion("1")]
+        public APIResponse VerifyEmail(long id)
+        {
+            try
+            {
+                User user = this._userCollection.Get(id);
+
+                if (user == null)
+                {
+                    throw new APIException(HttpStatusCode.NotFound,
+                        "User not found",
+                        $"User with id {id} does not exists");
+                }
+
+                user.EmailVerified = true;
+
+                this._userCollection.Edit(ref user);
+
+                return APIManager.SuccessResponse("Email verified");
+            }
+            catch (APIException ex)
+            {
+                return APIManager.ErrorResponse(ex);
+            }
+            catch (Exception ex)
             {
                 this._logger.LogError(ex.Message);
                 return APIManager.ErrorResponse();

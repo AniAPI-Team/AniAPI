@@ -83,15 +83,15 @@ namespace Commons.Collections
 
             if (!string.IsNullOrEmpty(userFilter.username))
             {
-                queryFilter = queryFilter & builder.Regex($"username", new BsonRegularExpression($".*{userFilter.username}.*"));
+                queryFilter = queryFilter & builder.Regex($"username", new BsonRegularExpression($".*{userFilter.username}.*", "i"));
             }
 
             if (!string.IsNullOrEmpty(userFilter.email))
             {
-                queryFilter = queryFilter & builder.Regex($"email", new BsonRegularExpression($".*{userFilter.email}.*"));
+                queryFilter = queryFilter & builder.Regex($"email", userFilter.email);
             }
 
-            return new Paging<User>(this.Collection, userFilter.page, queryFilter);
+            return new Paging<User>(this.Collection, userFilter.page, queryFilter, userFilter.per_page);
         }
     }
 }

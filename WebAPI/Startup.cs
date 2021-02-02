@@ -90,6 +90,7 @@ namespace WebAPI
             // Enable Cors
             app.UseCors("MyCorsPolicy");
 
+            app.UseLoggingMiddleware();
             app.UseRateLimitMiddleware();
             app.UseJWTMiddleware();
 

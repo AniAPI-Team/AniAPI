@@ -47,6 +47,7 @@ namespace WebAPI.Controllers
             try
             {
                 User user = this._userCollection.Get(id);
+
                 if (user == null)
                 {
                     throw new APIException(HttpStatusCode.NotFound,
