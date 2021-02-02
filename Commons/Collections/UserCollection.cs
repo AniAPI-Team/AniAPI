@@ -29,7 +29,7 @@ namespace Commons.Collections
 
         public override void Delete(long id)
         {
-            throw new NotImplementedException();
+            this.Collection.DeleteOne(x => x.Id == id);
         }
 
         public override void Edit(ref User document)
@@ -42,14 +42,27 @@ namespace Commons.Collections
 
         public override bool Exists(ref User document, bool updateValues = true)
         {
-            string username = document.Username;
-            User reference = this.Collection.Find(x => x.Username == username).FirstOrDefault();
+            string email = document.Email;
+            User reference = null;
 
-            if (reference != null && updateValues)
+            if (!string.IsNullOrEmpty(email))
             {
-                document.Id = reference.Id;
-                document.CreationDate = reference.CreationDate;
-                document.UpdateDate = reference.UpdateDate;
+                reference = this.Collection.Find(x => x.Email == email).FirstOrDefault();
+            }
+            else
+            {
+                long userId = document.Id;
+                reference = this.Collection.Find(x => x.Id == userId).FirstOrDefault();
+            }
+
+            if (reference != null)
+            {
+                if (updateValues)
+                {
+                    document.Id = reference.Id;
+                    document.CreationDate = reference.CreationDate;
+                    document.UpdateDate = reference.UpdateDate;
+                }
                 return true;
             }
 

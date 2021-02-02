@@ -47,13 +47,16 @@ namespace Commons.Collections
             int anilistId = document.AnilistId;
             Anime reference = this.Collection.Find(x => x.AnilistId == anilistId).FirstOrDefault();
 
-            if(reference != null && updateValues)
+            if(reference != null)
             {
-                document.Id = reference.Id;
-                document.CreationDate = reference.CreationDate;
-                document.UpdateDate = reference.UpdateDate;
-                document.Ending = reference.Ending;
-                document.Opening = reference.Opening;
+                if (updateValues)
+                {
+                    document.Id = reference.Id;
+                    document.CreationDate = reference.CreationDate;
+                    document.UpdateDate = reference.UpdateDate;
+                    document.Ending = reference.Ending;
+                    document.Opening = reference.Opening;
+                }
                 return true;
             }
 

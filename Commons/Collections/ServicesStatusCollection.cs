@@ -40,11 +40,14 @@ namespace Commons.Collections
             string name = document.Name;
             ServicesStatus reference = this.Collection.Find(x => x.Name == name).FirstOrDefault();
 
-            if (reference != null && updateValues)
+            if (reference != null)
             {
-                document.Id = reference.Id;
-                document.CreationDate = reference.CreationDate;
-                document.UpdateDate = reference.UpdateDate;
+                if (updateValues)
+                {
+                    document.Id = reference.Id;
+                    document.CreationDate = reference.CreationDate;
+                    document.UpdateDate = reference.UpdateDate;
+                }
                 return true;
             }
 
