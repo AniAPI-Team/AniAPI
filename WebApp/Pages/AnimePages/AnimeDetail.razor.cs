@@ -112,7 +112,7 @@ namespace WebApp.Pages.AnimePages
             NavigationManager.NavigateTo($"/AnimeDetail/{AnimeID}/Episodio/{_numEpisodio}");
         }
 
-        private void CambioSorgente(string Source)
+        private void CambioSorgente(List<string> Source)
         {
         }
 
