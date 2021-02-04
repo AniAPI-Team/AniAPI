@@ -1,4 +1,6 @@
-﻿using Commons;
+﻿using Blazored.LocalStorage;
+using Commons;
+using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -9,8 +11,25 @@ using System.Threading.Tasks;
 
 namespace WebApp
 {
-    public class Generic : BaseComponent
+    public class Generic
     {
+        #region Injection
+
+        [Inject] protected SpinnerService Spinner { get; set; }
+        [Inject] protected HttpClient Client { get; set; }
+        [Inject] protected ISyncLocalStorageService LocalStorage { get; set; }
+
+        #endregion
+
+        public Generic (SpinnerService _spinner, HttpClient _client, ISyncLocalStorageService _localStorage)
+        {
+            Spinner = _spinner;
+            Client = _client;
+            LocalStorage = _localStorage;
+        }
+
+
+
         /// <summary>
         /// Post to Server Data and receive an Object with type defined in parameters
         /// </summary>
@@ -23,7 +42,7 @@ namespace WebApp
         public async Task<T> PostSingleRequest<T, Z>(string urlApi, Z data, bool useSpinner = false) where T : new()
         {
             if (useSpinner)
-                spinner.Show();
+                Spinner.Show();
             T res = new T();
 
             try
@@ -34,8 +53,8 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                string absoluteUrl = string.Format("{0}{1}", client.BaseAddress, urlApi);
-                HttpResponseMessage responsePost = await client.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
+                string absoluteUrl = string.Format("{0}{1}", Client.BaseAddress, urlApi);
+                HttpResponseMessage responsePost = await Client.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
                 res = JsonConvert.DeserializeObject<T>(await responsePost.Content.ReadAsStringAsync());
 
             }
@@ -43,15 +62,15 @@ namespace WebApp
             {
                 APIManager.ErrorResponse(ex);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
                 //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
             finally
             {
                 if (useSpinner)
-                    spinner.Hide();
+                    Spinner.Hide();
             }
 
             return res;
@@ -69,7 +88,7 @@ namespace WebApp
         public async Task<List<T>> PostListRequest<T, Z>(string urlApi, Z data, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
-                spinner.Show();
+                Spinner.Show();
             List<T> res = new List<T>();
 
             try
@@ -80,8 +99,8 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                string absoluteUrl = string.Format("{0}{1}", client.BaseAddress, urlApi);
-                HttpResponseMessage responsePost = await client.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
+                string absoluteUrl = string.Format("{0}{1}", Client.BaseAddress, urlApi);
+                HttpResponseMessage responsePost = await Client.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
                 res = JsonConvert.DeserializeObject<List<T>>(await responsePost.Content.ReadAsStringAsync());
 
             }
@@ -89,15 +108,15 @@ namespace WebApp
             {
                 APIManager.ErrorResponse(ex);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
                 //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
             finally
             {
                 if (useSpinner)
-                    spinner.Hide();
+                    Spinner.Hide();
             }
 
             return res;
@@ -113,7 +132,7 @@ namespace WebApp
         public async Task<T> GetSingleRequest<T>(string urlApi, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
-                spinner.Show();
+                Spinner.Show();
             T res = new T();
 
             try
@@ -124,21 +143,21 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                res = await client.GetFromJsonAsync<T>(urlApi, jso);
+                res = await Client.GetFromJsonAsync<T>(urlApi, jso);
             }
             catch (APIException ex)
             {
                 APIManager.ErrorResponse(ex);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
                 //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
             finally
             {
                 if (useSpinner)
-                    spinner.Hide();
+                    Spinner.Hide();
             }
 
             return res;
@@ -154,7 +173,7 @@ namespace WebApp
         public async Task<List<T>> GetListRequest<T>(string urlApi, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
-                spinner.Show();
+                Spinner.Show();
             List<T> res = new List<T>();
 
             try
@@ -165,24 +184,30 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                res = await client.GetFromJsonAsync<List<T>>(urlApi, jso);
+                res = await Client.GetFromJsonAsync<List<T>>(urlApi, jso);
             }
             catch (APIException ex)
             {
                 APIManager.ErrorResponse(ex);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
                 //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
             finally
             {
                 if (useSpinner)
-                    spinner.Hide();
+                    Spinner.Hide();
             }
 
             return res;
+        }
+
+        public void ChangeLocalization(string element)
+        {
+            // Localization save in LocalStorage
+            LocalStorage.SetItem<string>("Localization", element);
         }
     }
 }

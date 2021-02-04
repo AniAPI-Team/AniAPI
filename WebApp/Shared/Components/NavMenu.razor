@@ -1,5 +1,4 @@
-﻿@inherits BaseComponent
-
+﻿
 <div class="navbar">
     <div class="logo">
         <a href="/">
@@ -28,7 +27,7 @@
             </a>
         </div>
         <div class="menu-item">
-            <DropDown />
+            <DropDown CambiaElemento="@((loc) => Generic.ChangeLocalization(loc))" />
         </div>
     </div>
     <div class="navbar-bug">

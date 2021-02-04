@@ -1,0 +1,31 @@
+﻿<div class="siblings">
+    @if (Prequel != null)
+    {
+        <div class="sibling prequel" style="background-image: url(@Prequel.BannerImage);" @onclick="@(() => NavigationManager.NavigateTo($"/AnimeDetail/{Prequel.Id}"))">
+            <span>Prequel</span>
+            <h3 class="title">@Prequel.Titles[Localization]</h3>
+        </div>
+    }
+    else
+    {
+        <div class="prequel">
+            <span></span>
+            <h3 class="title"></h3>
+        </div>
+    }
+
+    @if (Sequel != null)
+    {
+        <div class="sibling sequel" style="background-image: url(@Sequel.BannerImage);" @onclick="@(() => NavigationManager.NavigateTo($"/AnimeDetail/{Sequel.Id}"))">
+            <span>Sequel</span>
+            <h3 class="title">@Sequel.Titles[Localization]</h3>
+        </div>
+    }
+    else
+    {
+        <div class="sequel">
+            <span></span>
+            <h3 class="title"></h3>
+        </div>
+    }
+</div>

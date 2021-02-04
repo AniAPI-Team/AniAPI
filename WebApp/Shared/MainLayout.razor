@@ -1,13 +1,16 @@
-﻿@inherits LayoutBaseComponent
-
+﻿@inherits LayoutComponentBase
+    
 <head>
-    @if (theme.UseDarkTheme)
+    @if (Theme.UseDarkTheme)
     {
         <link href="css/default.darktheme.css" rel="stylesheet" />
     }
 </head>
+
 <LoadingSpinner />
+
 <NavMenu />
+
 <div class="page">
     @Body
 </div>

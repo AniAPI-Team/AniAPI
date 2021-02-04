@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace WebApp.Pages
+namespace WebApp.Shared
 {
-    public partial class Page404
+    public partial class LoginLayout
     {
-        [Inject] protected NavigationManager NavigationManager { get; set; }
+        [Inject] protected UIConfiguration Theme { get; set; }
     }
 }

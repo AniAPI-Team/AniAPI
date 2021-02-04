@@ -1,49 +1,63 @@
-﻿using Commons;
+﻿using Blazored.LocalStorage;
+using Blazored.SessionStorage;
+using Commons;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
 using System;
 using System.Linq;
+using System.Net.Http;
 using System.Threading.Tasks;
 
 namespace WebApp.Shared.Components
 {
-    public partial class VideoPlayer : BaseComponent
+    public partial class VideoPlayer
     {
+        #region Injection
+
+        [Inject] protected IJSRuntime Js { get; set; }
+
+        #endregion
+
         [Parameter] public AnimeEpisodi listEpisodi { get; set; }
         [Parameter] public int VideoNumeroEpisodio { get; set; }
-        [Parameter] public Action<int> VideoNumeroEpisodioChanged { get; set; }
+        [Parameter] public Action<int> CambiaEpisodio { get; set; }
+        [Parameter] public RenderFragment Placeholder { get; set; }
+        [Parameter] public string TrailerUrl { get; set; }
 
+        private bool NeedRender = false;
         public Episodio episodioAttuale = new Episodio();
+
+        protected override bool ShouldRender() => NeedRender;
 
         protected override void OnParametersSet()
         {
-            if (listEpisodi == null)
-                return;
+            NeedRender = false;
 
             if (listEpisodi.Episodi != null)
             {
+                episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == VideoNumeroEpisodio && num.Url != null).FirstOrDefault();
 
-                episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == VideoNumeroEpisodio).FirstOrDefault();
-
-                if (episodioAttuale != null && episodioAttuale.Url != null)
+                if (episodioAttuale != null)
                 {
-                    JS.InvokeVoidAsync("VideoPlayer.ChangeVideoUrl", episodioAttuale.Url);
+                    Js.InvokeVoidAsync("VideoPlayer.ChangeVideoUrl", episodioAttuale.Url);
+                    NeedRender = true;
                 }
 
-                //StateHasChanged();
+                if (VideoNumeroEpisodio == 0)
+                {
+                    Js.InvokeVoidAsync("VideoPlayer.ChangeVideoUrl", TrailerUrl);
+                    NeedRender = true;
+                }
             }
         }
 
         protected override async Task OnAfterRenderAsync(bool firstRender)
         {
-            if (firstRender)
-            {
-                await JS.InvokeVoidAsync("VideoPlayer.InitVideoVariables");
-            }
+            await Js.InvokeVoidAsync("VideoPlayer.InitVideoVariables");
 
-            if (!firstRender)
+            if (!firstRender || TrailerUrl != null)
             {
-                await JS.InvokeVoidAsync("VideoPlayer.ScroolToVideo");
+                await Js.InvokeVoidAsync("VideoPlayer.ScroolToVideo");
             }
 
             await base.OnAfterRenderAsync(firstRender);
@@ -52,20 +66,17 @@ namespace WebApp.Shared.Components
         public void NextEpisode()
         {
             if (VideoNumeroEpisodio + 1 <= listEpisodi.Episodi.Count)
-            {
-                VideoNumeroEpisodio++;
-                VideoNumeroEpisodioChanged?.Invoke(VideoNumeroEpisodio);
-            }
+                CambiaEpisodio?.Invoke(VideoNumeroEpisodio +1 );
         }
 
         public async Task ToggleFullScreen()
         {
-            await JS.InvokeVoidAsync("VideoPlayer.ToggleFullScreen");
+            await Js.InvokeVoidAsync("VideoPlayer.ToggleFullScreen");
         }
 
         public async Task TogglePlay()
         {
-            await JS.InvokeVoidAsync("VideoPlayer.TogglePlay");
+            await Js.InvokeVoidAsync("VideoPlayer.TogglePlay");
         }
     }
 }

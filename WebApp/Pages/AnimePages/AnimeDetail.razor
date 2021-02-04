@@ -1,8 +1,6 @@
 ﻿@page "/AnimeDetail/{AnimeID:int}"
 @page "/AnimeDetail/{AnimeID:int}/Episodio/{NumeroEpisodio:int}"
 
-@inherits BaseComponent
-
 <div class="content">
     <div class="section no-p">
         <div class="banner" style=" background-image: url(@anime.BannerImage);"></div>
@@ -12,9 +10,9 @@
             <div class="heading">
                 <div class="cover" style=" background-image: url(@anime.CoverImage);"></div>
                 <div class="head">
-                    <h1 class="title">@(anime.Titles != null ? anime.Titles[LocalizationEnum.English] : "No Title")</h1>
+                    <h1 class="title">@(anime.Titles != null ? anime.Titles[Localization] : "No Title")</h1>
                     <p class="desc">
-                        @((MarkupString)(anime.Descriptions != null ? anime.Descriptions[LocalizationEnum.English] : "No Description"))
+                        @((MarkupString)(anime.Descriptions != null ? anime.Descriptions[Localization] : "No Description"))
                     </p>
                 </div>
             </div>
@@ -22,84 +20,39 @@
     </div>
     <div class="section main">
         <div class="container">
-            <div class="siblings">
-                @if (anime.Prequel != null && anime.Prequel.HasValue)
-                {
-                    <div class="sibling prequel" style="background-image: url(@prequel.BannerImage);">
-                        <span>Prequel</span>
-                        <h3 class="title">@prequel.Titles[LocalizationEnum.English]</h3>
-                    </div>
-                }
-
-                @if (anime.Sequel != null && anime.Sequel.HasValue)
-                {
-                    <div class="sibling sequel" style="background-image: url(@sequel.BannerImage);">
-                        <span>Sequel</span>
-                        <h3 class="title">@sequel.Titles[LocalizationEnum.English]</h3>
-                    </div>
-                }
-            </div>
+            <PrequelSequel Prequel="prequel" Sequel="sequel" Localization="@Localization" />
         </div>
     </div>
     <div class="section dock">
         <div class="container">
-            <div class="info">
-                <div class="row">
-                    <span>Format</span>@anime.Format
-                </div>
-                <div class="row">
-                    <span>Episodes</span>@anime.EpisodesCount
-                </div>
-                @if (anime.EpisodeDuration != null && anime.EpisodeDuration.HasValue)
-                {
-                    <div class="row">
-                        <span>Episode Duration</span>@anime.EpisodeDuration.Value minutes
-                    </div>
-                }
-                <div class="row">
-                    <span>Status</span>@anime.Status
-                </div>
-                @if (anime.StartDate != null && anime.StartDate.HasValue)
-                {
-                    <div class="row">
-                        <span>Start Date</span>@anime.StartDate.Value.ToString("MMM dd, yyyy")
-                    </div>
-                }
-                @if (anime.EndDate != null && anime.EndDate.HasValue)
-                {
-                    <div class="row">
-                        <span>End Date</span>@anime.EndDate.Value.ToString("MMM dd, yyyy")
-                    </div>
-                }
-                <div class="row">
-                    <span>Season</span>@anime.SeasonPeriod @(anime.SeasonYear!= null && anime.SeasonYear.HasValue ? anime.SeasonYear.Value.ToString() : "")
-                </div>
-                <div class="row">
-                    <span>Score</span> @anime.Score %
-                </div>
-                @if (anime.Genres != null)
-                {
-                    <div class="row">
-                        <span>Genres</span>@String.Join(", ", anime.Genres.OrderBy(g => g))
-                    </div>
-                }
-            </div>
+            <Infos Anime="anime">
+                <Placeholder>
+                    <span>Informazioni mancanti...</span>
+                </Placeholder>
+            </Infos>
             <div class="media">
                 <div class="video-title">
-                    @(NumeroEpisodio != -1 ? ("Episodio: " + NumeroEpisodio.ToString()) : "Trailer")
+                    @(NumeroEpisodio != 0 ? ("Episodio: " + NumeroEpisodio.ToString()) : "Trailer")
+                    <DropDown Class="float-right" DropDownOptions="Episodi_Sources" CambiaElemento="CambioSorgente"></DropDown>
                 </div>
-                @if (listEpisodi.Episodi != null)
+                @if ((TrailerUrl.Host == "www.youtube.com" || TrailerUrl.Host == "www.youtube-nocookie.com") && NumeroEpisodio == 0)
                 {
-                    <VideoPlayer @ref="vp" listEpisodi="@listEpisodi" VideoNumeroEpisodio="@NumeroEpisodio" VideoNumeroEpisodioChanged="ChildFiredEvent" />
+                    <YoutubePlayer TrailerUrl="TrailerUrl" />
                 }
-                <div class="episodes">
-                    @for (int i = 1; i <= anime.EpisodesCount; i++)
-                    {
-                        <a href="/AnimeDetail/@AnimeID/Episodio/@i"><div class="episode @(NumeroEpisodio!= -1 && NumeroEpisodio == i ? "active" : "" )">@i</div></a>
-                        //int Ep = i;
-                        @*<a @onclick="@(() => (CambioEpisodio(Ep)))"><div class="episode @(NumeroEpisodio!= -1 && NumeroEpisodio == i ? "active" : "" )">@i</div></a>*@
-                    }
-                </div>
+                else
+                {
+                    <VideoPlayer listEpisodi="@listEpisodi" VideoNumeroEpisodio="@NumeroEpisodio" CambiaEpisodio="CambiaEpisodio" TrailerUrl="@anime.TrailerUrl">
+                        <Placeholder>
+                            <span>Video non trovato...</span>
+                        </Placeholder>
+                    </VideoPlayer>
+                }
+                <!-- -->
+                <EpisodeList Episodi="@listEpisodi.Episodi" NumeroEpisodio="@NumeroEpisodio" CambiaEpisodio="CambiaEpisodio" TrailerUrl="@anime.TrailerUrl">
+                    <Placeholder>
+                        <span>Non ci sono episodi...</span>
+                    </Placeholder>
+                </EpisodeList>
             </div>
         </div>
     </div>

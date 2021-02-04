@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,22 +7,26 @@ using System.Threading.Tasks;
 
 namespace WebApp.Shared
 {
-    public partial class MainLayout : LayoutBaseComponent
+    public partial class MainLayout
     {
+        [Inject] protected UIConfiguration Theme { get; set; }
+        [Inject] protected NavigationManager NavigationManager { get; set; }
+        [Inject] protected ISyncLocalStorageService LocalStorage { get; set; }
+
         protected override void OnInitialized()
         {
             base.OnInitialized();
 
             // controlli local storage
-            if (string.IsNullOrEmpty(localStorage.GetItem<string>("token")))
+            if (string.IsNullOrEmpty(LocalStorage.GetItem<string>("token")))
             {
 
-                navigationManager.NavigateTo("/Login");
+                NavigationManager.NavigateTo("/Login");
             }
 
-            if (localStorage.GetItem<string>("token") == "!isValid")
+            if (LocalStorage.GetItem<string>("token") == "!isValid")
             {
-                navigationManager.NavigateTo("/Login");
+                NavigationManager.NavigateTo("/Login");
             }
         }
     }

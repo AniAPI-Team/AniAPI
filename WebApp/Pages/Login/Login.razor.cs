@@ -10,13 +10,12 @@ namespace WebApp.Pages.Login
     {
         #region Injection
         
-        [Inject] Generic Generic { get; set; }
-        [Inject] HttpClient Client { get; set; }
-        [Inject] NavigationManager NavigationManager { get; set; }
-        [Inject] ISyncLocalStorageService LocalStorage { get; set; }
+        [Inject] protected Generic Generic { get; set; }
+        [Inject] protected HttpClient Client { get; set; }
+        [Inject] protected NavigationManager NavigationManager { get; set; }
+        [Inject] protected ISyncLocalStorageService LocalStorage { get; set; }
         
         #endregion
-
 
         #region Parameter
         
@@ -28,7 +27,6 @@ namespace WebApp.Pages.Login
         private string ConfirmationEmail { get; set; }
         
         #endregion
-
 
         #region Methods
 

@@ -1,0 +1,48 @@
+﻿@if (Anime == null)
+{
+    @Placeholder
+}
+else
+{
+    <div class="info">
+        <div class="row">
+            <span>Format</span>@Anime.Format
+        </div>
+        <div class="row">
+            <span>Episodes</span>@Anime.EpisodesCount
+        </div>
+        @if (Anime.EpisodeDuration != null && Anime.EpisodeDuration.HasValue)
+        {
+            <div class="row">
+                <span>Episode Duration</span>@Anime.EpisodeDuration.Value minutes
+            </div>
+        }
+        <div class="row">
+            <span>Status</span>@Anime.Status
+        </div>
+        @if (Anime.StartDate != null && Anime.StartDate.HasValue)
+        {
+            <div class="row">
+                <span>Start Date</span>@Anime.StartDate.Value.ToString("MMM dd, yyyy")
+            </div>
+        }
+        @if (Anime.EndDate != null && Anime.EndDate.HasValue)
+        {
+            <div class="row">
+                <span>End Date</span>@Anime.EndDate.Value.ToString("MMM dd, yyyy")
+            </div>
+        }
+        <div class="row">
+            <span>Season</span>@Anime.SeasonPeriod @(Anime.SeasonYear != null && Anime.SeasonYear.HasValue ? Anime.SeasonYear.Value.ToString() : "")
+        </div>
+        <div class="row">
+            <span>Score</span> @Anime.Score %
+        </div>
+        @if (Anime.Genres != null)
+        {
+            <div class="row">
+                <span>Genres</span>@String.Join(", ", Anime.Genres.OrderBy(g => g))
+            </div>
+        }
+    </div>
+}

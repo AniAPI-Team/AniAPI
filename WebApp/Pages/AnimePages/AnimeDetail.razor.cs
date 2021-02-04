@@ -1,33 +1,46 @@
-﻿using Commons;
+﻿using Blazored.LocalStorage;
+using Commons;
 using Commons.Enums;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Net.Http;
 using System.Net.Http.Json;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using WebApp.Shared.Components;
 
 namespace WebApp.Pages.AnimePages
 {
-    public partial class AnimeDetail : BaseComponent
+    public partial class AnimeDetail
     {
+        #region Injection
+        [Inject] protected Generic Generic { get; set; }
+        [Inject] protected HttpClient Client { get; set; }
+        [Inject] protected NavigationManager NavigationManager { get; set; }
+        [Inject] protected SpinnerService Spinner { get; set; }
+        [Inject] protected UIConfiguration Confs { get; set; }
+        [Inject] protected IJSRuntime Js { get; set; }
+        #endregion
+
+        #region Parameter
         [Parameter] public int AnimeID { get; set; }
         [Parameter] public int NumeroEpisodio { get; set; }
 
-        public VideoPlayer vp = new VideoPlayer();
-        //public SpinnerService spinner;
-        //public NavigationManager navigationManager;
-        //public HttpClient client;
+        private Anime anime = new Commons.Anime();
+        private Anime prequel;
+        private Anime sequel;
+        private AnimeEpisodi listEpisodi = new AnimeEpisodi() { Episodi = new List<Episodio>() };
+        private string Localization;
+        Uri TrailerUrl = new Uri("https://www.youtube-nocookie.com/embed/1fHQyRp2RGM");
+        Dictionary<string, string> Episodi_Sources;
+    #endregion
 
-        public Anime anime = new Commons.Anime();
-        public Anime prequel;
-        public Anime sequel;
-        public AnimeEpisodi listEpisodi = new AnimeEpisodi();
-
-        protected override void OnParametersSet()
+    #region life-cycle Page
+    protected override void OnParametersSet()
         {
-            if (NumeroEpisodio == 0)
-                NumeroEpisodio = -1;
+            Localization = LocalizationEnum.English;
 
             base.OnParametersSet();
         }
@@ -35,7 +48,7 @@ namespace WebApp.Pages.AnimePages
         protected override async Task OnInitializedAsync()
         {
             Console.WriteLine($"OnInitializedAsync - Numero Episodio: {NumeroEpisodio}");
-            spinner.Show();
+            Spinner.Show();
             //await Task.Delay(5000);
 
             APIResponse ApiResponse = new APIResponse();
@@ -48,7 +61,7 @@ namespace WebApp.Pages.AnimePages
 
             if (ApiResponse.StatusCode != System.Net.HttpStatusCode.OK)
             {
-                navigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/");
                 return;
             }
 
@@ -59,18 +72,20 @@ namespace WebApp.Pages.AnimePages
             {
                 ApiResponse = null;
                 //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Prequel);
-                ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
-                if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
-                    prequel = (Anime)ApiResponse.Data;
+                //ApiResponse = await Client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+                //if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                ApiResponse = GetAnime();
+                prequel = (Anime)ApiResponse.Data;
             }
 
             if (anime.Sequel != null && anime.Sequel.HasValue)
             {
                 ApiResponse = null;
                 //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Sequel);
-                ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
-                if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
-                    sequel = (Anime)ApiResponse.Data;
+                //ApiResponse = await Client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
+                //if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
+                ApiResponse = GetAnime();
+                sequel = (Anime)ApiResponse.Data;
             }
 
             try
@@ -78,39 +93,67 @@ namespace WebApp.Pages.AnimePages
                 //////TODO - Estrarre Episodi Anime
                 ////listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
                 listEpisodi = GetAnimeEpisodi();
+                Episodi_Sources = new Dictionary<string, string>() { { "AnimeUnity", "AnimeUnity" }, { "Dreamsub", "Dreamsub" }, { "boh", "boh" } };
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Generic Exception Catch: {ex.Message}");
-                navigationManager.NavigateTo("/");
+                NavigationManager.NavigateTo("/");
                 return;
             }
 
-            spinner.Hide();
+            Spinner.Hide();
         }
 
-        public void ChildFiredEvent(int _numEpisodio)
+        #endregion
+
+        #region Methods
+        private void CambiaEpisodio(int _numEpisodio)
         {
-            NumeroEpisodio = _numEpisodio;
-            //StateHasChanged();
-            InvokeAsync(StateHasChanged);
+            NavigationManager.NavigateTo($"/AnimeDetail/{AnimeID}/Episodio/{_numEpisodio}");
+        }
+
+        private void CambioSorgente(string Source)
+        {
         }
 
         private APIResponse GetAnime()
         {
             Anime animeMK = new Anime();
             animeMK.Format = AnimeFormatEnum.TV;
-            animeMK.EpisodesCount = 35;
+            animeMK.EpisodesCount = 360;
             animeMK.EpisodeDuration = 23;
             animeMK.Status = AnimeStatusEnum.FINISHED;
             animeMK.StartDate = DateTime.Now;
             animeMK.SeasonPeriod = AnimeSeasonEnum.SUMMER;
+            animeMK.TrailerUrl = "https://www.youtube.com/watch?v=1fHQyRp2RGM&ab_channel=Ronin97";
+
+            try
+            {
+                //https://www.youtube.com/watch?v=1fHQyRp2RGM&ab_channel=Ronin97
+                TrailerUrl = new Uri(animeMK.TrailerUrl);
+
+                if (TrailerUrl != null)
+                {
+                    const string pattern = @"(?:https?:\/\/)?(?:www\.)?(?:(?:(?:youtube.com\/watch\?[^?]*v=|youtu.be\/)([\w\-]+))(?:[^\s?]+)?)";
+                    const string replacement = "https://www.youtube.com/embed/$1";
+
+                    var rgx = new Regex(pattern);
+
+                    if (TrailerUrl.Host.Contains("youtube"))
+                        TrailerUrl = new(rgx.Replace(TrailerUrl.ToString(), replacement));
+                }
+            }
+            catch (Exception)
+            {
+            }
+
             animeMK.SeasonYear = 2018;
             animeMK.Score = 79;
             animeMK.Genres = new List<string>() { "Action", "Drama", "Fantasy", "Mystery", "che ne so!!" };
             animeMK.CoverImage = "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx104578-LaZYFkmhinfB.jpg";
             animeMK.BannerImage = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/104578-z7SadpYEuAsy.jpg";
-            //animeMK.Sequel = 2;
+            animeMK.Sequel = 2;
             //animeMK.Prequel = 2;
             animeMK.TrailerUrl = "https://www.animeunityserver75.cloud/DDL/Anime/OnePieceITA/OnePiece_Ep_001_ITA.mp4";
 
@@ -146,11 +189,6 @@ namespace WebApp.Pages.AnimePages
 
             return listEp;
         }
-
-        //private Task CambioEpisodio(int NumEp)
-        //{
-        //    NumeroEpisodio = NumEp;
-        //    return Task.CompletedTask;
-        //}
+        #endregion
     }
 }
