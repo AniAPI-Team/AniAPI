@@ -12,6 +12,8 @@ namespace WebApp.Shared.Components
     public partial class PrequelSequel
     {
         [Inject] protected NavigationManager NavigationManager { get; set; }
+        [Inject] protected Generic Generic { get; set; }
+
         [Parameter] public Anime Prequel { get; set; }
         [Parameter] public Anime Sequel { get; set; }
         [Parameter] public string Localization { get; set; }

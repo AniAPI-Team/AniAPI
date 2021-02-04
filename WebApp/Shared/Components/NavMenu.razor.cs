@@ -12,6 +12,7 @@ namespace WebApp.Shared.Components
         [Inject] protected NavigationManager NavigationManager { get; set; }
         [Inject] protected ISyncLocalStorageService LocalStorage { get; set; }
         [Inject] protected Generic Generic { get; set; }
+        [Parameter] public Action LocalizationChanged { get; set; } //Seguira la dropdown che cambia la localization
 
         private Dictionary<string, string> DropDownOptions;
 
@@ -34,10 +35,11 @@ namespace WebApp.Shared.Components
             NavigationManager.NavigateTo("/Login");
         }
 
-        private void ChangeLocalization(string element)
+        private void ChangeLocalization(string element) //Seguira la dropdown che cambia la localization
         {
             // Localization save in LocalStorage
             LocalStorage.SetItem<string>("Localization", element);
+            LocalizationChanged?.Invoke();
         }
     }
 }

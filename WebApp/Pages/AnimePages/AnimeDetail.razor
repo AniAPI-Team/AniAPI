@@ -10,17 +10,21 @@
             <div class="heading">
                 <div class="cover" style=" background-image: url(@anime.CoverImage);"></div>
                 <div class="head">
-                    <h1 class="title">@(anime.Titles != null ? anime.Titles[Localization] : "No Title")</h1>
-                    <p class="desc">
-                        @((MarkupString)(anime.Descriptions != null ? anime.Descriptions[Localization] : "No Description"))
-                    </p>
+                    @*<h1 class="title">@(anime.Titles != null ? anime.Titles[Localization] : "No Title")</h1>*@
+                    <h1 class="title">@Generic.GetValueLocalized(anime.Titles, Localization)</h1>
+                    @*YourDictionaryName.TryGetValue(key, out int value) ? YourDictionaryName[key] : 0;*@
+                    @*<h1 class="title">@(anime.Titles?[Localization] ?? "No Title")</h1>*@
+                <p class="desc">
+                    @((MarkupString)Generic.GetValueLocalized(anime.Descriptions, Localization))
+                    @*@((MarkupString)(anime.Descriptions != null ? anime.Descriptions[Localization] : "No Description"))*@
+                </p>
                 </div>
             </div>
         </div>
     </div>
     <div class="section main">
         <div class="container">
-            <PrequelSequel Prequel="prequel" Sequel="sequel" Localization="@Localization" />
+            <PrequelSequel Prequel="@prequel" Sequel="@sequel" Localization="@Localization" />
         </div>
     </div>
     <div class="section dock">
@@ -33,7 +37,8 @@
             <div class="media">
                 <div class="video-title">
                     @(NumeroEpisodio != 0 ? ("Episodio: " + NumeroEpisodio.ToString()) : "Trailer")
-                    <DropDown Class="float-right" DropDownOptions="Episodi_Sources" CambiaElemento="CambioSorgente"></DropDown>
+                    @*<DropDown Class="float-right" DropDownOptions="Episodi_Sources" CambiaElemento="CambioSorgente"></DropDown>*@
+                    <DropDownV2 DropDownOptions="Episodi_Sources" CambiaElemento="CambioSorgente" Width="125px"></DropDownV2>
                 </div>
                 @if ((TrailerUrl.Host == "www.youtube.com" || TrailerUrl.Host == "www.youtube-nocookie.com") && NumeroEpisodio == 0)
                 {

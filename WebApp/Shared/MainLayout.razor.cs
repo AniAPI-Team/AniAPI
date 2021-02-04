@@ -29,5 +29,11 @@ namespace WebApp.Shared
                 NavigationManager.NavigateTo("/Login");
             }
         }
+
+        private void RefreshPagina()
+        {
+            //Body.Invoke()
+            StateHasChanged();
+        }
     }
 }

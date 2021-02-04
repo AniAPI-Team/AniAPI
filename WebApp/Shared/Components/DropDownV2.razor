@@ -1,0 +1,25 @@
+﻿
+@if (DropDownOptions == null || DropDownOptions.Count == 0)
+{
+    @Placeholder
+}
+else
+{
+
+    <div class="custom-select-wrapper float-right" style="width: @Width;" @onclick="@(() => ShowOptions = !ShowOptions)">
+        <div class="custom-select @(ShowOptions ? "open" : "")">
+            <div class="custom-select__trigger">
+                <span>@SelectedValue</span>
+                <div class="arrow"></div>
+            </div>
+            <div class="custom-options">
+                @foreach (var item in DropDownOptions)
+                {
+                    string chiave = item.Key;
+                    string valore = item.Value;
+                    <span class="custom-option @(chiave == SelectedValue ? "selected" : "")" data-value="@chiave" @onclick="@(() => SelectedElementChange(chiave, valore))">@valore</span>
+                }
+            </div>
+        </div>
+    </div>
+}
