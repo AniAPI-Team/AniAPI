@@ -18,7 +18,7 @@ namespace SyncService
         #region ServiceStatus
 
         private ServicesStatus _serviceStatus;
-        protected ServicesStatus ServiceStatus
+        public ServicesStatus ServiceStatus
         {
             get
             {
@@ -65,9 +65,14 @@ namespace SyncService
             this.Work();
         }
 
-        public virtual void Stop()
+        public virtual void Stop(Exception ex = null)
         {
             this.UpdateStatus(ServiceStatusEnum.STOPPED);
+
+            if(ex != null)
+            {
+                this.Log(ex.Message);
+            }
 
             Thread.Sleep(60 * 1000);
 

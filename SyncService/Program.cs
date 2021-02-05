@@ -12,15 +12,24 @@ namespace SyncService
             List<IService> services = new List<SyncService.IService>()
             {
                 new AnimeScraperService(),
-                //new WebsiteScraperService(),
+                new WebsiteScraperService(),
                 new SongScraperService(),
             };
 
-            foreach(IService service in services)
+            /*
+            new Thread(services[0].Start).Start();
+
+            while(services[0].ServiceStatus.Status != Commons.Enums.ServiceStatusEnum.WAITING)
             {
-                new Thread(service.Start).Start();
                 Thread.Sleep(60 * 1000);
             }
+
+            for(int i = 1; i < services.Count; i++)
+            {
+                new Thread(services[i].Start).Start();
+                Thread.Sleep(60 * 1000);
+            }*/
+            new Thread(services[1].Start).Start();
 
             Console.ReadLine();
         }

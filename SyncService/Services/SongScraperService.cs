@@ -200,7 +200,7 @@ namespace SyncService.Services
             }
             catch(Exception ex)
             {
-                this.Stop();
+                this.Stop(ex);
             }
         }
     }

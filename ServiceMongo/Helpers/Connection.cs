@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using Microsoft.Extensions.Configuration;
+using MongoDB.Driver;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,11 +18,23 @@ namespace MongoService.Helpers
                 return _instance ?? (_instance = new Connection());
             }
         }
+        private Connection()
+        {
+            string env = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+            IConfiguration config = new ConfigurationBuilder().
+                AddJsonFile("appsettings.json", false, false).
+                AddJsonFile($"appsettings.{env}.json", false, false).
+                AddEnvironmentVariables().
+                Build();
+
+            this._connectionString = config["MongoDB:Host"];
+            this._connectionDatabase = config["MongoDB:Database"];
+        }
 
         #endregion
 
-        private string _connectionString = "mongodb://localhost:27017";
-        private string _connectionDatabase = "aniapi_dotnet";
+        private string _connectionString;
+        private string _connectionDatabase;
         private IMongoDatabase _database;
 
         public IMongoDatabase Database

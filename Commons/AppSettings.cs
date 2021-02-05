@@ -10,5 +10,20 @@ namespace Commons
     {
         [BsonElement("jwt_secret")]
         public string JWTSecret { get; set; }
+
+        [BsonElement("proxy_host")]
+        public string ProxyHost { get; set; }
+
+        [BsonElement("proxy_port")]
+        public string ProxyPort { get; set; }
+
+        [BsonElement("proxy_username")]
+        public string ProxyUsername { get; set; }
+
+        [BsonElement("proxy_password")]
+        public string ProxyPassword { get; set; }
+
+        [BsonElement("proxy_count")]
+        public int ProxyCount { get; set; }
     }
 }
