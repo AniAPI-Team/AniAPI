@@ -1,6 +1,4 @@
-﻿@inject SpinnerService spinnerService
-
-
+﻿
 @if (IsVisible)
 {
     <div id="overlay">
@@ -8,35 +6,4 @@
             <img src="/images/GokuSpinner.gif" alt="Loading..." />
         </div>
     </div>
-}
-
-
-@code
-{
-    private bool IsVisible { get; set; } = false;
-
-
-    protected override void OnInitialized()
-    {
-        base.OnInitialized();
-
-        spinnerService.OnShowSpinner += ShowSpinner;
-        spinnerService.OnHideSpinner += HideSpinner;
-    }
-
-    private void ShowSpinner()
-    {
-        //Console.WriteLine($"Chiamato ShowSpinner: {DateTime.Now.ToString()}");
-        IsVisible = true;
-        StateHasChanged();
-    }
-
-    private void HideSpinner()
-    {
-        //Console.WriteLine($"Chiamato HideSpinner: {DateTime.Now.ToString()}");
-        IsVisible = false;
-        StateHasChanged();
-    }
-
-
 }

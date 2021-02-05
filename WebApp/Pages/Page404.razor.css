@@ -704,7 +704,7 @@
         animation: 29s floatReverse2 infinite;
     }
 
-@@keyframes apparition {
+@keyframes apparition {
     from {
         opacity: 0;
         transform: translateY(100px);
@@ -716,7 +716,7 @@
     }
 }
 
-@@keyframes float {
+@keyframes float {
     0%, 100% {
         transform: translateY(0);
     }
@@ -726,7 +726,7 @@
     }
 }
 
-@@keyframes floatReverse {
+@keyframes floatReverse {
     0%, 100% {
         transform: translateY(0);
     }
@@ -736,7 +736,7 @@
     }
 }
 
-@@keyframes float2 {
+@keyframes float2 {
     0%, 100% {
         transform: translateY(0);
     }
@@ -746,7 +746,7 @@
     }
 }
 
-@@keyframes floatReverse2 {
+@keyframes floatReverse2 {
     0%, 100% {
         transform: translateY(0);
     }

@@ -15,5 +15,6 @@ namespace WebApp
 
         public bool UseCustomVideoPlayer { get; set; }
         public bool UseDarkTheme { get; set; }
+        public string DefaultGlobalization{ get; set; }
     }
 }

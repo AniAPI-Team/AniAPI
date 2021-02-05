@@ -49,7 +49,8 @@ body .material-icons {
 
 .navbar .logo img {
     height: 32px;
-    width: 100%;
+    /*width: 100%; */
+    margin-left: 5px;
 }
 
 .navbar .navbar-menu {
@@ -118,7 +119,8 @@ body .material-icons {
 .section {
     position: relative;
     /*margin-left: 61px;*/
-    padding: 24px 0;
+    /*padding: 24px 0;*/
+    padding: 18px 0;
 }
 
 .section.no-p {
@@ -318,6 +320,8 @@ body .material-icons {
     margin-right: 24px;
     background-color: white;
     border-radius: 5px;
+    /*max-width: 200px;*/
+    width: 250px;
 }
 
 .dock .info .row {
@@ -411,5 +415,9 @@ body .material-icons {
 /* DOCK */
 
 /* MAIN */
+
+.float-right {
+    float: right;
+}
 
 /* DETTAGLIO */
