@@ -12,7 +12,7 @@ namespace MongoService
     /// <typeparam name="TDocument">IModel derived child class</typeparam>
     public class Paging<TDocument>
     {
-        private int _documentsPerPage = 50;
+        private int _documentsPerPage;
 
         /// <summary>
         /// The current list page
@@ -43,8 +43,14 @@ namespace MongoService
         /// <param name="collection">A MongoDB collection reference</param>
         /// <param name="page">A page number</param>
         /// <param name="filter">A MongoDB query filter</param>
-        public Paging(IMongoCollection<TDocument> collection, int page, FilterDefinition<TDocument> filter)
+        public Paging(IMongoCollection<TDocument> collection, int page, FilterDefinition<TDocument> filter, int documentsPerPage = 100)
         {
+            if(documentsPerPage > 100)
+            {
+                documentsPerPage = 100;
+            }
+
+            this._documentsPerPage = documentsPerPage;
             this.CurrentPage = page;
             this.Count = collection.CountDocuments(filter);
             this.Documents = collection.Find(filter).Skip(this._skip).Limit(this._limit).ToList();

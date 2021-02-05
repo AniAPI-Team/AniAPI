@@ -47,13 +47,16 @@ namespace Commons.Collections
             int anilistId = document.AnilistId;
             Anime reference = this.Collection.Find(x => x.AnilistId == anilistId).FirstOrDefault();
 
-            if(reference != null && updateValues)
+            if(reference != null)
             {
-                document.Id = reference.Id;
-                document.CreationDate = reference.CreationDate;
-                document.UpdateDate = reference.UpdateDate;
-                document.Ending = reference.Ending;
-                document.Opening = reference.Opening;
+                if (updateValues)
+                {
+                    document.Id = reference.Id;
+                    document.CreationDate = reference.CreationDate;
+                    document.UpdateDate = reference.UpdateDate;
+                    document.Ending = reference.Ending;
+                    document.Opening = reference.Opening;
+                }
                 return true;
             }
 
@@ -69,7 +72,7 @@ namespace Commons.Collections
 
             if (!string.IsNullOrEmpty(animeFilter.title))
             {
-                queryFilter = queryFilter & builder.Regex($"titles.{animeFilter.locale}", new BsonRegularExpression($".*{animeFilter.title}.*"));
+                queryFilter = queryFilter & builder.Regex($"titles.{animeFilter.locale}", new BsonRegularExpression($".*{animeFilter.title}.*", "i"));
             }
 
             if(animeFilter.anilist_id != 0)
@@ -77,7 +80,7 @@ namespace Commons.Collections
                 queryFilter = queryFilter & builder.Eq("anilist_id", animeFilter.anilist_id);
             }
 
-            return new Paging<Anime>(this.Collection, animeFilter.page, queryFilter);
+            return new Paging<Anime>(this.Collection, animeFilter.page, queryFilter, animeFilter.per_page);
         }
     }
 }

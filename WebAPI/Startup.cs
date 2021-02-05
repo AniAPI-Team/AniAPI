@@ -54,7 +54,7 @@ namespace WebAPI
                 AddInMemoryCollection(new AppSettingsCollection().GetConfiguration()).
                 Build();
 
-            services.Configure<AppSettings>(config);
+            services.AddSingleton<IConfiguration>(config);
 
             services.AddApiVersioning(o =>
             {
@@ -90,7 +90,9 @@ namespace WebAPI
             // Enable Cors
             app.UseCors("MyCorsPolicy");
 
+            app.UseLoggingMiddleware();
             app.UseRateLimitMiddleware();
+            app.UseJWTMiddleware();
 
             app.UseHttpsRedirection();
 
