@@ -1,7 +1,11 @@
-﻿using Commons;
+﻿using Blazored.LocalStorage;
+using Commons;
+using Commons.Enums;
+using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -11,14 +15,17 @@ namespace WebApp
 {
     public class Generic
     {
-        private readonly HttpClient _httpClient;
-        private readonly SpinnerService _spinner;
+        #region Injection
+        protected SpinnerService Spinner { get; set; }
+        protected HttpClient Client { get; set; }
+        protected ISyncLocalStorageService LocalStorage { get; set; }
+        #endregion
 
-        //Costruttore
-        public Generic(HttpClient httpClient, SpinnerService spinner)
+        public Generic (SpinnerService _spinner, HttpClient _client, ISyncLocalStorageService _localStorage)
         {
-            this._httpClient = httpClient;
-            this._spinner = spinner;
+            Spinner = _spinner;
+            Client = _client;
+            LocalStorage = _localStorage;
         }
 
         /// <summary>
@@ -33,7 +40,7 @@ namespace WebApp
         public async Task<T> PostSingleRequest<T, Z>(string urlApi, Z data, bool useSpinner = false) where T : new()
         {
             if (useSpinner)
-                _spinner.Show();
+                Spinner.Show();
             T res = new T();
 
             try
@@ -44,8 +51,8 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                string absoluteUrl = string.Format("{0}{1}", this._httpClient.BaseAddress, urlApi);
-                HttpResponseMessage responsePost = await this._httpClient.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
+                string absoluteUrl = string.Format("{0}{1}", Client.BaseAddress, urlApi);
+                HttpResponseMessage responsePost = await Client.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
                 res = JsonConvert.DeserializeObject<T>(await responsePost.Content.ReadAsStringAsync());
 
             }
@@ -53,15 +60,15 @@ namespace WebApp
             {
                 APIManager.ErrorResponse(ex);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
                 //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
             finally
             {
                 if (useSpinner)
-                    _spinner.Hide();
+                    Spinner.Hide();
             }
 
             return res;
@@ -79,7 +86,7 @@ namespace WebApp
         public async Task<List<T>> PostListRequest<T, Z>(string urlApi, Z data, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
-                _spinner.Show();
+                Spinner.Show();
             List<T> res = new List<T>();
 
             try
@@ -90,8 +97,8 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                string absoluteUrl = string.Format("{0}{1}", this._httpClient.BaseAddress, urlApi);
-                HttpResponseMessage responsePost = await this._httpClient.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
+                string absoluteUrl = string.Format("{0}{1}", Client.BaseAddress, urlApi);
+                HttpResponseMessage responsePost = await Client.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
                 res = JsonConvert.DeserializeObject<List<T>>(await responsePost.Content.ReadAsStringAsync());
 
             }
@@ -99,15 +106,15 @@ namespace WebApp
             {
                 APIManager.ErrorResponse(ex);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
                 //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
             finally
             {
                 if (useSpinner)
-                    _spinner.Hide();
+                    Spinner.Hide();
             }
 
             return res;
@@ -123,7 +130,7 @@ namespace WebApp
         public async Task<T> GetSingleRequest<T>(string urlApi, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
-                _spinner.Show();
+                Spinner.Show();
             T res = new T();
 
             try
@@ -134,21 +141,21 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                res = await _httpClient.GetFromJsonAsync<T>(urlApi, jso);
+                res = await Client.GetFromJsonAsync<T>(urlApi, jso);
             }
             catch (APIException ex)
             {
                 APIManager.ErrorResponse(ex);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
                 //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
             finally
             {
                 if (useSpinner)
-                    _spinner.Hide();
+                    Spinner.Hide();
             }
 
             return res;
@@ -164,7 +171,7 @@ namespace WebApp
         public async Task<List<T>> GetListRequest<T>(string urlApi, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
-                _spinner.Show();
+                Spinner.Show();
             List<T> res = new List<T>();
 
             try
@@ -175,24 +182,50 @@ namespace WebApp
                     PropertyNamingPolicy = JsonNamingPolicy.CamelCase
                 };
 
-                res = await _httpClient.GetFromJsonAsync<List<T>>(urlApi, jso);
+                res = await Client.GetFromJsonAsync<List<T>>(urlApi, jso);
             }
             catch (APIException ex)
             {
                 APIManager.ErrorResponse(ex);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                throw ex;
+                throw;
                 //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
             }
             finally
             {
                 if (useSpinner)
-                    _spinner.Hide();
+                    Spinner.Hide();
             }
 
             return res;
+        }
+
+        //GetValue by Localization
+        public string GetValueLocalized(Dictionary<string, string> List, string localization)
+        {
+            string value;
+            localization ??= LocalizationEnum.English;
+
+            if ((List ??= new Dictionary<string, string>()).Count == 0)
+                return "No data in your Language";
+
+
+            //Prendo il dato nella lingua impostata
+            bool found = List.TryGetValue(localization, out value);
+            if (found)
+                return value;
+
+            //Prendo il dato in inglese (a prescindere dalla lingua impostata)
+            found = List.TryGetValue(LocalizationEnum.English, out value);
+            if (found)
+                return value;
+
+            //Prendo il primo dato valido
+            value = List.Values.ToList().FirstOrDefault();
+
+            return value ?? "No data in your Language";
         }
     }
 }

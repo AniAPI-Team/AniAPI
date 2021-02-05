@@ -1,9 +1,7 @@
 ﻿@inherits LayoutComponentBase
-@inject UIConfiguration theme
-@using Commons
 
 <head>
-    @if (theme.UseDarkTheme)
+    @if (Theme.UseDarkTheme)
     {
         <link href="css/default.darktheme.css" rel="stylesheet" />
     }

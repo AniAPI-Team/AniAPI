@@ -1,7 +1,4 @@
-﻿@inject ISyncLocalStorageService localStorage
-@inject NavigationManager navigationManager
-
-
+﻿
 <div class="navbar">
     <div class="logo">
         <a href="/">
@@ -30,7 +27,7 @@
             </a>
         </div>
         <div class="menu-item">
-            <DropDown />
+            <DropDown DropDownOptions="@DropDownOptions" IsMultiple="false" CambiaElemento="@((loc) => ChangeLocalization(loc))" />
         </div>
     </div>
     <div class="navbar-bug">
@@ -39,12 +36,3 @@
         </a>
     </div>
 </div>
-
-@code
-{
-    private void Logout()
-    {
-        localStorage.RemoveItem("token");
-        navigationManager.NavigateTo("/Login");
-    }
-}

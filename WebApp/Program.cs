@@ -20,6 +20,7 @@ namespace WebApp
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.RootComponents.Add<App>("#app");
 
+            // HTTP Client
             string hostName = builder.Configuration["HostName"];
             string protocol = builder.Configuration["Protocol"];
             int port = int.Parse(builder.Configuration["Port"]);
@@ -27,13 +28,12 @@ namespace WebApp
 
             // Middlewhere - FE & API
             builder.Services.AddScoped<Generic>();
+            // microservice spinner
+            builder.Services.AddScoped<SpinnerService>();
 
             // Local/Session storage
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddBlazoredSessionStorage();
-
-            // microservice spinner
-            builder.Services.AddScoped<SpinnerService>();
 
             // UIConfiguration
             bool useCustomVideoPlayer = bool.Parse(builder.Configuration["UseCustomVideoPlayer"]);

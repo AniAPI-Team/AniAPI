@@ -30,8 +30,8 @@ var fullscreenIcons;
 
 window.VideoPlayer = {
     InitVideoVariables: function () {
-        if (video)
-            return;
+        //if (video)
+        //    return;
 
         //Container
         videoContainer = document.querySelectorAll('.video-container')[0];
@@ -78,6 +78,9 @@ window.VideoPlayer = {
 
         video.addEventListener('loadedmetadata', VideoPlayer.VideoLoaded);
     },
+    InitYoutube: function () {
+        video = document.querySelectorAll('iframe')[0];
+    },
     VideoLoaded: function () {
         const videoDuration = Math.round(video.duration);
 
@@ -99,6 +102,9 @@ window.VideoPlayer = {
         document.querySelectorAll('.play .fa-pause').forEach((icon) => icon.classList.add('hidden'));
     },
     ChangeVideoUrl: async function (newUrl) {
+        if (!video)
+            VideoPlayer.InitVideoVariables();
+
         //Render senza modifica url
         if (video.url == newUrl)
             return;
@@ -252,6 +258,6 @@ window.VideoPlayer = {
     },
     ScroolToVideo: function () {
         //video && video.scrollIntoView({ behavior: "smooth", block: 'center' });
-        video && video.scrollIntoView();
+        video && video.scrollIntoView({ block: 'center' });
     }
 };

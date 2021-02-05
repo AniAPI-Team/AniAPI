@@ -1,139 +1,82 @@
-﻿@inject IJSRuntime JS
+﻿@if (listEpisodi.Episodi == null)
+{
+    @Placeholder
+}
+else
+{
+    <div class="video-container" @ondblclick="@(() => ToggleFullScreen())">
+        <div class="playback-animation playback-icons play">
+            <i class="fas fa-play large white"></i>
+            <i class="fas fa-pause large white hidden"></i>
+        </div>
 
-@code{
-    [Parameter] public AnimeEpisodi listEpisodi { get; set; }
-    [Parameter] public int VideoNumeroEpisodio { get; set; }
-    [Parameter] public Action<int> VideoNumeroEpisodioChanged { get; set; }
+        <video class="video" preload="metadata" @onclick="TogglePlay">
+            <source src="@(episodioAttuale != null ? episodioAttuale.Url : "")" type="video/mp4" />
+        </video>
 
-    private Episodio episodioAttuale = new Episodio();
+        <div class="video-controls">
+            <div class="video-progress">
+                <progress class="progress-bar" value="0" min="0"></progress>
+                <input class="seek" value="0" min="0" type="range" step="1">
+                <div class="seek-tooltip">00:00</div>
+            </div>
 
-    protected override void OnParametersSet()
-    {
-        if (listEpisodi == null)
-            return;
+            <div class="bottom-controls ">
+                <div class="left-controls">
+                    <button data-title="Play (spacebar)" class="play playback-icons" @onclick="TogglePlay">
+                        <i class="fas fa-play large white"></i>
+                        <i class="fas fa-pause large white hidden"></i>
+                    </button>
 
-        if (listEpisodi.Episodi != null)
-        {
+                    @if (VideoNumeroEpisodio + 1 < listEpisodi.Episodi.Count)
+                    {
+                        <button data-title="Next (N)" id="next" class="next-button" @onclick="NextEpisode">
+                            <i class="fas fa-step-forward large white"></i>
+                        </button>
+                    }
 
-            episodioAttuale = listEpisodi.Episodi.Where(num => num.NumeroEpisodio == VideoNumeroEpisodio).FirstOrDefault();
+                    <div class="volume-controls">
+                        <button data-title="Mute (M)" class="volume-button" id="volume-button">
+                            <i class="fas fa-volume-mute large hidden white"></i>
+                            <i class="fas fa-volume-down large hidden white"></i>
+                            <i class="fas fa-volume large hidden white"></i>
+                            <i class="fas fa-volume-up large white"></i>
+                        </button>
 
-            if (episodioAttuale != null && episodioAttuale.Url != null)
-            {
-                JS.InvokeVoidAsync("VideoPlayer.ChangeVideoUrl", episodioAttuale.Url);
-            }
+                        <input class="volume" value="1" data-mute="0.5" type="range" max="1" min="0" step="0.01">
+                    </div>
 
-            //StateHasChanged();
-        }
-    }
+                    <div class="time">
+                        <time id="time-elapsed">00:00</time>
+                        <span> / </span>
+                        <time id="duration">00:00</time>
+                    </div>
+                </div>
 
-    protected override async Task OnAfterRenderAsync(bool firstRender)
-    {
-        if (firstRender)
-        {
-            await JS.InvokeVoidAsync("VideoPlayer.InitVideoVariables");
-        }
-
-        if (!firstRender)
-        {
-            await JS.InvokeVoidAsync("VideoPlayer.ScroolToVideo");
-        }
-
-        await base.OnAfterRenderAsync(firstRender);
-    }
-
-    private void NextEpisode()
-    {
-        if (VideoNumeroEpisodio + 1 <= listEpisodi.Episodi.Count)
-        {
-            VideoNumeroEpisodio++;
-            VideoNumeroEpisodioChanged?.Invoke(VideoNumeroEpisodio);
-        }
-    }
-
-    private async Task ToggleFullScreen()
-    {
-        await JS.InvokeVoidAsync("VideoPlayer.ToggleFullScreen");
-    }
-
-    private async Task TogglePlay()
-    {
-        await JS.InvokeVoidAsync("VideoPlayer.TogglePlay");
-    }
+                <div class="right-controls">
+                    <button data-title="PIP (P)" class="pip-button" id="pip-button">
+                        <svg>
+                            <use href="#pip"></use>
+                        </svg>
+                    </button>
+                    <button data-title="Full screen (F)" class="fullscreen-button" @onclick="ToggleFullScreen">
+                        <i class="fas fa-expand large white"></i>
+                        <i class="fas fa-compress large white hidden"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
 }
 
-<div class="video-container" @ondblclick="@(() => ToggleFullScreen())">
-    <div class="playback-animation playback-icons play">
-        <i class="fas fa-play large white"></i>
-        <i class="fas fa-pause large white hidden"></i>
-    </div>
-
-    <video class="video" preload="metadata" @onclick="TogglePlay">
-        <source src="@(episodioAttuale != null ? episodioAttuale.Url : "")" type="video/mp4" />
-    </video>
-
-    <div class="video-controls">
-        <div class="video-progress">
-            <progress class="progress-bar" value="0" min="0"></progress>
-            <input class="seek" value="0" min="0" type="range" step="1">
-            <div class="seek-tooltip">00:00</div>
-        </div>
-
-        <div class="bottom-controls ">
-            <div class="left-controls">
-                <button data-title="Play (spacebar)" class="play playback-icons" @onclick="TogglePlay">
-                    <i class="fas fa-play large white"></i>
-                    <i class="fas fa-pause large white hidden"></i>
-                </button>
-
-                @if (VideoNumeroEpisodio + 1 < listEpisodi.Episodi.Count)
-                {
-                    <button data-title="Next (N)" id="next" class="next-button" @onclick="NextEpisode">
-                        <i class="fas fa-step-forward large white"></i>
-                    </button>
-                }
-
-                <div class="volume-controls">
-                    <button data-title="Mute (M)" class="volume-button" id="volume-button">
-                        <i class="fas fa-volume-mute large hidden white"></i>
-                        <i class="fas fa-volume-down large hidden white"></i>
-                        <i class="fas fa-volume large hidden white"></i>
-                        <i class="fas fa-volume-up large white"></i>
-                    </button>
-
-                    <input class="volume" value="1" data-mute="0.5" type="range" max="1" min="0" step="0.01">
-                </div>
-
-                <div class="time">
-                    <time id="time-elapsed">00:00</time>
-                    <span> / </span>
-                    <time id="duration">00:00</time>
-                </div>
-            </div>
-
-            <div class="right-controls">
-                <button data-title="PIP (P)" class="pip-button" id="pip-button">
-                    <svg>
-                        <use href="#pip"></use>
-                    </svg>
-                </button>
-                <button data-title="Full screen (F)" class="fullscreen-button" @onclick="ToggleFullScreen">
-                    <i class="fas fa-expand large white"></i>
-                    <i class="fas fa-compress large white hidden"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
 
 @*Slider ultimi 5 secondi*@
 @*<div id="nextEpisodeCountDown" class="hide nextEpisodeCountDown">
-    <div class="Text">
-        Prossimo Episodio<span id="nextEpisodeTimeLeft"> 5 sec</span>
-    </div>
-    <div class="slide"></div>
-</div>*@
-
-
+        <div class="Text">
+            Prossimo Episodio<span id="nextEpisodeTimeLeft"> 5 sec</span>
+        </div>
+        <div class="slide"></div>
+    </div>*@
 <svg style="display: none">
     <defs>
         <symbol id="pip" viewBox="0 0 24 24">
