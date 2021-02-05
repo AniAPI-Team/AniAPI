@@ -3,7 +3,8 @@
     {
         <div class="sibling prequel" style="background-image: url(@Prequel.BannerImage);" @onclick="@(() => NavigationManager.NavigateTo($"/AnimeDetail/{Prequel.Id}"))">
             <span>Prequel</span>
-            <h3 class="title">@Prequel.Titles[Localization]</h3>
+            @*<h3 class="title">@Prequel.Titles[Localization]</h3>*@
+            <h3 class="title">@Generic.GetValueLocalized(Prequel.Titles, Localization)</h3>
         </div>
     }
     else
@@ -18,7 +19,8 @@
     {
         <div class="sibling sequel" style="background-image: url(@Sequel.BannerImage);" @onclick="@(() => NavigationManager.NavigateTo($"/AnimeDetail/{Sequel.Id}"))">
             <span>Sequel</span>
-            <h3 class="title">@Sequel.Titles[Localization]</h3>
+            @*<h3 class="title">@Sequel.Titles[Localization]</h3>*@
+            <h3 class="title">@Generic.GetValueLocalized(Sequel.Titles, Localization)</h3>
         </div>
     }
     else

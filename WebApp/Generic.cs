@@ -1,9 +1,11 @@
 ﻿using Blazored.LocalStorage;
 using Commons;
+using Commons.Enums;
 using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -14,11 +16,9 @@ namespace WebApp
     public class Generic
     {
         #region Injection
-
-        [Inject] protected SpinnerService Spinner { get; set; }
-        [Inject] protected HttpClient Client { get; set; }
-        [Inject] protected ISyncLocalStorageService LocalStorage { get; set; }
-
+        protected SpinnerService Spinner { get; set; }
+        protected HttpClient Client { get; set; }
+        protected ISyncLocalStorageService LocalStorage { get; set; }
         #endregion
 
         public Generic (SpinnerService _spinner, HttpClient _client, ISyncLocalStorageService _localStorage)
@@ -27,8 +27,6 @@ namespace WebApp
             Client = _client;
             LocalStorage = _localStorage;
         }
-
-
 
         /// <summary>
         /// Post to Server Data and receive an Object with type defined in parameters
@@ -204,10 +202,30 @@ namespace WebApp
             return res;
         }
 
-        public void ChangeLocalization(string element)
+        //GetValue by Localization
+        public string GetValueLocalized(Dictionary<string, string> List, string localization)
         {
-            // Localization save in LocalStorage
-            LocalStorage.SetItem<string>("Localization", element);
+            string value;
+            localization ??= LocalizationEnum.English;
+
+            if ((List ??= new Dictionary<string, string>()).Count == 0)
+                return "No data in your Language";
+
+
+            //Prendo il dato nella lingua impostata
+            bool found = List.TryGetValue(localization, out value);
+            if (found)
+                return value;
+
+            //Prendo il dato in inglese (a prescindere dalla lingua impostata)
+            found = List.TryGetValue(LocalizationEnum.English, out value);
+            if (found)
+                return value;
+
+            //Prendo il primo dato valido
+            value = List.Values.ToList().FirstOrDefault();
+
+            return value ?? "No data in your Language";
         }
     }
 }

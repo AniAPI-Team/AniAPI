@@ -6,10 +6,8 @@ using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using WebApp.Shared.Components;
 
 namespace WebApp.Pages.AnimePages
 {
@@ -19,6 +17,7 @@ namespace WebApp.Pages.AnimePages
         [Inject] protected Generic Generic { get; set; }
         [Inject] protected HttpClient Client { get; set; }
         [Inject] protected NavigationManager NavigationManager { get; set; }
+        [Inject] protected ISyncLocalStorageService LocalStorage { get; set; }
         [Inject] protected SpinnerService Spinner { get; set; }
         [Inject] protected UIConfiguration Confs { get; set; }
         [Inject] protected IJSRuntime Js { get; set; }
@@ -28,33 +27,35 @@ namespace WebApp.Pages.AnimePages
         [Parameter] public int AnimeID { get; set; }
         [Parameter] public int NumeroEpisodio { get; set; }
 
-        private Anime anime = new Commons.Anime();
+        private Anime anime;
         private Anime prequel;
         private Anime sequel;
-        private AnimeEpisodi listEpisodi = new AnimeEpisodi() { Episodi = new List<Episodio>() };
+        private AnimeEpisodi listEpisodi;
         private string Localization;
-        Uri TrailerUrl = new Uri("https://www.youtube-nocookie.com/embed/1fHQyRp2RGM");
-        Dictionary<string, string> Episodi_Sources;
-    #endregion
+        private Dictionary<string, string> Episodi_Sources;
 
-    #region life-cycle Page
-    protected override void OnParametersSet()
+        Uri TrailerUrl = new Uri("https://www.youtube-nocookie.com/embed/123ABC");
+        #endregion
+
+        #region life-cycle Page
+        protected override void OnParametersSet()
         {
-            Localization = LocalizationEnum.English;
+            string CacheLocalization = LocalStorage.GetItem<string>("Localization");
+            
+            Localization ??= CacheLocalization ??= LocalizationEnum.English;
 
             base.OnParametersSet();
         }
 
         protected override async Task OnInitializedAsync()
         {
-            Console.WriteLine($"OnInitializedAsync - Numero Episodio: {NumeroEpisodio}");
             Spinner.Show();
+            anime = new Anime();
+            //Localization = LocalizationEnum.Italian;
             //await Task.Delay(5000);
 
             APIResponse ApiResponse = new APIResponse();
 
-            //    //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + AnimeID, jso);
-            //    ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
             //    ApiResponse = generic.GetSingleRequest<APIResponse>("/api/v1/anime/MockUpResponse");
             ApiResponse = GetAnime();
             anime = (Anime)ApiResponse.Data;
@@ -67,38 +68,36 @@ namespace WebApp.Pages.AnimePages
 
             //anime = JsonSerializer.Deserialize<Anime>(ApiResponse.Data.ToString());
 
-
-            if (anime.Prequel != null && anime.Prequel.HasValue)
+            if ((anime.Prequel ?? 0) != 0)
             {
                 ApiResponse = null;
-                //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Prequel);
                 //ApiResponse = await Client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
                 //if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
                 ApiResponse = GetAnime();
                 prequel = (Anime)ApiResponse.Data;
             }
 
-            if (anime.Sequel != null && anime.Sequel.HasValue)
+            if ((anime.Sequel ?? 0) != 0)
             {
                 ApiResponse = null;
-                //ApiResponse = await client.GetFromJsonAsync<APIResponse>("/api/v1/anime/" + anime.Sequel);
                 //ApiResponse = await Client.GetFromJsonAsync<APIResponse>("/api/v1/anime/MockUpResponse");
                 //if (ApiResponse.StatusCode == System.Net.HttpStatusCode.OK)
                 ApiResponse = GetAnime();
                 sequel = (Anime)ApiResponse.Data;
             }
 
+            listEpisodi = new AnimeEpisodi() { Episodi = new List<Episodio>() };
+
             try
             {
-                //////TODO - Estrarre Episodi Anime
-                ////listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
+                //listEpisodi = await client.GetFromJsonAsync<AnimeEpisodi>("/api/v1/episodi/" + AnimeID);
                 listEpisodi = GetAnimeEpisodi();
                 Episodi_Sources = new Dictionary<string, string>() { { "AnimeUnity", "AnimeUnity" }, { "Dreamsub", "Dreamsub" }, { "boh", "boh" } };
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Generic Exception Catch: {ex.Message}");
-                NavigationManager.NavigateTo("/");
+                //NavigationManager.NavigateTo("/");
                 return;
             }
 
@@ -113,7 +112,7 @@ namespace WebApp.Pages.AnimePages
             NavigationManager.NavigateTo($"/AnimeDetail/{AnimeID}/Episodio/{_numEpisodio}");
         }
 
-        private void CambioSorgente(string Source)
+        private void CambioSorgente(List<string> Source)
         {
         }
 
@@ -159,10 +158,11 @@ namespace WebApp.Pages.AnimePages
 
 
             animeMK.Titles = new Dictionary<string, string>();
-            animeMK.Titles.Add(LocalizationEnum.English, "Shingeki no Kyojin 3 Part 2");
+            animeMK.Titles.Add(LocalizationEnum.Italian, "ITA - Shingeki no Kyojin 3 Part 2");
+            animeMK.Titles.Add(LocalizationEnum.English, "ENG - Shingeki no Kyojin 3 Part 2");
 
             animeMK.Descriptions = new Dictionary<string, string>();
-            animeMK.Descriptions.Add(LocalizationEnum.English, "The second cour of <i>Shingeki no Kyojin 3</i>.<br><br>The battle to retake Wall Maria begins now! With Eren’s new hardening ability, the Scouts are confident they can seal the wall and take back Shiganshina District. If they succeed, Eren can finally unlock the secrets of the basement—and the world. But danger lies in wait as Reiner, Bertholdt, and the Beast Titan have plans of their own. Could this be humanity’s final battle for survival?<br><br>(Source: Funimation)");
+            animeMK.Descriptions.Add(LocalizationEnum.Japanese, "JAP - The second cour of <i>Shingeki no Kyojin 3</i>.<br><br>The battle to retake Wall Maria begins now! With Eren’s new hardening ability, the Scouts are confident they can seal the wall and take back Shiganshina District. If they succeed, Eren can finally unlock the secrets of the basement—and the world. But danger lies in wait as Reiner, Bertholdt, and the Beast Titan have plans of their own. Could this be humanity’s final battle for survival?<br><br>(Source: Funimation)");
 
 
             APIResponse response = new APIResponse();

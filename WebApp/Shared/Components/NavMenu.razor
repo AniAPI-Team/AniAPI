@@ -27,7 +27,7 @@
             </a>
         </div>
         <div class="menu-item">
-            <DropDown CambiaElemento="@((loc) => Generic.ChangeLocalization(loc))" />
+            <DropDown DropDownOptions="@DropDownOptions" IsMultiple="false" CambiaElemento="@((loc) => ChangeLocalization(loc))" />
         </div>
     </div>
     <div class="navbar-bug">
