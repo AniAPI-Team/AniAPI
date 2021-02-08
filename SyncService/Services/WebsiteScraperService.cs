@@ -8,8 +8,11 @@ using FuzzySharp;
 using MongoService;
 using PuppeteerSharp;
 using SyncService.Helpers;
+using SyncService.Models;
+using SyncService.Models.WebsiteScrapers;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,11 +23,9 @@ namespace SyncService.Services
     {
         #region Members
 
-        private WebsiteCollection _websiteCollection = new WebsiteCollection();
-        private AnimeCollection _animeCollection = new AnimeCollection();
-        private long _lastId = -1;
+        private List<IWebsiteScraper> _workers;
 
-        protected override int TimeToWait => 1000 * 10;
+        protected override int TimeToWait => 1000 * 60 * 60 * 6; // 6 Hours
 
         #endregion
 
@@ -33,44 +34,29 @@ namespace SyncService.Services
             return new ServicesStatus("WebsiteScraper");
         }
 
-        public override async void Start()
-        {
-            this._lastId = this._animeCollection.Last().Id;
-
-            base.Start();
-        }
-
         public override async void Work()
         {
             base.Work();
 
             try
             {
-                Paging<Website> websites = this._websiteCollection.GetList(new WebsiteFilter());
-
-                foreach(Website website in websites.Documents)
+                this._workers = new List<IWebsiteScraper>()
                 {
-                    try
-                    {
-                        for (int id = 1; id < this._lastId; id++)
-                        {
-                            Anime anime = this._animeCollection.Get(id);
+                    new DreamsubScraper(this)
+                };
 
-                            using (Page webPage = await ProxyHelper.Instance.GetBestProxy())
-                            {
-                                string matching = await this.getMatchings(webPage, anime, website);
+                foreach(IWebsiteScraper scraper in this._workers)
+                {
+                    scraper.Start();
+                }
 
-                                if (matching != null)
-                                {
-                                    this.Log($"Matched \"{anime.Titles[LocalizationEnum.English]}\" with \"{matching}\"");
-                                }
-                            }
-                        }
-                    }
-                    catch(Exception ex)
-                    {
-                        continue;
-                    }
+                int alives = this._workers.Where(x => x.Working == true).Count();
+
+                while (alives > 0)
+                {
+                    alives = this._workers.Where(x => x.Working == true).Count();
+
+                    Thread.Sleep(1000 * 60);
                 }
             }
             catch(Exception ex)
@@ -81,8 +67,135 @@ namespace SyncService.Services
             this.Wait();
         }
 
-        private async Task<string> getMatchings(Page webPage, Anime anime, Website website)
+        /*
+        private async void workerRun(object argument)
         {
+            Website website = (Website)argument;
+            string browserKey = ProxyHelper.Instance.GenerateBrowserKey(typeof(WebsiteScraperService));
+
+            for (int id = 1; id < this._lastId; id++)
+            {
+                try
+                {
+                    Anime anime = this._animeCollection.Get(id);
+                    AnimeMatching matching = new AnimeMatching();
+
+                    if(!this.needWork(website, anime))
+                    {
+                        continue;
+                    }
+
+                    try
+                    {
+                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browserKey, website.CanBlockRequests))
+                        {
+                            //this.Log($"Searching \"{anime.Titles[LocalizationEnum.English]}\"");
+                            matching = await this.getMatchings(webPage, anime, website);
+                        }
+
+                        if (matching != null)
+                        {
+                            //this.Log($"Matched \"{anime.Titles[LocalizationEnum.English]}\" with \"{matching.Title}\"");
+
+                            if (website.ScrapeType == WebsiteScrapeType.EPISODES_DIFFERENT_PAGE)
+                            {
+                                foreach (EpisodeMatching episode in matching.Episodes)
+                                {
+                                    using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browserKey, website.CanBlockRequests))
+                                    {
+                                        episode.Source = await this.getEpisodeSource(webPage, episode, website);
+
+                                        if (string.IsNullOrEmpty(episode.Source))
+                                        {
+                                            throw new Exception();
+                                        }
+
+                                        //this.Log($"Anime {anime.Titles[LocalizationEnum.English]} done {GetProgressD(episode.Number, matching.Episodes.Count)}%");
+                                        //this.Log($"Episode {episode.Number} source: {episode.Source}");
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            matching = new AnimeMatching();
+                            throw new Exception();
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        //this.Log("No episodes found!");
+                        matching.Completed = false;
+                    }
+
+                    if (website.Official)
+                    {
+                        anime.Titles[website.Localization] = matching.Title;
+                        anime.Descriptions[website.Localization] = matching.Description;
+
+                        this._animeCollection.Edit(ref anime);
+                    }
+
+                    if (matching.Completed)
+                    {
+                        foreach (EpisodeMatching episode in matching.Episodes)
+                        {
+                            Episode ep = new Episode()
+                            {
+                                AnimeID = anime.Id,
+                                Source = website.Name,
+                                Number = episode.Number,
+                                Title = episode.Title,
+                                Video = episode.Source
+                            };
+
+                            if (this._episodeCollection.Exists(ref ep))
+                            {
+                                this._episodeCollection.Edit(ref ep);
+                            }
+                            else
+                            {
+                                this._episodeCollection.Add(ref ep);
+                            }
+                        }
+                    }
+
+                    this._workers.Keys.FirstOrDefault(x => x.Id == website.Id).LastLog = $"Website {website.Name} done {GetProgressD(id, this._lastId)}% ({anime.Titles[LocalizationEnum.English]})";
+                }
+                catch (Exception ex)
+                {
+                    continue;
+                }
+            }
+
+            ProxyHelper.Instance.CloseProxy(browserKey);
+            this._workers.Keys.FirstOrDefault(x => x.Id == website.Id).Working = false;
+        }
+
+        private bool needWork(Website website, Anime anime)
+        {
+            if(anime.Status == AnimeStatusEnum.RELEASING)
+            {
+                return true;
+            }
+
+            long episodesCount = this._episodeCollection.GetList<EpisodeFilter>(new EpisodeFilter()
+            {
+                anime_id = anime.Id,
+                source = website.Name
+            }).Count;
+
+            if(episodesCount == 0)
+            {
+                return true;
+            }
+            
+            return false;
+        }
+
+        private async Task<AnimeMatching> getMatchings(Page webPage, Anime anime, Website website)
+        {
+            AnimeMatching matching;
             string animeTitle = null;
 
             if (anime.Titles.ContainsKey(website.Localization))
@@ -107,78 +220,203 @@ namespace SyncService.Services
 
             foreach(ElementHandle element in await webPage.QuerySelectorAllAsync(website.Search.ElementsSelector))
             {
+                matching = new AnimeMatching();
+
                 ElementHandle title = await element.QuerySelectorAsync(website.Search.TitleSelector);
-                string elementTitle = (await title.EvaluateFunctionAsync<string>($"e => {website.Search.TitleFunction}")).Trim();
+                matching.Title = (await title.EvaluateFunctionAsync<string>($"e => {website.Search.TitleFunction}")).Trim();
 
-                int ratio = Fuzz.TokenSortRatio(elementTitle, animeTitle);
-
-                if(ratio == 100)
+                if (!string.IsNullOrEmpty(website.Search.TitleReplace))
                 {
-                    return elementTitle;
+                    matching.Title = matching.Title.Replace(website.Search.TitleReplace, string.Empty).Trim();
+                }
+
+                matching.Score = Fuzz.TokenSortRatio(matching.Title, animeTitle);
+
+                if(matching.Score == 100)
+                {
+                    ElementHandle path = await element.QuerySelectorAsync(website.Search.PathSelector);
+                    matching.Path = (await path.EvaluateFunctionAsync<string>($"e => {website.Search.PathFunction}")).Trim();
+
+                    try
+                    {
+                        matching.Episodes = await this.getEpisodes(webPage, matching, website);
+                    }
+                    catch
+                    {
+                        matching.Completed = false;
+                    }
+
+                    return matching;
                 }
             }
 
             return null;
         }
 
-        //string animeTitle = "THE GOD OF HIGH SCHOOL";
-        //int episodes = 960;
-        //bool found = false;
-        //
-        //string match = string.Empty;
-        //List<string> possibleMatches = new List<string>();
-        //
-        //IBrowsingContext context = BrowsingContext.New(Configuration.Default.WithDefaultLoader());
-        //
-        //string url = $"https://dreamsub.stream/search/?q={Uri.EscapeUriString(animeTitle)}";
-        //var doc = await context.OpenAsync(url);
-        //
-        //IHtmlCollection<IElement> results = doc.QuerySelectorAll("#main-content .goblock .tvBlock");
-        //
-        //foreach (var r in results)
-        //{
-        //    string title = r.QuerySelector(".tvTitle .title").TextContent;
-        //
-        //    int ratio = Fuzz.TokenSortRatio(title, animeTitle);
-        //
-        //    if(ratio == 100)
-        //    {
-        //        found = true;
-        //        match = title;
-        //    }
-        //    else if(found == false)
-        //    {
-        //        possibleMatches.Add(title);
-        //    }
-        //
-        //    this.Log($"{title} => {ratio}");
-        //IElement link = r.QuerySelector(".showStreaming a");
-        //string episodesUrl = link.GetAttribute("href");
-        //
-        //if (title == animeTitle)
-        //{
-        //    this.Log($"TITLE: {title}, URL: {episodesUrl}");
-        //
-        //    for(int i = 1; i <= episodes; i++)
-        //    {
-        //        try
-        //        {
-        //            url = $"https://dreamsub.stream{episodesUrl}/{i}";
-        //            doc = await context.OpenAsync(url);
-        //
-        //            var video = doc.QuerySelector("#media-play #iFrameVideoSub");
-        //            string videoUrl = video.GetAttribute("src");
-        //x
-        //            this.Log($"VIDEO: {videoUrl}");
-        //        }
-        //        catch(Exception ex)
-        //        {
-        //            this.Log($"ERROR: {ex.Message}");
-        //        }
-        //    }
-        //
-        //
-        //}
-        //}
+        private async Task<List<EpisodeMatching>> getEpisodes(Page webPage, AnimeMatching matching, Website website)
+        {
+            List<EpisodeMatching> episodes = new List<EpisodeMatching>();
+
+            string url = $"{website.SiteUrl}{matching.Path.Replace(website.SiteUrl, string.Empty)}";
+            await webPage.GoToAsync(url);
+
+            await webPage.WaitForSelectorAsync(website.EpisodesSearch.WaitSelector, new WaitForSelectorOptions()
+            {
+                Visible = true,
+                Timeout = 3000
+            });
+
+            await webPage.ScreenshotAsync("episodes.png");
+
+            ElementHandle description = await webPage.QuerySelectorAsync(website.EpisodesSearch.DescriptionSelector);
+            matching.Description = (await description.EvaluateFunctionAsync<string>($"e => {website.EpisodesSearch.DescriptionFunction}")).Trim();
+
+            if (website.ScrapeType == WebsiteScrapeType.EPISODES_DIFFERENT_PAGE)
+            {
+                int number = 1;
+                foreach (ElementHandle element in await webPage.QuerySelectorAllAsync(website.EpisodesSearch.ElementsSelector))
+                {
+                    EpisodeMatching episode = new EpisodeMatching()
+                    {
+                        Number = number
+                    };
+
+                    ElementHandle info = await element.QuerySelectorAsync(website.EpisodesSearch.InfoSelector);
+
+                    episode.Path = await info.EvaluateFunctionAsync<string>($"e => {website.EpisodesSearch.PathFunction}");
+
+                    if (!string.IsNullOrEmpty(episode.Path))
+                    {
+                        episode.Path = episode.Path.Trim();
+                        episode.Title = (await info.EvaluateFunctionAsync<string>($"e => {website.EpisodesSearch.TitleFunction}")).Trim();
+                    }
+
+                    if (!string.IsNullOrEmpty(episode.Title))
+                    {
+                        episodes.Add(episode);
+                    }
+
+                    number++;
+                }
+            }
+            else if(website.ScrapeType == WebsiteScrapeType.EPISODES_SAME_PAGE)
+            {
+                int number = 1;
+
+                ElementHandle check = null;
+
+                if (!string.IsNullOrEmpty(website.EpisodesSearch.PagesSelector))
+                {
+                    check = await webPage.QuerySelectorAsync(website.EpisodesSearch.PagesSelector);
+                }
+
+                if (check != null)
+                {
+                    foreach(ElementHandle page in await webPage.QuerySelectorAllAsync(website.EpisodesSearch.PagesSelector))
+                    {
+                        await page.ClickAsync();
+
+                        foreach (ElementHandle element in await webPage.QuerySelectorAllAsync(website.EpisodesSearch.ElementsSelector))
+                        {
+                            EpisodeMatching episode = await this.getEpisodeFromSamePage(webPage, element, number, website);
+
+                            if (!string.IsNullOrEmpty(episode.Title))
+                            {
+                                episodes.Add(episode);
+                            }
+
+                            number++;
+                        }
+                    }
+                }
+                else 
+                {
+                    foreach (ElementHandle element in await webPage.QuerySelectorAllAsync(website.EpisodesSearch.ElementsSelector))
+                    {
+                        EpisodeMatching episode = await this.getEpisodeFromSamePage(webPage, element, number, website);
+
+                        if (!string.IsNullOrEmpty(episode.Title))
+                        {
+                            episodes.Add(episode);
+                        }
+
+                        number++;
+                    }
+                }
+            }
+
+            return episodes;
+        }
+
+        private async Task<EpisodeMatching> getEpisodeFromSamePage(Page webPage, ElementHandle element, int number, Website website)
+        {
+            EpisodeMatching episode = new EpisodeMatching()
+            {
+                Number = number
+            };
+
+            await element.ClickAsync();
+
+            await webPage.WaitForSelectorAsync(website.EpisodesSource.WaitSelector, new WaitForSelectorOptions()
+            {
+                Visible = true,
+                Timeout = 3000
+            });
+
+            ElementHandle info = await webPage.QuerySelectorAsync(website.EpisodesSearch.InfoSelector);
+            episode.Title = (await info.EvaluateFunctionAsync<string>($"e => {website.EpisodesSearch.TitleFunction}")).Trim();
+            episode.Path = webPage.Url;
+
+            ElementHandle video = await webPage.QuerySelectorAsync(website.EpisodesSource.SourceSelector);
+            episode.Source = (await video.EvaluateFunctionAsync<string>($"e => {website.EpisodesSource.SourceFunction}")).Trim();
+
+            return episode;
+        }
+
+        private async Task<string> getEpisodeSource(Page webPage, EpisodeMatching episode, Website website)
+        {
+            string source = null;
+            string url = $"{website.SiteUrl}{episode.Path}";
+            await webPage.GoToAsync(url);
+
+            await webPage.WaitForSelectorAsync(website.EpisodesSource.WaitSelector, new WaitForSelectorOptions()
+            {
+                Visible = true,
+                Timeout = 3000
+            });
+            
+            await webPage.ScreenshotAsync("source.png");
+
+            if (website.EpisodesSource.HasQuality)
+            {
+                int maxQuality = 0;
+
+                foreach(ElementHandle element in await webPage.QuerySelectorAllAsync(website.EpisodesSource.SourceSelector))
+                {
+                    string quality = (await element.EvaluateFunctionAsync<string>($"e => {website.EpisodesSource.QualityFunction}")).Trim();
+
+                    if (!string.IsNullOrEmpty(website.EpisodesSource.QualityReplace))
+                    {
+                        quality = quality.Replace(website.EpisodesSource.QualityReplace, string.Empty);
+                    }
+
+                    int q = Convert.ToInt32(quality);
+
+                    if(q > maxQuality)
+                    {
+                        maxQuality = q;
+                        source = (await element.EvaluateFunctionAsync<string>($"e => {website.EpisodesSource.SourceFunction}")).Trim();
+                    }
+                }
+            }
+            else
+            {
+                ElementHandle video = await webPage.QuerySelectorAsync(website.EpisodesSource.SourceSelector);
+                source = (await video.EvaluateFunctionAsync<string>($"e => {website.EpisodesSource.SourceFunction}")).Trim();
+            }
+
+            return source;
+        }
+        */
     }
 }

@@ -3,6 +3,7 @@ using Commons.Collections;
 using Commons.Enums;
 using PuppeteerSharp;
 using SpotifyAPI.Web;
+using SyncService.Helpers;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +18,6 @@ namespace SyncService.Services
         #region Members
 
         private AnimeCollection _animeCollection = new AnimeCollection();
-        private Browser _puppeteerClient;
         private SpotifyClient _spotifyClient;
         private long _lastId = -1;
 
@@ -33,11 +33,6 @@ namespace SyncService.Services
         public override async void Start()
         {
             await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-
-            this._puppeteerClient = await Puppeteer.LaunchAsync(new LaunchOptions()
-            {
-                Headless = true
-            });
 
             SpotifyClientConfig config = SpotifyClientConfig.CreateDefault();
             string accessToken = (await new OAuthClient(config).
@@ -56,17 +51,19 @@ namespace SyncService.Services
         {
             base.Work();
 
+            string browserKey = ProxyHelper.Instance.GenerateBrowserKey(typeof(SongScraperService));
+
             try
             {
-                using (Page webPage = await this._puppeteerClient.NewPageAsync())
+                for (int id = 1; id < this._lastId; id++)
                 {
-                    for (int id = 1; id < this._lastId; id++)
+                    try
                     {
-                        try
-                        {
-                            Anime anime = this._animeCollection.Get(id);
+                        Anime anime = this._animeCollection.Get(id);
 
-                            if (anime.Opening == null || anime.Ending == null || anime.Status == AnimeStatusEnum.RELEASING)
+                        if (anime.Opening == null || anime.Ending == null || anime.Status == AnimeStatusEnum.RELEASING)
+                        {
+                            using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browserKey, true))
                             {
                                 string url = $"https://aniplaylist.com/{Uri.EscapeUriString(anime.Titles[LocalizationEnum.English])}?types=Opening~Ending";
                                 await webPage.GoToAsync(url);
@@ -188,13 +185,13 @@ namespace SyncService.Services
 
                                 this._animeCollection.Edit(ref anime);
                             }
+                        }
 
-                            this.Log($"Done {GetProgressD(id, this._lastId)}% ({anime.Titles[LocalizationEnum.English]})");
-                        }
-                        catch (Exception ex)
-                        {
-                            continue;
-                        }
+                        this.Log($"Done {GetProgressD(id, this._lastId)}% ({anime.Titles[LocalizationEnum.English]})");
+                    }
+                    catch (Exception ex)
+                    {
+                        continue;
                     }
                 }
             }

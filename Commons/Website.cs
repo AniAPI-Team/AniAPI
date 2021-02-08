@@ -1,4 +1,5 @@
-﻿using MongoDB.Bson.Serialization.Attributes;
+﻿using Commons.Enums;
+using MongoDB.Bson.Serialization.Attributes;
 using MongoService;
 using System;
 using System.Collections.Generic;
@@ -15,6 +16,10 @@ namespace Commons
         [JsonPropertyName("name")]
         public string Name { get; set; }
 
+        [BsonElement("active")]
+        [JsonPropertyName("active")]
+        public bool Active { get; set; }
+
         [BsonElement("official")]
         [JsonPropertyName("official")]
         public bool Official { get; set; }
@@ -23,9 +28,9 @@ namespace Commons
         [JsonPropertyName("site_url")]
         public string SiteUrl { get; set; }
 
-        [BsonElement("search")]
-        [JsonPropertyName("search")]
-        public WebsiteSearch Search { get; set; }
+        [BsonElement("can_block_requests")]
+        [JsonPropertyName("can_block_requests")]
+        public bool CanBlockRequests { get; set; }
 
         [BsonElement("localization")]
         [JsonPropertyName("localization")]

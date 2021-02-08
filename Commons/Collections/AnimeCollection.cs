@@ -54,6 +54,8 @@ namespace Commons.Collections
                     document.Id = reference.Id;
                     document.CreationDate = reference.CreationDate;
                     document.UpdateDate = reference.UpdateDate;
+                    document.Titles = reference.Titles;
+                    document.Descriptions = reference.Descriptions;
                     document.Ending = reference.Ending;
                     document.Opening = reference.Opening;
                 }
