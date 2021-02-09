@@ -16,7 +16,6 @@ namespace SyncService
                 new SongScraperService(),
             };
 
-            /*
             new Thread(services[0].Start).Start();
 
             while(services[0].ServiceStatus.Status != Commons.Enums.ServiceStatusEnum.WAITING)
@@ -28,8 +27,7 @@ namespace SyncService
             {
                 new Thread(services[i].Start).Start();
                 Thread.Sleep(60 * 1000);
-            }*/
-            new Thread(services[1].Start).Start();
+            }
 
             Console.ReadLine();
         }

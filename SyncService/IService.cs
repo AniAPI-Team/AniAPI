@@ -98,7 +98,7 @@ namespace SyncService
             Console.WriteLine($"[{this.ServiceStatus.Name}/{from}/{DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss.fff")}]: Status to {status}");
         }
 
-        protected string GetProgress(double actualValue, double maxValue)
+        public string GetProgress(double actualValue, double maxValue)
         {
             int progress = (int)((actualValue / maxValue) * 100);
 
@@ -110,7 +110,7 @@ namespace SyncService
             return progress.ToString("F0");
         }
 
-        protected string GetProgressD(double actualValue, double maxValue)
+        public string GetProgressD(double actualValue, double maxValue)
         {
             double progress = (actualValue / maxValue) * 100;
 
@@ -122,7 +122,7 @@ namespace SyncService
             return progress.ToString("F2");
         }
 
-        protected void Log(string message)
+        public void Log(string message)
         {
             ServicesLog log = new ServicesLog()
             {
