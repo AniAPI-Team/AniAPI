@@ -1,0 +1,34 @@
+﻿<div class="selectbox @string.Join(' ', CssClass)" @onfocusout="OnCloseDropdown" tabindex="0">
+    <label>@Label</label>
+    <div class="input">
+        <input type="text" value="@(HasValue ? Options[SelectedValue] : "Any")" readonly @onclick="OnOpenDropdown" />
+        @if(IsDropdownActive && !HasValue)
+        {
+            <i class="material-icons icon" @onclick="OnCloseDropdown">expand_less</i>
+        }
+        else if(!IsDropdownActive && !HasValue)
+        {
+            <i class="material-icons icon" @onclick="OnOpenDropdown">expand_more</i>
+        }
+
+        @if(HasValue)
+        {
+            <i class="material-icons icon reset" @onclick="OnReset">close</i>
+        }
+
+        <div class="dropdown @(IsDropdownActive ? "active" : string.Empty)">
+            @foreach(string key in Options.Keys)
+            {
+                bool selected = SelectedValue == key;
+
+                <div class="item @(selected ? "selected" : string.Empty)" @onclick="() => OnValueSelected(key)">
+                    @Options[key]
+                    @if (selected)
+                        {
+                            <i class="material-icons">check_circle</i>
+                        }
+                </div>
+            }
+        </div>
+    </div>
+</div>

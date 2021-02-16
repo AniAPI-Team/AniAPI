@@ -38,9 +38,13 @@ namespace Commons
         [JsonPropertyName("preview_url")]
         public string PreviewUrl { get; set; }
 
-        [BsonElement("spotify_url")]
-        [JsonPropertyName("spotify_url")]
-        public string SpotifyUrl { get; set; }
+        [BsonElement("open_spotify_url")]
+        [JsonPropertyName("open_spotify_url")]
+        public string OpenSpotifyUrl { get; set; }
+
+        [BsonElement("local_spotify_url")]
+        [JsonPropertyName("local_spotify_url")]
+        public string LocalSpotifyUrl { get; set; }
 
         public void SetSeason(int month)
         {

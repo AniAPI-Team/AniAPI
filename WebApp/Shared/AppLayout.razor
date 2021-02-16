@@ -1,0 +1,49 @@
+﻿@inherits LayoutComponentBase
+
+<head>
+    <link rel="stylesheet" href="css/app.min.css" />
+
+    @if (Theme.UseDarkTheme)
+    {
+        <link rel="stylesheet" href="css/app.darktheme.min.css" />
+    }
+</head>
+
+<LoadingSpinner />
+
+<div class="layout">
+    <div class="navbar">
+        <div class="logo">
+            <a href="./App">
+                <img src="images/aniapi_icon.png">
+            </a>
+        </div>
+        <div class="navbar-menu">
+            <NavLink class="menu-item" href="/App/Settings" Match=@NavLinkMatch.All>
+                <i class="material-icons menu-icon">account_circle</i>
+            </NavLink>
+            <NavLink class="menu-item" href="/App" Match=@NavLinkMatch.All>
+                <i class="material-icons menu-icon">dashboard</i>
+            </NavLink>
+            <NavLink class="menu-item" href="/App/Search">
+                <i class="material-icons menu-icon">search</i>
+            </NavLink>
+            <NavLink class="menu-item" href="#" @onclick="Logout">
+                <i class="material-icons menu-icon">exit_to_app</i>
+            </NavLink>
+        </div>
+        <div class="navbar-theme">
+            <div title="@(Theme.UseDarkTheme ? "Dark Mode" : "Light Mode")" @onclick="ChangeTheme">
+                <i class="material-icons theme">@(Theme.UseDarkTheme ? "dark_mode" : "light_mode")</i>
+            </div>
+        </div>
+        <div class="navbar-bug">
+            <div>
+                <i class="material-icons bug">bug_report</i>
+            </div>
+        </div>
+    </div>
+    <div class="content">
+        @Body
+    </div>
+</div>

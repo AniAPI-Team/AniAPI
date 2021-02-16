@@ -9,5 +9,25 @@
             "renameLocals": true
         },
         "sourceMap": false
+    },
+    {
+        "outputFileName": "wwwroot/css/app.min.css",
+        "inputFiles": [
+            "wwwroot/css/app.css"
+        ],
+        "minify": {
+            "enabled": true,
+            "adjustRelativePaths": true
+        }
+    },
+    {
+        "outputFileName": "wwwroot/css/app.darktheme.min.css",
+        "inputFiles": [
+            "wwwroot/css/app.darktheme.css"
+        ],
+        "minify": {
+            "enabled": true,
+            "adjustRelativePaths": true
+        }
     }
 ]

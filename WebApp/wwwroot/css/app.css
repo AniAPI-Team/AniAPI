@@ -1,54 +1,170 @@
-﻿@import url('open-iconic/font/css/open-iconic-bootstrap.min.css');
-
-html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+﻿body, html {
+    height: 100%;
+    max-height: 100%;
 }
 
-a, .btn-link {
-    color: #0366d6;
+body {
+    margin: 0;
+    background-color: #F4F8F9;
+    font-family: 'Open Sans', sans-serif;
+    font-size: 16px;
+    font-weight: 400;
+    font-style: normal;
+    color: rgba(0, 0, 0, .6);
 }
 
-.btn-primary {
-    color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    body.overlay {
+        overflow-y: hidden;
+    }
+
+    body img {
+        display: block;
+    }
+
+    body .material-icons {
+        display: block;
+    }
+
+*::-webkit-scrollbar {
+    width: 5px;
 }
+
+*::-webkit-scrollbar-track {
+    background-color: transparent;
+}
+
+*::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, .3);
+    border-radius: 12px;
+}
+
+/* NAVBAR */
+
+.layout {
+    height: 100%;
+    max-height: 100%;
+}
+
+.navbar {
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    height: 100%;
+    max-height: 100%;
+    padding: 12px;
+    background-color: rgb(54, 28, 71);
+    box-shadow: 1px 0 3px rgba(0, 0, 0, .45);
+    z-index: 9;
+    box-sizing: border-box;
+}
+
+    .navbar a {
+        text-decoration: none;
+    }
+
+    .navbar .logo img {
+        height: 32px;
+    }
+
+    .navbar .navbar-menu {
+        margin: 48px 0;
+        flex: 1;
+    }
+
+        .navbar .navbar-menu .menu-item {
+            display: block;
+            text-align: center;
+            opacity: .75;
+            transition: .3s;
+        }
+
+            .navbar .navbar-menu .menu-item:hover,
+            .navbar .navbar-menu .menu-item:active,
+            .navbar .navbar-menu .menu-item.active {
+                opacity: 1;
+                transition: .3s;
+            }
+
+            .navbar .navbar-menu .menu-item:not(:last-child) {
+                margin-bottom: 24px;
+            }
+
+            .navbar .navbar-menu .menu-item .menu-icon {
+                font-size: 32px;
+                color: white;
+            }
+
+            .navbar .navbar-menu .menu-item.active .menu-icon {
+                color: #ad6dd3 !important;
+            }
+
+    .navbar .navbar-theme {
+        margin-bottom: 24px;
+    }
+
+        .navbar .navbar-bug .bug,
+        .navbar .navbar-theme .theme {
+            font-size: 32px;
+            color: white;
+            transition: .3s;
+        }
+
+            .navbar .navbar-theme .theme:hover,
+            .navbar .navbar-theme .theme:active,
+            .navbar .navbar-bug .bug:hover,
+            .navbar .navbar-bug .bug:active {
+                cursor: pointer;
+                color: #ad6dd3 !important;
+                transition: .3s;
+            }
+
+/* NAVBAR */
+
+/* CONTAINER */
 
 .content {
-    padding-top: 1.1rem;
+    position: relative;
+    margin: 0;
+    flex: 1;
 }
 
-.valid.modified:not([type=checkbox]) {
-    outline: 1px solid #26b050;
+.container {
+    position: relative;
+    margin: 0 auto;
+    padding: 0 100px;
+    max-width: 1520px;
 }
 
-.invalid {
-    outline: 1px solid red;
+.section {
+    position: relative;
+    margin-left: 61px;
+    padding: 24px 0;
 }
 
-.validation-message {
-    color: red;
+    .section.no-p {
+        padding: 0 !important;
+    }
+
+/* CONTAINER */
+
+/* FORM */
+
+.form {
+    display: flex;
+    flex-direction: column;
 }
 
-#blazor-error-ui {
-    background: lightyellow;
-    bottom: 0;
-    box-shadow: 0 -1px 2px rgba(0, 0, 0, 0.2);
-    display: none;
-    left: 0;
-    padding: 0.6rem 1.25rem 0.7rem 1.25rem;
-    position: fixed;
-    width: 100%;
-    z-index: 1000;
-}
+    .form.inline {
+        flex-direction: row;
+        align-items: center;
+    }
 
-#blazor-error-ui .dismiss {
-    cursor: pointer;
-    position: absolute;
-    right: 0.75rem;
-    top: 0.5rem;
-}
+    .form .col:not(:first-child) {
+        margin-left: 24px;
+    }
 
-.float-right {
-    float: right;
-}
+    .form .no-label {
+        margin-top: 34px;
+    }
+
+/* FORM */

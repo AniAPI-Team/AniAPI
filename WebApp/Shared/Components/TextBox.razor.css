@@ -1,0 +1,46 @@
+﻿.textbox label {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+.textbox .input {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: 8px;
+    color: rgba(0, 0, 0, .6);
+}
+
+.material-icons {
+    font-size: 20px;
+    user-select: none;
+}
+
+.textbox .icon {
+    margin-right: 8px;
+}
+
+.textbox input {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: rgba(0, 0, 0, .6);
+    font-size: 14px;
+    font-weight: 400;
+}
+
+.textbox .reset {
+    margin-left: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+    .textbox .reset:hover,
+    .textbox .reset:active {
+        color: #8d46b8;
+        transition: 0.3s;
+    }

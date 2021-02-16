@@ -5,59 +5,52 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>AniAPI - Your favorite anime streaming app ♥</title>
+    <link href="manifest.json" rel="manifest" />
+    <link rel='icon' href='/favicon.ico'>
     <base href="/" />
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
-    <link  rel="stylesheet" href="WebApp.styles.css" />
-
-    <link href="css/default.css" type="text/css" rel="stylesheet">
-    <!--<link href="css/bootstrap/bootstrap.min.css" rel="stylesheet" />-->
-    <!--<link href="css/app.css" rel="stylesheet" />-->
-    <link href="css/VideoPlayerStyle.css" rel="stylesheet" />
-    <link href="manifest.json" rel="manifest" />
-    <link rel="apple-touch-icon" sizes="512x512" href="icon-512.png" />
+    <link rel="stylesheet" href="WebApp.styles.css" />
 </head>
 
 <body>
     <div id="app">
         <style>
-            .loader {
-                position: absolute;
-                left: calc(50% - 110px);
-                top: calc(50% - 143px);
-            }
-
-            #overlay {
-                position: fixed; /* Sit on top of the page content */
-                width: 100%; /* Full width (cover the whole page) */
-                height: 100%; /* Full height (cover the whole page) */
+            .overlay {
+                position: fixed;
                 top: 0;
                 left: 0;
-                right: 0;
-                bottom: 0;
-                background-color: rgba(0,0,0,0.5); /* Black background with opacity */
-                z-index: 50; /* Specify a stack order in case you're using a different order for other elements */
-                /*cursor: pointer;  Add a pointer on hover */
+                width: 100%;
+                height: 100%;
+                background-color: rgb(54, 28, 71);
+                z-index: 9999;
             }
+            .loader {
+                position: absolute;
+                left: calc(50%);
+                top: calc(50%);
+                transform: translate(-50%, -50%);
+            }
+                .loader .shadow {
+                    margin: 0 auto;
+                    margin-top: -40px;
+                    width: 120px;
+                    height: 60px;
+                    background-color: rgba(0, 0, 0, .2);
+                    border-radius: 50%;
+                }
         </style>
-        <div id="overlay">
+
+        <div class="overlay">
             <div class="loader">
-                <img src="/images/GokuSpinner.gif" alt="Loading..." />
+                <img src="/images/goku_spinner.gif" alt="Loading..." />
+                <div class="shadow"></div>
             </div>
         </div>
     </div>
-    <!--<div id="app">Loading...</div>-->
-
-    <!--<div id="blazor-error-ui">
-        An unhandled error has occurred.
-        <a href="" class="reload">Reload</a>
-        <a class="dismiss">🗙</a>
-    </div>-->
     <script src="_framework/blazor.webassembly.js"></script>
     <script>navigator.serviceWorker.register('service-worker.js');</script>
-    <script src="/js/VideoPlayerScript.js"></script>
 </body>
 
 </html>
