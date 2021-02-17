@@ -25,5 +25,8 @@ namespace Commons
 
         [BsonElement("proxy_count")]
         public int ProxyCount { get; set; }
+
+        [BsonElement("resources_version")]
+        public string ResourcesVersion { get; set; }
     }
 }

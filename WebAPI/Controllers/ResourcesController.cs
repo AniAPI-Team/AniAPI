@@ -1,4 +1,5 @@
 ﻿using Commons;
+using Commons.Collections;
 using Commons.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
@@ -22,17 +23,37 @@ namespace WebAPI.Controllers
     public class ResourcesController : Controller
     {
         private readonly ILogger<ResourcesController> _logger;
+        private AppSettingsCollection _appSettingsCollection = new AppSettingsCollection();
         private Assembly _assembly;
 
         public ResourcesController(ILogger<ResourcesController> logger)
         {
             _logger = logger;
-
             _assembly = Assembly.GetEntryAssembly();
         }
 
+        [HttpGet, MapToApiVersion("1")]
+        public APIResponse GetVersion()
+        {
+            try
+            {
+                IEnumerable<KeyValuePair<string, string>> settings = this._appSettingsCollection.GetConfiguration();
+
+                return APIManager.SuccessResponse("Resources version", settings.FirstOrDefault(x => x.Key == "resources_version").Value);
+            }
+            catch (APIException ex)
+            {
+                return APIManager.ErrorResponse(ex);
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex.Message);
+                return APIManager.ErrorResponse();
+            }
+        }
+
         [HttpGet("{resourceName}"), MapToApiVersion("1")]
-        public APIResponse GetOne(string resourceName)
+        public APIResponse GetResource(string resourceName)
         {
             try
             {
