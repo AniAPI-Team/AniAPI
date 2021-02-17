@@ -62,6 +62,9 @@ namespace SyncService.Services
                         }
                         bannerImage
                         genres
+                        tags {
+                            name
+                        }
                         relations {
                             edges {
                                 relationType

@@ -82,6 +82,15 @@ namespace Commons
             this.CoverColor = media.CoverImage.Color;
             this.BannerImage = media.BannerImage;
             this.Genres = media.Genres;
+
+            foreach(var tag in media.Tags)
+            {
+                if (!this.Genres.Contains(tag.Name))
+                {
+                    this.Genres.Add(tag.Name);
+                }
+            }
+
             this.Score = media.AverageScore.HasValue ? media.AverageScore.Value : 0;
 
             foreach (var edge in media.Relations.Edges)
