@@ -1,6 +1,6 @@
-﻿<div class="selectbox @string.Join(' ', CssClass)" @onfocusout="OnCloseDropdown" tabindex="0">
+﻿<div class="selectbox @string.Join(' ', CssClass)">
     <label>@Label</label>
-    <div class="input">
+    <div class="input" @onfocusout="OnCloseDropdown" tabindex="0">
         <input type="text" value="@(HasValue ? Options[SelectedValue] : "Any")" readonly @onclick="OnOpenDropdown" />
         @if(IsDropdownActive && !HasValue)
         {

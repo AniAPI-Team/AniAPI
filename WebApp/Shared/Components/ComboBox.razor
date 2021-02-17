@@ -1,6 +1,6 @@
-﻿<div class="combobox @string.Join(' ', CssClass)" @onfocus="OnOpenDropdown" @onfocusout="OnCloseDropdown" tabindex="0">
+﻿<div class="combobox @string.Join(' ', CssClass)">
     <label>@Label</label>
-    <div class="input">
+    <div class="input" @onfocus="OnOpenDropdown" @onfocusout="OnCloseDropdown" tabindex="0">
         <div class="preview @(IsInputActive ? string.Empty : "visible")">
             @if (SelectedValues.Count == 1)
             {

@@ -1,0 +1,12 @@
+{
+
+    "translations": [
+        {
+            "key": "app_name",
+            "i18n": {
+                "it": "AniAPI",
+                "en": "AniAPI"
+            }
+        }
+    ]
+}
