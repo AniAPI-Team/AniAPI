@@ -22,7 +22,20 @@
 <div class="section result">
     <div class="container">
         <div class="anime-cards">
-
+            @foreach(Anime anime in AnimeCards)
+            {
+                <AnimeCard Id="@anime.Id" 
+                           Titles="@anime.Titles"
+                           Descriptions="@anime.Descriptions"
+                           CoverColor="@anime.CoverColor"
+                           CoverImage="@anime.CoverImage"
+                           BannerImage="@anime.BannerImage"
+                           UserStatus="@anime.UserStatus"
+                           Score="@anime.Score"
+                           Status="@anime.Status"
+                           Format="@anime.Format"
+                           Genres="@anime.Genres"/>
+            }
         </div>
     </div>
 </div>

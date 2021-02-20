@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Commons;
+using Commons.Enums;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -87,6 +88,56 @@ namespace WebApp.Pages.AppPages
         {
             Filter.SaveValuesInLocalStorage(LocalStorage);
             Tags = Filter.GetTagList();
+
+            AnimeCards = new List<Anime>()
+            {
+                new Anime()
+                {
+                    Id = 1,
+                    Titles = new Dictionary<string, string>()
+                    {
+                        { "en", "Naruto: Shippuuden" }
+                    },
+                    Descriptions = new Dictionary<string, string>()
+                    {
+                        { "en", "Naruto: Shippuuden is the continuation of the original animated TV series Naruto. The story revolves around an older and slightly more matured Uzumaki Naruto and his quest to save his friend Uchiha Sasuke from the grips of the snake-like Shinobi, Orochimaru. After 2 and a half years Naruto finally returns to his village of Konoha, and sets about putting his ambitions to work, though it will not be easy, as he has amassed a few(more dangerous) enemies, in the likes of the shinobi organization; Akatsuki. <br><br> (Source: Anime News Network)" }
+                    },
+                    CoverColor = "#e4865d",
+                    CoverImage = "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx1735-80JNLAlnxrKj.png",
+                    BannerImage = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/1735.jpg",
+                    UserStatus = AnimeUserStatusEnum.COMPLETED,
+                    Score = 81,
+                    Status = AnimeStatusEnum.FINISHED,
+                    Format = AnimeFormatEnum.TV,
+                    Genres = new List<string>()
+                    {
+                        "Action", "Comedy"
+                    }
+                },
+                new Anime()
+                {
+                    Id = 2,
+                    Titles = new Dictionary<string, string>()
+                    {
+                        { "en", "One Piece" }
+                    },
+                    Descriptions = new Dictionary<string, string>()
+                    {
+                        { "en", "Bla bla..." }
+                    },
+                    CoverColor = "#e4a15d",
+                    CoverImage = "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/nx21-tXMN3Y20PIL9.jpg",
+                    BannerImage = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/21-wf37VakJmZqs.jpg",
+                    UserStatus = AnimeUserStatusEnum.PAUSED,
+                    Score = 85,
+                    Status = AnimeStatusEnum.RELEASING,
+                    Format = AnimeFormatEnum.TV,
+                    Genres = new List<string>()
+                    {
+                        "Action", "Adventure", "Comedy"
+                    }
+                }
+            };
 
             StateHasChanged();
         }

@@ -48,3 +48,81 @@
 }
 
 /* FORM */
+
+/* ANIME CARD */
+
+.anime-card .cover .tooltip {
+    background-color: #151f2e !important;
+    box-shadow: 0 0 6px 2px rgba(0, 0, 0, .2) !important;
+}
+
+    .anime-card .cover .tooltip::before {
+        border-color: transparent #151f2e transparent transparent !important;
+    }
+
+    .anime-card .cover .tooltip.open-left::before {
+        border-color: transparent transparent transparent #151f2e !important;
+    }
+
+/* ANIME CARD */
+
+/* DETTAGLIO */
+
+/* HEADING */
+
+.heading .title {
+    color: rgba(255, 255, 255, .87) !important;
+}
+
+/* HEADING */
+
+.head {
+    background-color: #151f2e !important;
+}
+
+/* MAIN */
+
+.main {
+    background-color: #0b1622 !important;
+}
+
+/* DOCK */
+
+.dock {
+    background-color: #0b1622 !important;
+}
+
+    /* INFO */
+
+    .dock .side > .info {
+        background-color: #151f2e !important;
+    }
+
+    .dock .info .row span {
+        color: rgba(255, 255, 255, .87) !important;
+    }
+
+    /* INFO */
+
+    /* EPISODES */
+
+    .dock .media .episodes-pages .episode-page,
+    .dock .media .episodes .episode {
+        background-color: #151f2e !important;
+    }
+
+    /* EPISODES */
+
+    /* SUGGESTIONS */
+
+    .dock .suggestions > .title {
+        background-color: #151f2e !important;
+    }
+
+/* SUGGESTIONS */
+
+/* DOCK */
+
+/* MAIN */
+
+/* DETTAGLIO */
