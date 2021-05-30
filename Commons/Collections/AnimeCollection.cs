@@ -12,9 +12,7 @@ namespace Commons.Collections
 
         public override void Add(ref Anime document)
         {
-            document.Id = this.CalcNewId();
-            document.CreationDate = DateTime.Now;
-            document.UpdateDate = null;
+            base.Add(ref document);
 
             this.Collection.InsertOne(document);
         }
@@ -31,8 +29,8 @@ namespace Commons.Collections
 
         public override void Edit(ref Anime document)
         {
-            document.UpdateDate = DateTime.Now;
-            
+            base.Edit(ref document);
+
             var filter = Builders<Anime>.Filter.Eq("_id", document.Id);
             this.Collection.ReplaceOne(filter, document);
         }
@@ -56,9 +54,8 @@ namespace Commons.Collections
                     document.UpdateDate = reference.UpdateDate;
                     document.Titles = reference.Titles;
                     document.Descriptions = reference.Descriptions;
-                    document.Ending = reference.Ending;
-                    document.Opening = reference.Opening;
                 }
+
                 return true;
             }
 

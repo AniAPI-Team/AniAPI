@@ -11,9 +11,9 @@ namespace SyncService
         {
             List<IService> services = new List<SyncService.IService>()
             {
-                new AnimeScraperService(),
+                //new AnimeScraperService(),
                 new WebsiteScraperService(),
-                new SongScraperService(),
+                //new SongScraperService(),
             };
 
             new Thread(services[0].Start).Start();

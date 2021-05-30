@@ -10,9 +10,7 @@ namespace Commons.Collections
 
         public override void Add(ref ServicesLog document)
         {
-            document.Id = this.CalcNewId();
-            document.CreationDate = DateTime.Now;
-            document.UpdateDate = null;
+            base.Add(ref document);
 
             this.Collection.InsertOne(document);
         }

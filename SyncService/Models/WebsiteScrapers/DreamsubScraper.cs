@@ -4,6 +4,7 @@ using PuppeteerSharp;
 using SyncService.Services;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -86,7 +87,12 @@ namespace SyncService.Models.WebsiteScrapers
                     episode.Title = (await info.EvaluateFunctionAsync<string>("e => e.innerText")).Trim().Split(": ")[1];
 
                     url = $"{this.Website.SiteUrl}{episode.Path}";
+                    var watch = Stopwatch.StartNew();
+
                     await webPage.GoToAsync(url);
+
+                    watch.Stop();
+                    Console.WriteLine($"{number} - {watch.ElapsedMilliseconds}");
 
                     await webPage.WaitForSelectorAsync("#main-content.onlyDesktop", new WaitForSelectorOptions()
                     {

@@ -225,18 +225,13 @@ namespace Commons
         [JsonProperty(PropertyName = "score")]
         public int Score { get; set; }
 
-        [BsonElement("opening")]
-        [JsonPropertyName("opening")]
-        [JsonProperty(PropertyName = "opening")]
-        public AnimeSong Opening { get; set; }
-
-        [BsonElement("ending")]
-        [JsonPropertyName("ending")]
-        [JsonProperty(PropertyName = "ending")]
-        public AnimeSong Ending { get; set; }
-
         [JsonPropertyName("user_status")]
         [JsonProperty(PropertyName = "user_status")]
         public AnimeUserStatusEnum UserStatus { get; set; }
+
+        public override string ToString()
+        {
+            return this.Titles[LocalizationEnum.English];
+        }
     }
 }

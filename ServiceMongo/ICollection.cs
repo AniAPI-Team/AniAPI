@@ -11,7 +11,7 @@ namespace MongoService
     /// Base class to create a MongoDB collection
     /// </summary>
     /// <typeparam name="TDocument">IModel derived child class</typeparam>
-    public abstract class ICollection<TDocument> where TDocument : class
+    public abstract class ICollection<TDocument> where TDocument : IModel
     {
         /// <summary>
         /// MongoDB collection name
@@ -27,7 +27,12 @@ namespace MongoService
         /// Add a new document in the collection
         /// </summary>
         /// <param name="document">The document object</param>
-        public abstract void Add(ref TDocument document);
+        public virtual void Add(ref TDocument document)
+        {
+            document.Id = this.CalcNewId();
+            document.CreationDate = DateTime.Now;
+            document.UpdateDate = null;
+        }
 
         /// <summary>
         /// Count all the documents inside the collection
@@ -45,7 +50,10 @@ namespace MongoService
         /// Edit a document already inside the collection
         /// </summary>
         /// <param name="document">The document object</param>
-        public abstract void Edit(ref TDocument document);
+        public virtual void Edit(ref TDocument document)
+        {
+            document.UpdateDate = DateTime.Now;
+        }
 
         /// <summary>
         /// Check if a document already exist in the collection

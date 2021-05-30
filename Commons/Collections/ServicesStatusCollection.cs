@@ -10,9 +10,7 @@ namespace Commons.Collections
 
         public override void Add(ref ServicesStatus document)
         {
-            document.Id = this.CalcNewId();
-            document.CreationDate = DateTime.Now;
-            document.UpdateDate = null;
+            base.Add(ref document);
 
             this.Collection.InsertOne(document);
         }
@@ -29,7 +27,7 @@ namespace Commons.Collections
 
         public override void Edit(ref ServicesStatus document)
         {
-            document.UpdateDate = DateTime.Now;
+            base.Edit(ref document);
 
             var filter = Builders<ServicesStatus>.Filter.Eq("_id", document.Id);
             this.Collection.ReplaceOne(filter, document);

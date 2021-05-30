@@ -70,21 +70,6 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpGet("MockUpResponse"), MapToApiVersion("1")]
-        public APIResponse TestUserApi()
-        {
-            User user = new User()
-            {
-                Id = 1,
-                Username = "Pippo",
-                Email = "pippo@gmail.com",
-                Localization = LocalizationEnum.Italian,
-                Gender = UserGenderEnum.MALE,
-            };
-
-            return APIManager.SuccessResponse("Have fun with testing", user);
-        }
-
         /// <summary>
         /// Retrieve a list of user
         /// </summary>

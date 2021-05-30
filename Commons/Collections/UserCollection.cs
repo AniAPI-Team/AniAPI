@@ -15,9 +15,7 @@ namespace Commons.Collections
 
         public override void Add(ref User document)
         {
-            document.Id = this.CalcNewId();
-            document.CreationDate = DateTime.Now;
-            document.UpdateDate = null;
+            base.Add(ref document);
 
             this.Collection.InsertOne(document);
         }
@@ -34,7 +32,7 @@ namespace Commons.Collections
 
         public override void Edit(ref User document)
         {
-            document.UpdateDate = DateTime.Now;
+            base.Edit(ref document);
 
             var filter = Builders<User>.Filter.Eq("_id", document.Id);
             this.Collection.ReplaceOne(filter, document);

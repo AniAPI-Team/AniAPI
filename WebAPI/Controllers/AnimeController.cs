@@ -55,31 +55,6 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpGet("MockUpResponse"), MapToApiVersion("1")]
-        public APIResponse TestAnimeApi()
-        {
-            Anime anime = new Anime();
-            anime.Format = AnimeFormatEnum.TV;
-            anime.EpisodesCount = 35;
-            anime.EpisodeDuration = 23;
-            anime.Status = AnimeStatusEnum.FINISHED;
-            anime.StartDate = DateTime.Now;
-            anime.SeasonPeriod = AnimeSeasonEnum.SUMMER;
-            anime.SeasonYear = 2018;
-            anime.Score = 79;
-            anime.Genres = new List<string>() { "Action", "Drama", "Fantasy", "Mystery", "che ne so!!" };
-            anime.CoverImage = "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/bx104578-LaZYFkmhinfB.jpg";
-            anime.BannerImage = "https://s4.anilist.co/file/anilistcdn/media/anime/banner/104578-z7SadpYEuAsy.jpg";
-
-            anime.Titles = new Dictionary<string, string>();
-            anime.Titles.Add(LocalizationEnum.English, "Shingeki no Kyojin 3 Part 2");
-
-            anime.Descriptions = new Dictionary<string, string>();
-            anime.Descriptions.Add(LocalizationEnum.English, "The second cour of <i>Shingeki no Kyojin 3</i>.<br><br>The battle to retake Wall Maria begins now! With Eren’s new hardening ability, the Scouts are confident they can seal the wall and take back Shiganshina District. If they succeed, Eren can finally unlock the secrets of the basement—and the world. But danger lies in wait as Reiner, Bertholdt, and the Beast Titan have plans of their own. Could this be humanity’s final battle for survival?<br><br>(Source: Funimation)");
-
-            return APIManager.SuccessResponse("Have fun with testing", anime);
-        }
-
         [HttpGet, MapToApiVersion("1")]
         public APIResponse GetMore([FromQuery] AnimeFilter filter)
         {
