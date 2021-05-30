@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace MongoService
 {
@@ -14,18 +15,21 @@ namespace MongoService
         /// The document id
         /// </summary>
         [BsonElement("_id")]
+        [JsonPropertyName("id")]
         public long Id { get; set; }
         
         /// <summary>
         /// The document creation time
         /// </summary>
         [BsonElement("creation_date")]
+        [JsonIgnore]
         public DateTime CreationDate { get; set; }
 
         /// <summary>
         /// The document last update time
         /// </summary>
         [BsonElement("update_date")]
+        [JsonIgnore]
         public DateTime? UpdateDate { get; set; }
     }
 }

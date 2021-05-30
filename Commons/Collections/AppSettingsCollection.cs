@@ -52,7 +52,8 @@ namespace Commons.Collections
 
             return new[]
             {
-                new KeyValuePair<string, string>("jwt_secret", settings.JWTSecret)
+                new KeyValuePair<string, string>("jwt_secret", settings.JWTSecret),
+                new KeyValuePair<string, string>("resources_version", settings.ResourcesVersion)
             };
         }
     }

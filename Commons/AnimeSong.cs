@@ -1,4 +1,5 @@
 ﻿using MongoDB.Bson.Serialization.Attributes;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,35 +13,48 @@ namespace Commons
     {
         [BsonElement("title")]
         [JsonPropertyName("title")]
+        [JsonProperty(PropertyName = "title")]
         public string Title { get; set; }
 
         [BsonElement("artist")]
         [JsonPropertyName("artist")]
+        [JsonProperty(PropertyName = "artist")]
         public string Artist { get; set; }
 
         [BsonElement("album")]
         [JsonPropertyName("album")]
+        [JsonProperty(PropertyName = "album")]
         public string Album { get; set; }
 
         [BsonElement("year")]
         [JsonPropertyName("year")]
+        [JsonProperty(PropertyName = "year")]
         public int Year { get; set; }
 
         [BsonElement("season")]
         [JsonPropertyName("season")]
+        [JsonProperty(PropertyName = "season")]
         public string Season { get; set; }
 
         [BsonElement("duration")]
         [JsonPropertyName("duration")]
+        [JsonProperty(PropertyName = "duration")]
         public int Duration { get; set; }
 
         [BsonElement("preview_url")]
         [JsonPropertyName("preview_url")]
+        [JsonProperty(PropertyName = "preview_url")]
         public string PreviewUrl { get; set; }
 
-        [BsonElement("spotify_url")]
-        [JsonPropertyName("spotify_url")]
-        public string SpotifyUrl { get; set; }
+        [BsonElement("open_spotify_url")]
+        [JsonPropertyName("open_spotify_url")]
+        [JsonProperty(PropertyName = "open_spotify_url")]
+        public string OpenSpotifyUrl { get; set; }
+
+        [BsonElement("local_spotify_url")]
+        [JsonPropertyName("local_spotify_url")]
+        [JsonProperty(PropertyName = "local_spotify_url")]
+        public string LocalSpotifyUrl { get; set; }
 
         public void SetSeason(int month)
         {

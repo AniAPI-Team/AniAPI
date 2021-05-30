@@ -1,9 +1,6 @@
-﻿
-@if (IsVisible)
-{
-    <div id="overlay">
-        <div class="loader">
-            <img src="/images/GokuSpinner.gif" alt="Loading..." />
-        </div>
+﻿<div class="overlay @(IsVisible ? "visible" : string.Empty)" id="loading-spinner">
+    <div class="loader">
+        <img src="/images/goku_spinner.gif" alt="Loading..." />
+        <div class="shadow"></div>
     </div>
-}
+</div>

@@ -44,8 +44,9 @@ namespace Commons.Collections
         {
             long animeId = document.AnimeID;
             int number = document.Number;
+            string source = document.Source;
 
-            Episode reference = this.Collection.Find(x => x.AnimeID == animeId && x.Number == number).FirstOrDefault();
+            Episode reference = this.Collection.Find(x => x.AnimeID == animeId && x.Number == number && x.Source == source).FirstOrDefault();
 
             if (reference != null)
             {

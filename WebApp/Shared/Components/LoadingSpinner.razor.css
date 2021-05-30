@@ -1,18 +1,73 @@
-﻿.loader {
-    position: absolute;
-    left: calc(50% - 110px);
-    top: calc(50% - 143px);
-}
-
-#overlay {
-    position: fixed; /* Sit on top of the page content */
-    width: 100%; /* Full width (cover the whole page) */
-    height: 100%; /* Full height (cover the whole page) */
+﻿.overlay {
+    display: none;
+    position: fixed;
     top: 0;
     left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: rgba(0,0,0,0.5); /* Black background with opacity */
-    z-index: 50; /* Specify a stack order in case you're using a different order for other elements */
-    /*cursor: pointer;  Add a pointer on hover */
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, .5);
+    z-index: 9999;
+}
+
+.overlay.visible {
+    display: block;
+}
+
+.loader {
+    position: absolute;
+    left: calc(50%);
+    top: calc(50%);
+    transform: translate(-50%, -50%);
+    animation-name: animateLoader;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+}
+
+    .loader img {
+        position: relative;
+        z-index: 2;
+    }
+
+    .loader .shadow {
+        margin: 0 auto;
+        margin-top: -40px;
+        width: 120px;
+        height: 60px;
+        background-color: rgba(0, 0, 0, .5);
+        border-radius: 50%;
+        animation-name: animateLoaderShadow;
+        animation-duration: 1s;
+        animation-iteration-count: infinite;
+        z-index: 1;
+    }
+
+@keyframes animateLoader {
+    from {
+        margin-top: -5px;
+    }
+
+    50% {
+        margin-top: 5px;
+    }
+
+    to {
+        margin-top: -5px;
+    }
+}
+
+@keyframes animateLoaderShadow {
+    from {
+        margin-top: -35px;
+        transform: scale(1);
+    }
+
+    50% {
+        margin-top: -45px;
+        transform: scale(1.2);
+    }
+
+    to {
+        margin-top: -35px;
+        transform: scale(1);
+    }
 }

@@ -85,6 +85,9 @@ namespace Commons
             [JsonProperty("genres")]
             public List<string> Genres { get; set; }
 
+            [JsonProperty("tags")]
+            public List<MediaTag> Tags { get; set; }
+
             [JsonProperty("relations")]
             public MediaRelations Relations { get; set; }
 
@@ -129,6 +132,12 @@ namespace Commons
 
             [JsonProperty("color")]
             public string Color { get; set; }
+        }
+
+        public class MediaTag
+        {
+            [JsonProperty("name")]
+            public string Name { get; set; }
         }
 
         public class MediaRelations

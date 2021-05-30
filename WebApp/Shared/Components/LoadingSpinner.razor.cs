@@ -30,14 +30,12 @@ namespace WebApp.Shared.Components
 
         public void ShowSpinner()
         {
-            //Console.WriteLine($"Chiamato ShowSpinner: {DateTime.Now.ToString()}");
             IsVisible = true;
             StateHasChanged();
         }
 
         public void HideSpinner()
         {
-            //Console.WriteLine($"Chiamato HideSpinner: {DateTime.Now.ToString()}");
             IsVisible = false;
             StateHasChanged();
         }

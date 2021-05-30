@@ -162,7 +162,8 @@ namespace SyncService.Services
                                             Artist = track.Artists[0].Name,
                                             Album = track.Album.Name,
                                             Duration = track.DurationMs,
-                                            SpotifyUrl = track.Href,
+                                            OpenSpotifyUrl = $"https://open.spotify.com/track/{track.Id}",
+                                            LocalSpotifyUrl = track.Uri,
                                             PreviewUrl = track.PreviewUrl,
                                             Year = Convert.ToInt32(dateParts[0])
                                         };

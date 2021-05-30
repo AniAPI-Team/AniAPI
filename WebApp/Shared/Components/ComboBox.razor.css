@@ -1,0 +1,136 @@
+﻿.combobox {
+    outline: none;
+    user-select: none;
+}
+
+.combobox label {
+    display: block;
+    margin-bottom: 12px;
+    font-size: 16px;
+}
+
+    .combobox .input {
+        position: relative;
+        display: flex;
+        align-items: center;
+        padding: 8px 12px;
+        background-color: white;
+        border: 1px solid rgba(0, 0, 0, .1);
+        border-radius: 8px;
+        color: rgba(0, 0, 0, .6);
+        outline: none;
+    }
+
+    .combobox .input .preview {
+        display: none;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+        .combobox .input .preview .chip {
+            padding: 3px 6px;
+            background-color: #8d46b8;
+            border-radius: 5px;
+            color: white;
+        }
+
+.combobox .icon {
+    margin-left: 8px;
+    cursor: pointer;
+    font-size: 20px;
+    transition: 0.3s;
+}
+
+    .combobox .icon:hover,
+    .combobox .icon:active {
+        color: #8d46b8;
+        transition: 0.3s;
+    }
+
+.combobox input {
+    flex: 1;
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    outline: none;
+    color: rgba(0, 0, 0, .6);
+    font-size: 14px;
+}
+
+.combobox .input .preview.visible {
+    display: block;
+}
+
+.dropdown {
+    visibility: collapse;
+    position: absolute;
+    left: 0;
+    top: calc(100% + 8px);
+    width: 100%;
+    max-height: 280px;
+    background-color: white;
+    border: 1px solid rgba(0, 0, 0, .1);
+    border-radius: 8px;
+    overflow-y: auto;
+    animation-name: hideComboDropdown;
+    animation-duration: 0.3s;
+    z-index: 999;
+}
+
+    .dropdown.active {
+        visibility: visible;
+        animation-name: showComboDropdown;
+        animation-duration: 0.3s;
+    }
+
+@keyframes showComboDropdown {
+    from {
+        opacity: 0;
+        top: 100%;
+    }
+
+    to {
+        opacity: 1;
+        top: calc(100% + 8px);
+    }
+}
+
+@keyframes hideComboDropdown {
+    from {
+        opacity: 1;
+        visibility: visible;
+    }
+
+    to {
+        opacity: 0;
+        visibility: collapse;
+    }
+}
+
+.dropdown .item:first-child {
+    padding-top: 12px;
+}
+
+.dropdown .item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 16px;
+    font-size: 14px;
+}
+
+    .dropdown .item:hover,
+    .dropdown .item:active {
+        cursor: pointer;
+        background-color: rgba(237, 241, 245, .6);
+        color: #8d46b8;
+    }
+
+    .dropdown .item:last-child {
+        padding-bottom: 12px;
+    }
+
+    .dropdown .item .material-icons {
+        color: #8d46b8;
+        font-size: 18px;
+    }

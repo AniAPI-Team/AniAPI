@@ -1,0 +1,55 @@
+﻿<div class="combobox @string.Join(' ', CssClass)">
+    <label>@Label</label>
+    <div class="input" @onfocus="OnOpenDropdown" @onfocusout="OnCloseDropdown" tabindex="0">
+        <div class="preview @(IsInputActive ? string.Empty : "visible")">
+            @if (SelectedValues.Count == 1)
+            {
+                <span class="chip">@Options[SelectedValues.FirstOrDefault()]</span>
+            }
+            else if (SelectedValues.Count > 1)
+            {
+                <span class="chip">@Options[SelectedValues.FirstOrDefault()]</span>
+                <span class="chip">+@(SelectedValues.Count - 1)</span>
+            }
+            else
+            {
+                <span>Any</span>
+            }
+        </div>
+
+        <input type="text" value="@Search" @onfocus="OnFocusInput" @oninput="OnSearchKeyUp" />
+
+        @if (IsDropdownActive && !HasValue)
+        {
+            <i class="material-icons icon" @onclick="OnCloseDropdown">expand_less</i>
+        }
+        else if(!IsDropdownActive && !HasValue)
+        {
+            <i class="material-icons icon" @onclick="OnOpenDropdown">expand_more</i>
+        }
+
+        @if (HasValue)
+        {
+            <i class="material-icons icon reset" @onclick="OnReset">close</i>
+        }
+
+        <div class="dropdown @(IsDropdownActive ? "active" : string.Empty)">
+            @foreach (string key in Options.Keys)
+            {
+                bool selected = SelectedValues.Contains(key);
+                bool hidden = !string.IsNullOrEmpty(Search) && !Options[key].ToLower().Contains(Search.ToLower() ?? string.Empty);
+
+                @if(!hidden)
+                {
+                    <div class="item @(selected ? "selected" : string.Empty)" @onclick="() => OnValueSelected(key)">
+                        @Options[key]
+                        @if (selected)
+                        {
+                            <i class="material-icons">check_circle</i>
+                        }
+                    </div>
+                }
+            }
+        </div>
+    </div>
+</div>

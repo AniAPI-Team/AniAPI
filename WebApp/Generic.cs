@@ -3,6 +3,7 @@ using Commons;
 using Commons.Enums;
 using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,12 +17,14 @@ namespace WebApp
     public class Generic
     {
         #region Injection
+
         protected SpinnerService Spinner { get; set; }
         protected HttpClient Client { get; set; }
         protected ISyncLocalStorageService LocalStorage { get; set; }
+
         #endregion
 
-        public Generic (SpinnerService _spinner, HttpClient _client, ISyncLocalStorageService _localStorage)
+        public Generic(SpinnerService _spinner, HttpClient _client, ISyncLocalStorageService _localStorage)
         {
             Spinner = _spinner;
             Client = _client;
@@ -37,38 +40,35 @@ namespace WebApp
         /// <param name="data">Data to be sent to Server</param>
         /// <param name="useSpinner">Activate the spinner while calling the server</param>
         /// <returns>Object with type defined in parameters</returns>
-        public async Task<T> PostSingleRequest<T, Z>(string urlApi, Z data, bool useSpinner = false) where T : new()
+        public async Task<APIResponse> PostSingleRequest<T, Z>(string urlApi, Z data, bool useSpinner = false) where T : new()
         {
             if (useSpinner)
+            {
                 Spinner.Show();
-            T res = new T();
+            }
+
+            APIResponse res = null;
 
             try
             {
-                JsonSerializerOptions jso = new JsonSerializerOptions()
-                {
-                    IgnoreNullValues = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
+                Uri uri = new Uri(Client.BaseAddress, $"api/v1/{urlApi}");
 
-                string absoluteUrl = string.Format("{0}{1}", Client.BaseAddress, urlApi);
-                HttpResponseMessage responsePost = await Client.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
-                res = JsonConvert.DeserializeObject<T>(await responsePost.Content.ReadAsStringAsync());
+                HttpResponseMessage responsePost = await Client.PostAsJsonAsync<Z>(uri.AbsoluteUri, data);
+                res = JsonConvert.DeserializeObject<APIResponse>(await responsePost.Content.ReadAsStringAsync());
+
+                handleSingleResponse<T>(ref res);
 
             }
-            catch (APIException ex)
+            catch (Exception ex)
             {
-                APIManager.ErrorResponse(ex);
-            }
-            catch (Exception)
-            {
-                throw;
-                //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                Console.WriteLine($"Error: {ex.Message}");
             }
             finally
             {
                 if (useSpinner)
+                {
                     Spinner.Hide();
+                }
             }
 
             return res;
@@ -83,38 +83,34 @@ namespace WebApp
         /// <param name="data">Data to be sent to Server</param>
         /// <param name="useSpinner">Activate the spinner while calling the server</param>
         /// <returns>List of Object with type defined in parameters</returns>
-        public async Task<List<T>> PostListRequest<T, Z>(string urlApi, Z data, bool useSpinner = false) where T : class, new()
+        public async Task<APIResponse> PostListRequest<T, Z>(string urlApi, Z data, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
+            {
                 Spinner.Show();
-            List<T> res = new List<T>();
+            }
+
+            APIResponse res = null;
 
             try
             {
-                JsonSerializerOptions jso = new JsonSerializerOptions()
-                {
-                    IgnoreNullValues = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
+                Uri uri = new Uri(Client.BaseAddress, $"api/v1/{urlApi}");
 
-                string absoluteUrl = string.Format("{0}{1}", Client.BaseAddress, urlApi);
-                HttpResponseMessage responsePost = await Client.PostAsJsonAsync<Z>(absoluteUrl, data, jso);
-                res = JsonConvert.DeserializeObject<List<T>>(await responsePost.Content.ReadAsStringAsync());
+                HttpResponseMessage responsePost = await Client.PostAsJsonAsync<Z>(uri.AbsoluteUri, data);
+                res = JsonConvert.DeserializeObject<APIResponse>(await responsePost.Content.ReadAsStringAsync());
 
+                handleListResponse<T>(ref res);
             }
-            catch (APIException ex)
+            catch (Exception ex)
             {
-                APIManager.ErrorResponse(ex);
-            }
-            catch (Exception)
-            {
-                throw;
-                //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                Console.WriteLine($"Error: {ex.Message}");
             }
             finally
             {
                 if (useSpinner)
+                {
                     Spinner.Hide();
+                }
             }
 
             return res;
@@ -127,35 +123,33 @@ namespace WebApp
         /// <param name="urlApi">Relative path to Server API</param>
         /// <param name="useSpinner">Activate the spinner while calling the server</param>
         /// <returns>Object with type defined in parameters</returns>
-        public async Task<T> GetSingleRequest<T>(string urlApi, bool useSpinner = false) where T : class, new()
+        public async Task<APIResponse> GetSingleRequest<T>(string urlApi, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
+            {
                 Spinner.Show();
-            T res = new T();
+            }
+
+            APIResponse res = null;
 
             try
             {
-                JsonSerializerOptions jso = new JsonSerializerOptions()
-                {
-                    IgnoreNullValues = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
+                Uri uri = new Uri(Client.BaseAddress, $"api/v1/{urlApi}");
 
-                res = await Client.GetFromJsonAsync<T>(urlApi, jso);
+                res = await Client.GetFromJsonAsync<APIResponse>(uri.AbsoluteUri);
+
+                handleSingleResponse<T>(ref res);
             }
-            catch (APIException ex)
+            catch (Exception ex)
             {
-                APIManager.ErrorResponse(ex);
-            }
-            catch (Exception)
-            {
-                throw;
-                //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                Console.WriteLine($"Error: {ex.Message}");
             }
             finally
             {
                 if (useSpinner)
+                {
                     Spinner.Hide();
+                }
             }
 
             return res;
@@ -168,38 +162,73 @@ namespace WebApp
         /// <param name="urlApi">Relative path to Server API</param>
         /// <param name="useSpinner">Activate the spinner while calling the server</param>
         /// <returns>List fo Object with type defined in parameters</returns>
-        public async Task<List<T>> GetListRequest<T>(string urlApi, bool useSpinner = false) where T : class, new()
+        public async Task<APIResponse> GetListRequest<T>(string urlApi, bool useSpinner = false) where T : class, new()
         {
             if (useSpinner)
+            {
                 Spinner.Show();
-            List<T> res = new List<T>();
+            }
+
+            APIResponse res = null;
 
             try
             {
-                JsonSerializerOptions jso = new JsonSerializerOptions()
-                {
-                    IgnoreNullValues = true,
-                    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-                };
+                Uri uri = new Uri(Client.BaseAddress, $"api/v1/{urlApi}");
 
-                res = await Client.GetFromJsonAsync<List<T>>(urlApi, jso);
+                res = await Client.GetFromJsonAsync<APIResponse>(uri.AbsoluteUri);
+
+                handleListResponse<T>(ref res);
             }
-            catch (APIException ex)
+            catch (Exception ex)
             {
-                APIManager.ErrorResponse(ex);
-            }
-            catch (Exception)
-            {
-                throw;
-                //ApiManager.CreateErrorResponse(HttpStatusCode.InternalServerError, ex.Message);
+                Console.WriteLine($"Error: {ex.Message}");
             }
             finally
             {
                 if (useSpinner)
+                {
                     Spinner.Hide();
+                }
             }
 
             return res;
+        }
+
+        private void handleSingleResponse<T>(ref APIResponse res)
+        {
+            if (res.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+            {
+                throw new Exception(res.Message);
+            }
+
+            if (res.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                Console.WriteLine(res.Data.ToString());
+                res.Data = JsonConvert.DeserializeObject<T>(res.Data.ToString());
+            }
+        }
+
+        private void handleListResponse<T>(ref APIResponse res)
+        {
+            if(res.StatusCode == System.Net.HttpStatusCode.InternalServerError)
+            {
+                throw new Exception(res.Message);
+            }
+
+            if (res.StatusCode == System.Net.HttpStatusCode.OK)
+            {
+                List<T> data = new List<T>();
+
+                Console.WriteLine(res.Data.ToString());
+
+                foreach (JObject obj in JArray.FromObject(res.Data))
+                {
+                    Console.WriteLine(obj);
+                    data.Add(obj.ToObject<T>());
+                }
+
+                res.Data = data;
+            }
         }
 
         //GetValue by Localization

@@ -22,7 +22,7 @@ namespace SyncService
             {
                 Thread.Sleep(60 * 1000);
             }
-
+            
             for(int i = 1; i < services.Count; i++)
             {
                 new Thread(services[i].Start).Start();
