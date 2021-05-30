@@ -1,7 +1,9 @@
 ﻿using Commons;
 using Microsoft.AspNetCore.Components;
+using Microsoft.JSInterop;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,6 +17,7 @@ namespace WebApp.Pages.AppPages
         [Inject] protected SpinnerService Spinner { get; set; }
         [Inject] protected NavigationManager NavigationManager { get; set; }
         [Inject] protected UIConfiguration Theme { get; set; }
+        [Inject] protected IJSRuntime Js { get; set; }
 
         #endregion
 
@@ -38,6 +41,10 @@ namespace WebApp.Pages.AppPages
 
         private string PrequelTitle { get; set; }
         private string SequelTitle { get; set; }
+
+        private string AnimeStartDate { get; set; }
+        private string AnimeEndDate { get; set; }
+        private string AnimeSeason { get; set; }
 
         protected override async Task OnInitializedAsync()
         {
@@ -71,6 +78,10 @@ namespace WebApp.Pages.AppPages
                 SequelTitle = Sequel.Titles.Keys.Contains(Theme.Locale) ? Sequel.Titles[Theme.Locale] : Sequel.Titles[Theme.FallbackLocale];
             }
 
+            AnimeStartDate = Anime.StartDate != null ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Anime.StartDate.Value.ToString("MMM dd, yyyy")) : "Unknown";
+            AnimeEndDate = Anime.EndDate != null ? CultureInfo.CurrentCulture.TextInfo.ToTitleCase(Anime.EndDate.Value.ToString("MMM dd, yyyy")) : "Unknown";
+            AnimeSeason = Anime.SeasonYear != null ? $"{Theme.GetTextByAnimeSeason(Anime.SeasonPeriod)} {Anime.SeasonYear}" : "Unknown";
+
             if(EpisodeNumber % 120 == 0)
             {
                 EpisodesFrom = EpisodeNumber - 119;
@@ -90,10 +101,28 @@ namespace WebApp.Pages.AppPages
             Spinner.Hide();
         }
 
+        protected override void OnParametersSet()
+        {
+            if (Anime != null && string.IsNullOrEmpty(Anime.TrailerUrl) && EpisodeNumber == 0)
+            {
+                EpisodeNumber = 1;
+            }
+
+            base.OnParametersSet();
+        }
+
         private async Task<Anime> GetAnime(long id)
         {
             APIResponse response = await Generic.GetSingleRequest<Anime>($"anime/{id}");
             return (Anime)response.Data;
+        }
+
+        private void OnEpisodeChanged(int episodeNumber)
+        {
+            EpisodeNumber = episodeNumber;
+            Js.InvokeAsync<string>("App.ChangeURL", $"/App/Anime/{AnimeID}/{EpisodeNumber}");
+
+            StateHasChanged();
         }
     }
 }

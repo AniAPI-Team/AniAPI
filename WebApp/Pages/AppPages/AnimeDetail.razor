@@ -96,13 +96,13 @@
                         <span>Status</span>@Theme.GetTextByAnimeStatus(Anime.Status)
                     </div>
                     <div class="row">
-                        <span>Start Date</span>Feb 14, 2007
+                        <span>Start Date</span>@AnimeStartDate
                     </div>
                     <div class="row">
-                        <span>End Date</span>Mar 22, 2017
+                        <span>End Date</span>@AnimeEndDate
                     </div>
                     <div class="row">
-                        <span>Season</span>Winter 2007
+                        <span>Season</span>@AnimeSeason
                     </div>
                     <div class="row">
                         <span>Score</span>@Anime.Score%
@@ -186,7 +186,9 @@
                     <div class="episodes">
                         @for (int i = EpisodesFrom; i <= EpisodesTo; i++)
                         {
-                            <div class="episode @(EpisodeNumber == i ? "active" : string.Empty)">@i</div>
+                            int episodeNumber = i;
+                            <div class="episode @(EpisodeNumber == episodeNumber ? "active" : string.Empty)" 
+                                 @onclick="() => OnEpisodeChanged(episodeNumber)">@i</div>
                         }
                         <!--<div class="episode active completed">1</div>-->
                     </div>

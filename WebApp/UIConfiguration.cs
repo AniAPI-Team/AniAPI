@@ -105,5 +105,22 @@ namespace WebApp
 
             return string.Empty;
         }
+
+        public string GetTextByAnimeSeason(AnimeSeasonEnum animeSeason)
+        {
+            switch (animeSeason)
+            {
+                case AnimeSeasonEnum.WINTER:
+                    return "Winter";
+                case AnimeSeasonEnum.SPRING:
+                    return "Spring";
+                case AnimeSeasonEnum.SUMMER:
+                    return "Summer";
+                case AnimeSeasonEnum.FALL:
+                    return "Fall";
+            }
+
+            return string.Empty;
+        }
     }
 }
