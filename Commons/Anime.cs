@@ -69,7 +69,7 @@ namespace Commons
                 switch (media.Trailer.Site)
                 {
                     case "youtube":
-                        this.TrailerUrl = $"https://www.youtube.com/embed/={media.Trailer.Id}";
+                        this.TrailerUrl = $"https://www.youtube.com/embed/{media.Trailer.Id}";
                         break;
                     case "dailymotion":
                         this.TrailerUrl = $"https://www.dailymotion.com/video/{media.Trailer.Id}";
