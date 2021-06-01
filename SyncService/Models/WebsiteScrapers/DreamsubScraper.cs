@@ -43,13 +43,11 @@ namespace SyncService.Models.WebsiteScrapers
                 ElementHandle title = await element.QuerySelectorAsync(".tvTitle .title");
                 matching.Title = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
 
-                matching.Score = Fuzz.TokenSortRatio(matching.Title, animeTitle);
+                ElementHandle path = await element.QuerySelectorAsync(".showStreaming a");
+                matching.Path = (await path.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
 
-                if (matching.Score == 100)
+                if(this.AnalyzeMatching(matching, animeTitle))
                 {
-                    ElementHandle path = await element.QuerySelectorAsync(".showStreaming a");
-                    matching.Path = (await path.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
-
                     return matching;
                 }
             }
@@ -61,7 +59,7 @@ namespace SyncService.Models.WebsiteScrapers
 
         protected override async Task<EpisodeMatching> GetEpisode(Page webPage, AnimeMatching matching, int number)
         {
-            string url = string.Empty;
+            string url;
 
             if(episodesMatchings.Count == 0)
             {

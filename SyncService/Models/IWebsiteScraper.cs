@@ -2,6 +2,7 @@
 using Commons.Collections;
 using Commons.Enums;
 using Commons.Filters;
+using FuzzySharp;
 using PuppeteerSharp;
 using SyncService.Helpers;
 using SyncService.Services;
@@ -18,12 +19,13 @@ namespace SyncService.Models
     {
         private AnimeCollection _animeCollection = new AnimeCollection();
         private EpisodeCollection _episodeCollection = new EpisodeCollection();
+        private AnimeSuggestionCollection _animeSuggestionCollection = new AnimeSuggestionCollection();
+        private Anime _anime;
 
         protected abstract long WebsiteID { get; }
         protected Website Website { get; private set; }
         protected abstract Type WebsiteType { get; }
         protected WebsiteScraperService Service { get; set; }
-
         protected Thread Thread { get; private set; }
         public bool Working { get; private set; }
 
@@ -42,6 +44,53 @@ namespace SyncService.Models
             this.Working = true;
         }
 
+        protected bool AnalyzeMatching(AnimeMatching matching, string sourceTitle)
+        {
+            matching.Score = Fuzz.TokenSortRatio(matching.Title, sourceTitle);
+
+            if(matching.Score == 100)
+            {
+                return true;
+            }
+            else if(matching.Score >= 60)
+            {
+                var query = this._animeSuggestionCollection.GetList(new AnimeSuggestionFilter()
+                {
+                    anime_id = _anime.Id,
+                    title = matching.Title,
+                    source = this.Website.Name
+                });
+
+                if(query.Count > 0)
+                {
+                    if(query.Documents[0].Status == AnimeSuggestionStatus.OK)
+                    {
+                        return true;
+                    }
+                    else if(query.Documents[0].Status == AnimeSuggestionStatus.KO)
+                    {
+                        return false;
+                    }
+                }
+                else
+                {
+                    AnimeSuggestion suggestion = new AnimeSuggestion()
+                    {
+                        AnimeID = _anime.Id,
+                        Title = matching.Title,
+                        Source = this.Website.Name,
+                        Score = matching.Score,
+                        Path = $"{this.Website.SiteUrl}{matching.Path}",
+                        Status = AnimeSuggestionStatus.NONE
+                    };
+
+                    this._animeSuggestionCollection.Add(ref suggestion);
+                }
+            }
+
+            return false;
+        }
+
         protected abstract Task<AnimeMatching> GetMatching(Page webPage, string animeTitle);
         protected abstract Task<EpisodeMatching> GetEpisode(Page webPage, AnimeMatching matching, int number);
 
@@ -52,15 +101,14 @@ namespace SyncService.Models
             try
             {
                 long lastID = this._animeCollection.Last().Id;
-                Anime anime = null;
 
                 for (int animeID = 1; animeID < lastID; animeID++)
                 {
                     try
                     {
-                        anime = this._animeCollection.Get(animeID);
+                        _anime = this._animeCollection.Get(animeID);
 
-                        if (!this.animeNeedWork(anime))
+                        if (!this.animeNeedWork())
                         {
                             throw new Exception();
                         }
@@ -68,9 +116,9 @@ namespace SyncService.Models
                         AnimeMatching matching = null;
                         using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browserKey, this.Website.CanBlockRequests))
                         {
-                            string animeTitle = anime.Titles.ContainsKey(this.Website.Localization) ?
-                                anime.Titles[this.Website.Localization] :
-                                anime.Titles[LocalizationEnum.English];
+                            string animeTitle = _anime.Titles.ContainsKey(this.Website.Localization) ?
+                                _anime.Titles[this.Website.Localization] :
+                                _anime.Titles[LocalizationEnum.English];
 
                             matching = await this.GetMatching(webPage, animeTitle);
                         }
@@ -79,10 +127,10 @@ namespace SyncService.Models
                         {
                             throw new Exception();
                         }
-
+                        
                         try
                         {
-                            for (int i = 1; i <= anime.EpisodesCount; i++)
+                            for (int i = 1; i <= _anime.EpisodesCount; i++)
                             {
                                 using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browserKey, this.Website.CanBlockRequests))
                                 {
@@ -99,10 +147,10 @@ namespace SyncService.Models
 
                         if (this.Website.Official)
                         {
-                            anime.Titles[this.Website.Localization] = matching.Title;
-                            anime.Descriptions[this.Website.Localization] = matching.Description;
+                            _anime.Titles[this.Website.Localization] = matching.Title;
+                            _anime.Descriptions[this.Website.Localization] = matching.Description;
 
-                            this._animeCollection.Edit(ref anime);
+                            this._animeCollection.Edit(ref _anime);
                         }
 
                         if (matching.Episodes.Count > 0)
@@ -111,7 +159,7 @@ namespace SyncService.Models
                             {
                                 Episode ep = new Episode()
                                 {
-                                    AnimeID = anime.Id,
+                                    AnimeID = _anime.Id,
                                     Source = this.Website.Name,
                                     Number = episode.Number,
                                     Title = episode.Title,
@@ -132,7 +180,7 @@ namespace SyncService.Models
                     catch { }
                     finally
                     {
-                        string animeTitle = anime.Titles[LocalizationEnum.English];
+                        string animeTitle = _anime.Titles[LocalizationEnum.English];
                         this.Service.Log($"Website {this.Website.Name} done {this.Service.GetProgressD(animeID, lastID)}% ({animeTitle})");
                     }
                 }
@@ -148,20 +196,20 @@ namespace SyncService.Models
             }
         }
 
-        private bool animeNeedWork(Anime anime)
+        private bool animeNeedWork()
         {
-            if(anime.Status == AnimeStatusEnum.RELEASING)
+            if(_anime.Status == AnimeStatusEnum.RELEASING)
             {
                 return true;
             }
 
             long episodesCount = this._episodeCollection.GetList<EpisodeFilter>(new EpisodeFilter()
             {
-                anime_id = anime.Id,
+                anime_id = _anime.Id,
                 source = this.Website.Name
             }).Count;
 
-            if (episodesCount == 0 || (anime.Status == AnimeStatusEnum.FINISHED && anime.EpisodesCount != episodesCount))
+            if (episodesCount == 0 || (_anime.Status == AnimeStatusEnum.FINISHED && _anime.EpisodesCount != episodesCount))
             {
                 return true;
             }
