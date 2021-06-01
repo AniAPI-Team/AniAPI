@@ -129,11 +129,14 @@ namespace SyncService.Helpers
 
         private async void WebPage_Request(object sender, RequestEventArgs e)
         {
-            if(e.Request.ResourceType == ResourceType.Image || e.Request.ResourceType == ResourceType.Media || e.Request.ResourceType == ResourceType.StyleSheet || e.Request.ResourceType == ResourceType.Font)
+            if (e.Request.ResourceType == ResourceType.Image || e.Request.ResourceType == ResourceType.Media || e.Request.ResourceType == ResourceType.StyleSheet || e.Request.ResourceType == ResourceType.Font)
             {
                 await e.Request.AbortAsync();
             }
-            else if(e.Request.Url.Contains("google") || e.Request.Url.Contains("ads") || e.Request.Url.Contains("antiadblocksystems"))
+            else if (e.Request.Url.ToLower().Contains("google") || 
+                e.Request.Url.ToLower().Contains("ads") || 
+                e.Request.Url.ToLower().Contains("antiadblocksystems") || 
+                e.Request.Url.ToLower().Contains("stats"))
             {
                 await e.Request.AbortAsync();
             }

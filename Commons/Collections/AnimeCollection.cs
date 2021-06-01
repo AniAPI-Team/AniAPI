@@ -71,12 +71,42 @@ namespace Commons.Collections
 
             if (!string.IsNullOrEmpty(animeFilter.title))
             {
-                queryFilter = queryFilter & builder.Regex($"titles.{animeFilter.locale}", new BsonRegularExpression($".*{animeFilter.title}.*", "i"));
+                queryFilter &= builder.Regex($"titles.{animeFilter.locale}", new BsonRegularExpression($".*{animeFilter.title}.*", "i"));
             }
 
-            if(animeFilter.anilist_id != 0)
+            if(animeFilter.anilist_id != null)
             {
-                queryFilter = queryFilter & builder.Eq("anilist_id", animeFilter.anilist_id);
+                queryFilter &= builder.Eq("anilist_id", animeFilter.anilist_id);
+            }
+
+            if(animeFilter.mal_id != null)
+            {
+                queryFilter &= builder.Eq("mal_id", animeFilter.mal_id);
+            }
+
+            if(animeFilter.format != null)
+            {
+                queryFilter &= builder.Eq("format", animeFilter.format);
+            }
+
+            if(animeFilter.status != null)
+            {
+                queryFilter &= builder.Eq("status", animeFilter.status);
+            }
+
+            if(animeFilter.year != null)
+            {
+                queryFilter &= builder.Eq("season_year", animeFilter.year);
+            }
+
+            if(animeFilter.season != null)
+            {
+                queryFilter &= builder.Eq("season_period", animeFilter.season);
+            }
+
+            if(animeFilter.genres.Count > 0)
+            {
+                queryFilter &= builder.AnyIn<string>("genres", animeFilter.genres);
             }
 
             return new Paging<Anime>(this.Collection, animeFilter.page, queryFilter, animeFilter.per_page);

@@ -88,23 +88,5 @@ namespace WebAPI.Controllers
                 return APIManager.ErrorResponse();
             }
         }
-
-        [HttpPut, MapToApiVersion("1")]
-        public APIResponse Create([FromBody] Anime model)
-        {
-            return APIManager.SuccessResponse();
-        }
-
-        [HttpPost, MapToApiVersion("1")]
-        public APIResponse Update([FromBody] Anime model)
-        {
-            return APIManager.SuccessResponse();
-        }
-
-        [HttpDelete("{id}"), MapToApiVersion("1")]
-        public APIResponse Delete(long id)
-        {
-            return APIManager.SuccessResponse();
-        }
     }
 }

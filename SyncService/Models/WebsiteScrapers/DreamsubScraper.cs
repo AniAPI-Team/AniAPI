@@ -25,6 +25,8 @@ namespace SyncService.Models.WebsiteScrapers
         {
             AnimeMatching matching = null;
 
+            episodesMatchings.Clear();
+
             string url = $"{this.Website.SiteUrl}/search/?q={animeTitle}";
             await webPage.GoToAsync(url);
 
@@ -55,36 +57,51 @@ namespace SyncService.Models.WebsiteScrapers
             return null;
         }
 
+        private List<EpisodeMatching> episodesMatchings = new List<EpisodeMatching>();
+
         protected override async Task<EpisodeMatching> GetEpisode(Page webPage, AnimeMatching matching, int number)
         {
-            string url = $"{this.Website.SiteUrl}{matching.Path}";
-            await webPage.GoToAsync(url);
+            string url = string.Empty;
 
-            await webPage.WaitForSelectorAsync("#episodes-list", new WaitForSelectorOptions()
+            if(episodesMatchings.Count == 0)
             {
-                Visible = true,
-                Timeout = 2000
-            });
+                url = $"{this.Website.SiteUrl}{matching.Path}";
+                await webPage.GoToAsync(url);
 
-            ElementHandle description = await webPage.QuerySelectorAsync("#tramaLong");
-            matching.Description = (await description.EvaluateFunctionAsync<string>("e => e.innerHTML")).Trim();
-
-            ElementHandle element = (await webPage.QuerySelectorAllAsync("#episodes-list .ep-item"))[number - 1];
-
-            if(element != null)
-            {
-                EpisodeMatching episode = new EpisodeMatching()
+                await webPage.WaitForSelectorAsync("#episodes-list", new WaitForSelectorOptions()
                 {
-                    Number = number
-                };
+                    Visible = true,
+                    Timeout = 2000
+                });
 
-                ElementHandle info = await element.QuerySelectorAsync(".sli-name a");
-                episode.Path = await info.EvaluateFunctionAsync<string>("e => e.getAttribute('href')");
+                ElementHandle description = await webPage.QuerySelectorAsync("#tramaLong");
+                matching.Description = (await description.EvaluateFunctionAsync<string>("e => e.innerHTML")).Trim();
+
+                foreach(ElementHandle ep in await webPage.QuerySelectorAllAsync("#episodes-list .ep-item"))
+                {
+                    ElementHandle info = await ep.QuerySelectorAsync(".sli-name a");
+                    
+                    string path = await info.EvaluateFunctionAsync<string>("e => e.getAttribute('href')");
+                    string title = (await info.EvaluateFunctionAsync<string>("e => e.innerText")).Trim().Split(": ")[1];
+
+                    episodesMatchings.Add(new EpisodeMatching()
+                    {
+                        Path = path,
+                        Title = title
+                    });
+                }
+            }
+
+            EpisodeMatching episode = episodesMatchings[number - 1];
+
+            if(episode != null)
+            {
+                episode.Number = number;
 
                 if (!string.IsNullOrEmpty(episode.Path))
                 {
                     episode.Path = episode.Path.Trim();
-                    episode.Title = (await info.EvaluateFunctionAsync<string>("e => e.innerText")).Trim().Split(": ")[1];
+                    episode.Title = 
 
                     url = $"{this.Website.SiteUrl}{episode.Path}";
                     var watch = Stopwatch.StartNew();
