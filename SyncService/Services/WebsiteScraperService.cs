@@ -43,6 +43,7 @@ namespace SyncService.Services
                 this._workers = new List<IWebsiteScraper>()
                 {
                     new DreamsubScraper(this)
+                    new AnimeworldScraper(this)
                 };
 
                 foreach(IWebsiteScraper scraper in this._workers)

@@ -30,21 +30,11 @@ namespace Commons
             this.Format = media.Format;
             this.Status = media.Status.HasValue ? media.Status.Value : AnimeStatusEnum.FINISHED;
 
-            if (media.StartDate.Year.HasValue && media.StartDate.Month.HasValue && media.StartDate.Day.HasValue)
-            {
-                int? month = media.StartDate.Month;
-                int? day = media.StartDate.Day;
+            AnilistResponse.MediaDate correctDate = CheckDate(media.StartDate);
+            this.StartDate = new DateTime(correctDate.Year.Value, correctDate.Month.Value, correctDate.Day.Value);
 
-                this.StartDate = new DateTime(media.StartDate.Year.Value, month.HasValue ? month.Value : 1, day.HasValue ? day.Value : 1);
-            }
-
-            if (media.EndDate.Year.HasValue && media.EndDate.Month.HasValue && media.EndDate.Day.HasValue)
-            {
-                int? month = media.EndDate.Month;
-                int? day = media.EndDate.Day;
-
-                this.EndDate = new DateTime(media.EndDate.Year.Value, month.HasValue ? month.Value : 1, day.HasValue ? day.Value : 1);
-            }
+            correctDate = CheckDate(media.EndDate);
+            this.EndDate = new DateTime(correctDate.Year.Value, correctDate.Month.Value, correctDate.Day.Value);
 
             this.SeasonPeriod = media.Season.HasValue ? media.Season.Value : AnimeSeasonEnum.UNKNOWN;
             this.SeasonYear = media.SeasonYear;
@@ -69,7 +59,7 @@ namespace Commons
                 switch (media.Trailer.Site)
                 {
                     case "youtube":
-                        this.TrailerUrl = $"https://www.youtube.com/embed/={media.Trailer.Id}";
+                        this.TrailerUrl = $"https://www.youtube.com/embed/{media.Trailer.Id}";
                         break;
                     case "dailymotion":
                         this.TrailerUrl = $"https://www.dailymotion.com/video/{media.Trailer.Id}";
@@ -123,6 +113,21 @@ namespace Commons
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// Check and return the correct Date
+        /// </summary>
+        /// <param name="date"></param>
+        /// <returns></returns>
+        private AnilistResponse.MediaDate CheckDate(AnilistResponse.MediaDate date)
+        {
+            return new AnilistResponse.MediaDate()
+            {
+                Year = date.Year.HasValue ? date.Year.Value : 1970,
+                Month = (date.Month.HasValue ? (date.Month.Value <= 12 ? date.Month.Value : 12) : 1),
+                Day = (date.Day.HasValue ? (date.Day.Value <= 31 ? date.Day.Value : 31) : 1)
+            };
         }
 
         [BsonElement("anilist_id")]

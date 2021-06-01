@@ -3,6 +3,7 @@ using Commons.Collections;
 using Newtonsoft.Json;
 using SyncService.Models;
 using System;
+using System.Diagnostics;
 using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
@@ -190,6 +191,7 @@ namespace SyncService.Services
             }
             catch(Exception ex)
             {
+                Debug.WriteLine(ex.StackTrace);
                 this.Stop(ex);
             }
         }
