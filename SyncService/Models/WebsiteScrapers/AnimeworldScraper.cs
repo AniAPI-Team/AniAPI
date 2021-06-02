@@ -29,6 +29,8 @@ namespace SyncService.Models.WebsiteScrapers
             string url = $"{this.Website.SiteUrl}search?keyword={animeTitle}";
             await webPage.GoToAsync(url);
 
+            episodesMatchings.Clear();
+
             await webPage.WaitForSelectorAsync(".film-list", new WaitForSelectorOptions()
             {
                 Visible = true,
