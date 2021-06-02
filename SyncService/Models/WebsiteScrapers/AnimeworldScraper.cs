@@ -43,17 +43,17 @@ namespace SyncService.Models.WebsiteScrapers
 
                 ElementHandle title = await element.QuerySelectorAsync(".inner .name");
                 matching.Title = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
-                Console.WriteLine($"Title: { matching.Title }");
+                Console.WriteLine($"Finding: { matching.Title }");
 
-                matching.Score = Fuzz.TokenSortRatio(matching.Title, animeTitle);
-
-                if (matching.Score == 100)
+                if (this.AnalyzeMatching(matching, animeTitle))
                 {
-                    Console.WriteLine($"Found: { matching.Title }");
+                    this.Service.Log($"Found: { matching.Title }");
+
+                    // Setting Up URL
                     ElementHandle path = await element.QuerySelectorAsync(".inner .name");
                     matching.Path = (await path.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
-                    Console.WriteLine($"URL: { matching.Path }");
 
+                    this.Service.Log($"URL: { matching.Path }");
                     return matching;
                 }
             }
