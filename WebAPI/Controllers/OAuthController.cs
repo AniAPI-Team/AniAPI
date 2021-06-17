@@ -106,9 +106,12 @@ namespace WebAPI.Controllers
                     case "code":
                         string code = generateCode();
 
-                        _cache.GetOrCreate()
-                        _generatedCodes.Add(Request.HttpContext.Connection.RemoteIpAddress.ToString(), 
-                            new Tuple<string, string>(code, user.Token));
+                        _cache.Set(Request.HttpContext.Connection.RemoteIpAddress.ToString(),
+                            new Tuple<string, string>(code, user.Token),
+                            new MemoryCacheEntryOptions()
+                            {
+                                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3)
+                            });
 
                         query = $"?code={code}";
                         break;
@@ -183,7 +186,7 @@ namespace WebAPI.Controllers
 
             string ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
             
-            if(!_generatedCodes.ContainsKey(ip))
+            if(!_cache.TryGetValue(ip, out Tuple<string, string> tuple))
             {
                 return APIManager.ErrorResponse(new APIException(
                             System.Net.HttpStatusCode.Forbidden,
@@ -191,7 +194,7 @@ namespace WebAPI.Controllers
                             "code not valid"));
             }
             
-            if(code != _generatedCodes[ip].Item1)
+            if(code != tuple.Item1)
             {
                 return APIManager.ErrorResponse(new APIException(
                             System.Net.HttpStatusCode.Forbidden,
@@ -199,7 +202,7 @@ namespace WebAPI.Controllers
                             "code not valid"));
             }
 
-            return APIManager.SuccessResponse("Code verified", _generatedCodes[ip].Item2);
+            return APIManager.SuccessResponse("Code verified", tuple.Item2);
         }
 
         private Random _random = new Random();
