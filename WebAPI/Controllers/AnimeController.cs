@@ -55,6 +55,11 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves a list of anime
+        /// </summary>
+        /// <param name="filter">The anime filter</param>
+        /// <returns></returns>
         [HttpGet, MapToApiVersion("1")]
         public APIResponse GetMore([FromQuery] AnimeFilter filter)
         {

@@ -1,0 +1,162 @@
+﻿@using Commons
+@model OAuthClient
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>AniAPI | OAuth</title>
+    <link rel='icon' href='~/favicon.ico'>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style type="text/css">
+        body, html {
+            height: 100%;
+        }
+
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+            background-color: #0b1622;
+        }
+
+        body * {
+            box-sizing: border-box;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 16px;
+        }
+
+        .client {
+            margin-top: 24px;
+            color: rgba(255, 255, 255, .6);
+        }
+
+        .form {
+            padding: 24px;
+            width: 300px;
+            text-align: center;
+        }
+
+        form {
+            margin-top: 22px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        input {
+            margin: 8px 0;
+            padding: 12px 18px;
+            background-color: #151f2e;
+            border: 1px solid rgba(255, 255, 255, .1);
+            border-radius: 6px;
+            color: rgba(255, 255, 255, .6);
+            outline: none;
+            transition: .3s;
+        }
+
+        input:focus, input:active {
+            border-color: rgba(255, 255, 255, .3);
+            color: white;
+            transition: .3s;
+        }
+
+        #errors {
+            margin: 12px 0;
+            color: red;
+            text-align: left;
+            font-weight: 300;
+        }
+
+        button {
+            margin-top: 8px;
+            padding: 12px 0;
+            background-color: #8d46b8;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            text-transform: uppercase;
+            font-weight: 600;
+            transition: .3s;
+        }
+
+        button:hover, button:active {
+            cursor: pointer;
+            transition: .3s;
+        }
+    </style>
+</head>
+<body>
+    <div class="form">
+        <img src="~/images/aniapi_icon.png" />
+        <div class="client">
+            <b>@Model.Name</b>'s authentication
+        </div>
+        <form method="post" action="">
+            <input type="text" placeholder="Email" id="email" />
+            <input type="password" placeholder="Password" id="password" autocomplete="on" />
+            <div id="errors"></div>
+            <button type="button" id="login">Login</button>
+        </form>
+    </div>
+    <script>
+        document.getElementById('email').addEventListener('keypress', (e) => {
+            if (e.keyCode === 13) {
+                document.getElementById('password').focus();
+            }
+        });
+
+        document.getElementById('password').addEventListener('keypress', (e) => {
+            if (e.keyCode === 13) {
+                document.getElementById('login').click();
+            }
+        });
+
+        document.getElementById('login').addEventListener('click', async (e) => {
+            const errors = document.getElementById('errors');
+
+            errors.innerHTML = '';
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            if (!email) {
+                errors.innerHTML += 'Email must not be empty';
+                e.preventDefault();
+                return;
+            }
+
+            if (!password) {
+                errors.innerHTML += 'Password must not be empty';
+                e.preventDefault();
+                return;
+            }
+
+            const response = await fetch('', {
+                method: 'POST',
+                headers: {
+                    'Accept': 'application/json',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    email: email,
+                    password: password
+                })
+            });
+
+            const body = await response.json();
+            console.log(body);
+
+            if (body.status_code === 200) {
+                window.location.href = body.data;
+            }
+            else {
+                errors.innerHTML += body.data;
+                e.preventDefault();
+                return;
+            }
+        }, true);
+    </script>
+</body>
+</html>

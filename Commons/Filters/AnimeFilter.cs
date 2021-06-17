@@ -9,7 +9,7 @@ namespace Commons.Filters
         public string title { get; set; }
         public int? anilist_id { get; set; }
         public int? mal_id { get; set; }
-        public AnimeFormatEnum? format { get; set; }
+        public List<AnimeFormatEnum> formats { get; set; } = new List<AnimeFormatEnum>();
         public AnimeStatusEnum? status { get; set; }
         public int? year { get; set; }
         public AnimeSeasonEnum? season { get; set; }

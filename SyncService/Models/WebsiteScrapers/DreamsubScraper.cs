@@ -102,12 +102,8 @@ namespace SyncService.Models.WebsiteScrapers
                     episode.Title = 
 
                     url = $"{this.Website.SiteUrl}{episode.Path}";
-                    var watch = Stopwatch.StartNew();
 
                     await webPage.GoToAsync(url);
-
-                    watch.Stop();
-                    Console.WriteLine($"{number} - {watch.ElapsedMilliseconds}");
 
                     await webPage.WaitForSelectorAsync("#main-content.onlyDesktop", new WaitForSelectorOptions()
                     {

@@ -1,5 +1,7 @@
 using Commons;
 using Commons.Collections;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -16,6 +18,7 @@ using System.IO;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using WebAPI.Helpers;
 using WebAPI.Middlewares;
 
 namespace WebAPI
@@ -49,6 +52,17 @@ namespace WebAPI
                 //options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
             });
 
+            services.AddDistributedMemoryCache();
+            services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(3);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true;
+            });
+
+            services.AddAuthentication("Bearer")
+                .AddScheme<AuthenticationSchemeOptions, JWTAuthenticationHandler>("Bearer", null);
+
             IConfiguration config = new ConfigurationBuilder().
                 SetBasePath(Directory.GetCurrentDirectory()).
                 AddInMemoryCollection(new AppSettingsCollection().GetConfiguration()).
@@ -67,6 +81,31 @@ namespace WebAPI
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = "WebAPI", Version = "v1" });
                 c.DocumentFilter<EnumDocumentFilter>();
+
+                c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+                {
+                    Name = "Authorization",
+                    In = ParameterLocation.Header,
+                    Type = SecuritySchemeType.ApiKey,
+                    Scheme = "Bearer"
+                });
+                c.AddSecurityRequirement(new OpenApiSecurityRequirement()
+                {
+                    {
+                        new OpenApiSecurityScheme
+                        {
+                            Reference = new OpenApiReference()
+                            {
+                                Type = ReferenceType.SecurityScheme,
+                                Id = "Bearer"
+                            },
+                            Scheme = "oauth2",
+                            Name = "Bearer",
+                            In = ParameterLocation.Header
+                        },
+                        new List<string>()
+                    }
+                });
 
                 var filePath = Path.Combine(System.AppContext.BaseDirectory, "WebAPI.xml");
                 c.IncludeXmlComments(filePath);
@@ -92,13 +131,18 @@ namespace WebAPI
 
             app.UseLoggingMiddleware();
             app.UseRateLimitMiddleware();
-            app.UseJWTMiddleware();
+            //app.UseJWTMiddleware();
 
             app.UseHttpsRedirection();
 
+            app.UseStaticFiles();
+
             app.UseRouting();
 
+            app.UseAuthentication();
             app.UseAuthorization();
+
+            app.UseSession();
 
             app.UseEndpoints(endpoints =>
             {

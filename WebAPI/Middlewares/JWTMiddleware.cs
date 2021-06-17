@@ -1,4 +1,6 @@
-﻿using Commons.Collections;
+﻿using Commons;
+using Commons.Collections;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
@@ -7,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -47,9 +50,26 @@ namespace WebAPI.Middlewares
                     JwtSecurityToken jwtToken = (JwtSecurityToken)validatedToken;
                     long userId = long.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
 
-                    httpContext.Items["user"] = _userCollection.Get(userId);
+                    User user = _userCollection.Get(userId);
+
+                    if (!user.EmailVerified.Value)
+                    {
+                        httpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+
+                        APIResponse response = new APIResponse()
+                        {
+                            StatusCode = HttpStatusCode.Unauthorized,
+                            Message = "Unauthorized",
+                            Data = "You need to verify your email first"
+                        };
+
+                        await httpContext.Response.WriteAsJsonAsync(response);
+                        return;
+                    }
+
+                    httpContext.Items["user"] = user;
                 }
-                catch { }
+                catch {}
             }
 
             await _next(httpContext);

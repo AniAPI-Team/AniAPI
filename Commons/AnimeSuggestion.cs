@@ -43,6 +43,6 @@ namespace Commons
         [BsonElement("status")]
         [JsonPropertyName("status")]
         [JsonProperty(PropertyName = "status")]
-        public AnimeSuggestionStatus Status { get; set; }
+        public AnimeSuggestionStatusEnum Status { get; set; }
     }
 }

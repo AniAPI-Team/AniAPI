@@ -1,9 +1,13 @@
-﻿using System.Net;
+﻿using Newtonsoft.Json;
+using System.Net;
+using System.Text.Json.Serialization;
 
 namespace Commons
 {
     public class APIResponse
     {
+        [JsonPropertyName("status_code")]
+        [JsonProperty(PropertyName = "status_code")]
         public HttpStatusCode StatusCode { get; set; }
         public string Message { get; set; }
         public object Data { get; set; }

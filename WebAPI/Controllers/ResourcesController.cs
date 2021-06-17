@@ -1,5 +1,6 @@
 ﻿using Commons;
 using Commons.Collections;
+using Commons.Enums;
 using Commons.Resources;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
@@ -32,6 +33,10 @@ namespace WebAPI.Controllers
             _assembly = Assembly.GetEntryAssembly();
         }
 
+        /// <summary>
+        /// Retrieves the resources version
+        /// </summary>
+        /// <returns></returns>
         [HttpGet, MapToApiVersion("1")]
         public APIResponse GetVersion()
         {
@@ -52,8 +57,14 @@ namespace WebAPI.Controllers
             }
         }
 
-        [HttpGet("{resourceName}"), MapToApiVersion("1")]
-        public APIResponse GetResource(string resourceName)
+        /// <summary>
+        /// Retrieves a resource version
+        /// </summary>
+        /// <param name="resource_type">The resource type</param>
+        /// <param name="resource_version">The resource version</param>
+        /// <returns></returns>
+        [HttpGet("{resource_version}/{resource_type}"), MapToApiVersion("1")]
+        public APIResponse GetResource(ResourceTypeEnum resource_type, string resource_version = "1.0")
         {
             try
             {
@@ -62,8 +73,20 @@ namespace WebAPI.Controllers
                     throw new Exception();
                 }
 
+                string resourceName = string.Empty;
+
+                switch (resource_type)
+                {
+                    case ResourceTypeEnum.GENRES:
+                        resourceName = "genres";
+                        break;
+                    case ResourceTypeEnum.TRANSLATIONS:
+                        resourceName = "translations";
+                        break;
+                }
+
                 EmbeddedFileProvider provider = new EmbeddedFileProvider(this._assembly);
-                IFileInfo resourceInfo = provider.GetFileInfo($"Resources.{resourceName}.json");
+                IFileInfo resourceInfo = provider.GetFileInfo($"Resources.{resourceName}.{resource_version.Replace('.', '_')}.json");
 
                 if(!resourceInfo.Exists)
                 {
@@ -77,12 +100,12 @@ namespace WebAPI.Controllers
                 object resourceContent = null;
                 using(StreamReader reader = new StreamReader(resourceStream, Encoding.UTF8))
                 {
-                    switch (resourceName)
+                    switch (resource_type)
                     {
-                        case "genres":
+                        case ResourceTypeEnum.GENRES:
                             resourceContent = JsonConvert.DeserializeObject<GenresResource>(reader.ReadToEnd());
                             break;
-                        case "translations":
+                        case ResourceTypeEnum.TRANSLATIONS:
                             resourceContent = JsonConvert.DeserializeObject<TranslationsResource>(reader.ReadToEnd());
                             break;
                     }

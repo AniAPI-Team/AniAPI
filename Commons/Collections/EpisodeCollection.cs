@@ -72,14 +72,24 @@ namespace Commons.Collections
             var builder = Builders<Episode>.Filter;
             FilterDefinition<Episode> queryFilter = builder.Empty;
 
-            if(episodeFilter.anime_id > 0)
+            if(episodeFilter.anime_id != null)
             {
-                queryFilter = queryFilter & builder.Eq("anime_id", episodeFilter.anime_id);
+                queryFilter &= builder.Eq("anime_id", episodeFilter.anime_id);
+            }
+
+            if(episodeFilter.number != null)
+            {
+                queryFilter &= builder.Eq("number", episodeFilter.number);
             }
 
             if (!string.IsNullOrEmpty(episodeFilter.source))
             {
-                queryFilter = queryFilter & builder.Regex($"source", episodeFilter.source);
+                queryFilter &= builder.Regex($"source", episodeFilter.source);
+            }
+
+            if (!string.IsNullOrEmpty(episodeFilter.locale))
+            {
+                queryFilter &= builder.Eq("locale", episodeFilter.locale);  
             }
 
             return new Paging<Episode>(this.Collection, episodeFilter.page, queryFilter, episodeFilter.per_page);

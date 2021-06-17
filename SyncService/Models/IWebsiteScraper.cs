@@ -63,11 +63,11 @@ namespace SyncService.Models
 
                 if(query.Count > 0)
                 {
-                    if(query.Documents[0].Status == AnimeSuggestionStatus.OK)
+                    if(query.Documents[0].Status == AnimeSuggestionStatusEnum.OK)
                     {
                         return true;
                     }
-                    else if(query.Documents[0].Status == AnimeSuggestionStatus.KO)
+                    else if(query.Documents[0].Status == AnimeSuggestionStatusEnum.KO)
                     {
                         return false;
                     }
@@ -81,7 +81,7 @@ namespace SyncService.Models
                         Source = this.Website.Name,
                         Score = matching.Score,
                         Path = $"{this.Website.SiteUrl}{matching.Path}",
-                        Status = AnimeSuggestionStatus.NONE
+                        Status = AnimeSuggestionStatusEnum.NONE
                     };
 
                     this._animeSuggestionCollection.Add(ref suggestion);
@@ -107,6 +107,7 @@ namespace SyncService.Models
                     try
                     {
                         _anime = this._animeCollection.Get(animeID);
+                        this.Service.Log($"Website {this.Website.Name} doing {_anime.Titles[LocalizationEnum.English]}");
 
                         if (!this.animeNeedWork())
                         {
@@ -125,6 +126,7 @@ namespace SyncService.Models
 
                         if (matching == null)
                         {
+                            this.Service.Log($"Website {this.Website.Name} not found {_anime.Titles[LocalizationEnum.English]}");
                             throw new Exception();
                         }
                         
@@ -143,7 +145,10 @@ namespace SyncService.Models
                                 }
                             }
                         }
-                        catch { }
+                        catch 
+                        {
+                            this.Service.Log($"Website {this.Website.Name} no episode found ({_anime.Titles[LocalizationEnum.English]})");
+                        }
 
                         if (this.Website.Official)
                         {
@@ -163,7 +168,8 @@ namespace SyncService.Models
                                     Source = this.Website.Name,
                                     Number = episode.Number,
                                     Title = episode.Title,
-                                    Video = episode.Source
+                                    Video = episode.Source,
+                                    Locale = this.Website.Localization
                                 };
 
                                 if (this._episodeCollection.Exists(ref ep))
@@ -180,8 +186,7 @@ namespace SyncService.Models
                     catch { }
                     finally
                     {
-                        string animeTitle = _anime.Titles[LocalizationEnum.English];
-                        this.Service.Log($"Website {this.Website.Name} done {this.Service.GetProgressD(animeID, lastID)}% ({animeTitle})");
+                        this.Service.Log($"Website {this.Website.Name} done {this.Service.GetProgressD(animeID, lastID)}% ({_anime.Titles[LocalizationEnum.English]})");
                     }
                 }
             }

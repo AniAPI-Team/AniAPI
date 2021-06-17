@@ -26,7 +26,7 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieves a specific anime by anime id
+        /// Retrieves a specific episode by episode id
         /// </summary>
         /// <param name="id">The anime id</param>
         [HttpGet("{id}"), MapToApiVersion("1")]
@@ -55,6 +55,11 @@ namespace WebAPI.Controllers
             }
         }
 
+        /// <summary>
+        /// Retrieves a list of episode
+        /// </summary>
+        /// <param name="filter">The episode filter</param>
+        /// <returns></returns>
         [HttpGet, MapToApiVersion("1")]
         public APIResponse GetMore([FromQuery] EpisodeFilter filter)
         {

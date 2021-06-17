@@ -10,5 +10,108 @@
             </summary>
             <param name="id">The anime id</param>
         </member>
+        <member name="M:WebAPI.Controllers.AnimeController.GetMore(Commons.Filters.AnimeFilter)">
+            <summary>
+            Retrieves a list of anime
+            </summary>
+            <param name="filter">The anime filter</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebAPI.Controllers.AuthController">
+            <summary>
+            Controller for authentication requests
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.AuthController.Login(Commons.APICredentials)">
+            <summary>
+            Authenticate an user
+            </summary>
+            <param name="credentials">The user credentials</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.AuthController.VerifyEmail(System.Int64)">
+            <summary>
+            Verify an user email address
+            </summary>
+            <param name="id">The user id</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.EpisodeController.GetOne(System.Int64)">
+            <summary>
+            Retrieves a specific episode by episode id
+            </summary>
+            <param name="id">The anime id</param>
+        </member>
+        <member name="M:WebAPI.Controllers.EpisodeController.GetMore(Commons.Filters.EpisodeFilter)">
+            <summary>
+            Retrieves a list of episode
+            </summary>
+            <param name="filter">The episode filter</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebAPI.Controllers.OAuthController">
+            <summary>
+            Controller for oauth requests
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.ResourcesController.GetVersion">
+            <summary>
+            Retrieves the resources version
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.ResourcesController.GetResource(Commons.Enums.ResourceTypeEnum,System.String)">
+            <summary>
+            Retrieves a resource version
+            </summary>
+            <param name="resource_type">The resource type</param>
+            <param name="resource_version">The resource version</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebAPI.Controllers.UserController">
+            <summary>
+            CRUD Controller for User model
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.UserController.#ctor(Microsoft.Extensions.Logging.ILogger{WebAPI.Controllers.UserController})">
+            <summary>
+            
+            </summary>
+            <param name="logger"></param>
+        </member>
+        <member name="M:WebAPI.Controllers.UserController.GetOne(System.Int64)">
+            <summary>
+            Retrieve a specific user by user id
+            </summary>
+            <param name="id">The user id</param>
+        </member>
+        <member name="M:WebAPI.Controllers.UserController.GetMore(Commons.Filters.UserFilter)">
+            <summary>
+            Retrieve a list of user
+            </summary>
+            <param name="filter">The MongoDB query filter</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserController.Create(Commons.User)">
+            <summary>
+            Create a new user
+            </summary>
+            <param name="model">The user model</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserController.Update(Commons.User)">
+            <summary>
+            Update an existing user
+            </summary>
+            <param name="model">The user model</param>
+            <returns></returns>
+        </member>
+        <member name="M:WebAPI.Controllers.UserController.Delete(System.Int64)">
+            <summary>
+            Delete an existing user by user id
+            </summary>
+            <param name="id">The user id</param>
+            <returns></returns>
+        </member>
     </members>
 </doc>

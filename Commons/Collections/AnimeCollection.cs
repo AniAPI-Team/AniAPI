@@ -3,6 +3,7 @@ using MongoDB.Bson;
 using MongoDB.Driver;
 using System;
 using MongoService;
+using Commons.Enums;
 
 namespace Commons.Collections
 {
@@ -84,9 +85,9 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("mal_id", animeFilter.mal_id);
             }
 
-            if(animeFilter.format != null)
+            if(animeFilter.formats.Count > 0)
             {
-                queryFilter &= builder.Eq("format", animeFilter.format);
+                queryFilter &= builder.In("format", animeFilter.formats);
             }
 
             if(animeFilter.status != null)
@@ -107,6 +108,11 @@ namespace Commons.Collections
             if(animeFilter.genres.Count > 0)
             {
                 queryFilter &= builder.AnyIn<string>("genres", animeFilter.genres);
+            }
+
+            if (!string.IsNullOrEmpty(animeFilter.locale))
+            {
+                queryFilter &= builder.Exists($"titles.{animeFilter.locale}");
             }
 
             return new Paging<Anime>(this.Collection, animeFilter.page, queryFilter, animeFilter.per_page);

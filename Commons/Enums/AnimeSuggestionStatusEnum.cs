@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Commons.Enums
 {
-    public enum AnimeSuggestionStatus
+    public enum AnimeSuggestionStatusEnum
     {
         NONE,
         OK,

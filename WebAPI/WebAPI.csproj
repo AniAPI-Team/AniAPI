@@ -10,13 +10,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Content Remove="Resources\genres.json" />
-    <Content Remove="Resources\translations.json" />
+    <Content Remove="Resources\genres.1_0.json" />
+    <Content Remove="Resources\translations.1_0.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\genres.json" />
-    <EmbeddedResource Include="Resources\translations.json" />
+    <None Remove="favicon.ico" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\genres.1_0.json" />
+    <EmbeddedResource Include="Resources\translations.1_0.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -30,6 +34,15 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Commons\Commons.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="wwwroot\favicon.ico">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Update="wwwroot\images\aniapi_icon.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

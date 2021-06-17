@@ -93,21 +93,21 @@ namespace WebAPI.Controllers
             {
                 if (string.IsNullOrEmpty(model.Username))
                 {
-                    throw new APIException(HttpStatusCode.Unauthorized,
+                    throw new APIException(HttpStatusCode.BadRequest,
                         "Missing username",
                         "Please provide a valid username");
                 }
 
                 if (string.IsNullOrEmpty(model.Email))
                 {
-                    throw new APIException(HttpStatusCode.Unauthorized,
+                    throw new APIException(HttpStatusCode.BadRequest,
                         "Missing email",
                         "Please provide a valid email");
                 }
 
                 if (string.IsNullOrEmpty(model.Password))
                 {
-                    throw new APIException(HttpStatusCode.Unauthorized,
+                    throw new APIException(HttpStatusCode.BadRequest,
                         "Missing password",
                         "Please provide a valid password");
                 }

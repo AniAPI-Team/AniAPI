@@ -28,11 +28,6 @@ namespace WebAPI.Controllers
         private readonly ILogger<AuthController> _logger;
         private UserCollection _userCollection = new UserCollection();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="logger"></param>
-        /// <param name="configuration"></param>
         public AuthController(ILogger<AuthController> logger, IConfiguration configuration)
         {
             _configuration = configuration;
