@@ -29,6 +29,8 @@ namespace SyncService.Models.WebsiteScrapers
             string url = $"{this.Website.SiteUrl}search?keyword={animeTitle}";
             await webPage.GoToAsync(url);
 
+            episodesMatchings.Clear();
+
             await webPage.WaitForSelectorAsync(".film-list", new WaitForSelectorOptions()
             {
                 Visible = true,
@@ -132,12 +134,9 @@ namespace SyncService.Models.WebsiteScrapers
                         Timeout = 2000
                     });
 
-                    foreach (ElementHandle source in await webPage.QuerySelectorAllAsync("#download"))
-                    {
-                        ElementHandle tempSource = await source.QuerySelectorAsync("#downloadLink");
-                        episode.Source = await tempSource
-                            .EvaluateFunctionAsync<string>("e => e.getAttribute('href')");
-                    }
+                    ElementHandle tempSource = await webPage.QuerySelectorAsync("#download #alternativeDownloadLink");
+                    episode.Source = await tempSource
+                        .EvaluateFunctionAsync<string>("e => e.getAttribute('href')");
                 }
 
                 if (!string.IsNullOrEmpty(episode.Source))
