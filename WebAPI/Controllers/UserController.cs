@@ -4,8 +4,10 @@ using Commons.Enums;
 using Commons.Filters;
 using Isopoh.Cryptography.Argon2;
 using Isopoh.Cryptography.SecureArray;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MongoService;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -17,7 +19,7 @@ using WebAPI.Models;
 namespace WebAPI.Controllers
 {
     /// <summary>
-    /// CRUD Controller for User model
+    /// CRUD Controller for User resource
     /// </summary>
     [ApiVersion("1")]
     [Route("user")]
@@ -28,19 +30,16 @@ namespace WebAPI.Controllers
         private UserCollection _userCollection = new UserCollection();
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="logger"></param>
         public UserController(ILogger<UserController> logger)
         {
             _logger = logger;
         }
 
         /// <summary>
-        /// Retrieve a specific user by user id
+        /// Retrieves a specific User by user id
         /// </summary>
-        /// <param name="id">The user id</param>
+        /// <param name="id">The User id</param>
+        [EnableCors("CorsEveryone")]
         [HttpGet("{id}"), MapToApiVersion("1")]
         public APIResponse GetOne(long id)
         {
@@ -71,24 +70,59 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieve a list of user
+        /// Retrieves a list of User
         /// </summary>
-        /// <param name="filter">The MongoDB query filter</param>
-        /// <returns></returns>
+        /// <param name="filter">The User filter</param>
+        [EnableCors("CorsEveryone")]
         [HttpGet, MapToApiVersion("1")]
         public APIResponse GetMore([FromQuery] UserFilter filter)
         {
-            return APIManager.SuccessResponse();
+            try
+            {
+                Paging<User> result = this._userCollection.GetList<UserFilter>(filter);
+
+                if (result.LastPage == 0)
+                {
+                    throw new APIException(HttpStatusCode.NotFound,
+                        "Zero users found",
+                        "");
+                }
+
+                if (filter.page > result.LastPage)
+                {
+                    throw new APIException(HttpStatusCode.NotFound,
+                        "Page out of range",
+                        $"Last page number available is {result.LastPage}");
+                }
+
+                foreach(User user in result.Documents)
+                {
+                    user.HideConfindentialValues();
+                }
+
+                return APIManager.SuccessResponse($"Page {result.CurrentPage} contains {result.Documents.Count} users. Last page number is {result.LastPage} for a total of {result.Count} users", result);
+            }
+            catch (APIException ex)
+            {
+                return APIManager.ErrorResponse(ex);
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex.Message);
+                return APIManager.ErrorResponse();
+            }
         }
 
         /// <summary>
-        /// Create a new user
+        /// Create a new User
         /// </summary>
-        /// <param name="model">The user model</param>
-        /// <returns></returns>
+        /// <param name="model">The User model</param>
+        [EnableCors("CorsInternal")]
         [HttpPut, MapToApiVersion("1")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse Create([FromBody] User model)
         {
+            // TODO: mettere recaptcha
             try
             {
                 if (string.IsNullOrEmpty(model.Username))
@@ -183,11 +217,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Update an existing user
+        /// Update an existing User
         /// </summary>
-        /// <param name="model">The user model</param>
-        /// <returns></returns>
+        /// <param name="model">The User model</param>
         [Authorize]
+        [EnableCors("CorsInternal")]
         [HttpPost, MapToApiVersion("1")]
         public APIResponse Update([FromBody] User model)
         {
@@ -228,11 +262,11 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Delete an existing user by user id
+        /// Delete an existing User by id
         /// </summary>
-        /// <param name="id">The user id</param>
-        /// <returns></returns>
+        /// <param name="id">The User id</param>
         [Authorize]
+        [EnableCors("CorsInternal")]
         [HttpDelete("{id}"), MapToApiVersion("1")]
         public APIResponse Delete(long id)
         {

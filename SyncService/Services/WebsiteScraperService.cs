@@ -43,13 +43,14 @@ namespace SyncService.Services
                 this._workers = new List<IWebsiteScraper>()
                 {
                     new DreamsubScraper(this),
-                    //new AnimeworldScraper(this),
-                    //new GoganimeScraper(this)
+                    new AnimeworldScraper(this),
+                    new GoganimeScraper(this)
                 };
 
                 foreach(IWebsiteScraper scraper in this._workers)
                 {
                     scraper.Start();
+                    Thread.Sleep(1000 * 10);
                 }
 
                 int alives = this._workers.Where(x => x.Working == true).Count();

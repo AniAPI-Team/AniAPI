@@ -101,7 +101,7 @@ namespace Commons
 
                     if (query.Count > 0)
                     {
-                        long id = (int)query.Documents[0].Id;
+                        long id = query.Documents[0].Id;
                         if (edge.Type == "SEQUEL")
                         {
                             this.Sequel = id;

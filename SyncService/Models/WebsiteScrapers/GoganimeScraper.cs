@@ -20,6 +20,7 @@ namespace SyncService.Models.WebsiteScrapers
         protected override long WebsiteID => 3;
 
         protected override Type WebsiteType => typeof(GoganimeScraper);
+        protected override bool WebsiteForceReload { get => true; }
 
         private List<EpisodeMatching> episodesMatchings = new List<EpisodeMatching>();
 
@@ -44,17 +45,17 @@ namespace SyncService.Models.WebsiteScrapers
 
                 ElementHandle title = await element.QuerySelectorAsync(".name");
                 matching.Title = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
-                Console.WriteLine($"Finding: { matching.Title }");
+                //Console.WriteLine($"Finding: { matching.Title }");
 
                 if (this.AnalyzeMatching(matching, animeTitle))
                 {
-                    this.Service.Log($"Found: { matching.Title }");
+                    //this.Service.Log($"Found: { matching.Title }");
 
                     // Setting Up URL
                     ElementHandle path = await title.QuerySelectorAsync("a");
                     matching.Path = (await path.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
 
-                    this.Service.Log($"URL: { matching.Path }");
+                    //this.Service.Log($"URL: { matching.Path }");
                     return matching;
                 }
             }
@@ -71,7 +72,7 @@ namespace SyncService.Models.WebsiteScrapers
                 url = this.Website.SiteUrl.Substring(0, this.Website.SiteUrl.Length - 1);
                 url = $"{url}{matching.Path}";
 
-                this.Service.Log(url);
+                //this.Service.Log(url);
 
                 await webPage.GoToAsync(url);
 
@@ -134,7 +135,7 @@ namespace SyncService.Models.WebsiteScrapers
                     await webPage.GoToAsync(url);
 
                     watch.Stop();
-                    Console.WriteLine($"{episode.Path} - {number} - {watch.ElapsedMilliseconds}");
+                    //Console.WriteLine($"{episode.Path} - {number} - {watch.ElapsedMilliseconds}");
 
                     await webPage.WaitForSelectorAsync(".vidcdn", new WaitForSelectorOptions()
                     {

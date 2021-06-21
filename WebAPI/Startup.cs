@@ -1,3 +1,4 @@
+using AspNetCore.Proxy;
 using Commons;
 using Commons.Collections;
 using Microsoft.AspNetCore.Authentication;
@@ -36,12 +37,20 @@ namespace WebAPI
         public void ConfigureServices(IServiceCollection services)
         {
             // Add Cors
-            services.AddCors(o => o.AddPolicy("MyCorsPolicy", builder =>
+            services.AddCors(o =>
             {
-                builder.AllowAnyOrigin()
-                       .AllowAnyMethod()
-                       .AllowAnyHeader();
-            }));
+                o.AddPolicy("CorsEveryone", builder =>
+                {
+                    builder.AllowAnyOrigin();
+                });
+                o.AddPolicy("CorsInternal", builder =>
+                {
+                    builder.WithOrigins(
+                        "http://aniapi.com",
+                        "https://aniapi.com")
+                    .SetIsOriginAllowedToAllowWildcardSubdomains();
+                });
+            });
 
             services.AddMvc(o =>
             {
@@ -49,7 +58,6 @@ namespace WebAPI
             }).AddJsonOptions(options => { 
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                //options.JsonSerializerOptions.Converters.Add(new System.Text.Json.Serialization.JsonStringEnumConverter());
             });
 
             services.AddDistributedMemoryCache();
@@ -114,6 +122,8 @@ namespace WebAPI
             services.AddHttpContextAccessor();
 
             services.AddSingleton<IRateLimitDependency, RateLimitDependency>();
+
+            services.AddProxies();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -126,12 +136,8 @@ namespace WebAPI
                 app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "WebAPI v1"));
             }
 
-            // Enable Cors
-            app.UseCors("MyCorsPolicy");
-
             app.UseLoggingMiddleware();
             app.UseRateLimitMiddleware();
-            //app.UseJWTMiddleware();
 
             app.UseHttpsRedirection();
 
@@ -139,6 +145,7 @@ namespace WebAPI
 
             app.UseRouting();
 
+            app.UseCors();
             app.UseAuthentication();
             app.UseAuthorization();
 
@@ -146,9 +153,10 @@ namespace WebAPI
 
             app.UseEndpoints(endpoints =>
             {
-                endpoints.MapControllerRoute(
-                    name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                //endpoints.MapControllerRoute(
+                //    name: "default",
+                //    pattern: "{controller=Home}/{action=Index}/{id?}");
+                endpoints.MapControllers();
                 endpoints.MapRazorPages();
             });
 

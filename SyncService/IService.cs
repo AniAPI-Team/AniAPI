@@ -13,7 +13,6 @@ namespace SyncService
         #region Members
 
         protected ServicesStatusCollection _serviceStatusCollection = new ServicesStatusCollection();
-        protected ServicesLogCollection _ServicesLogCollection = new ServicesLogCollection();
 
         #region ServiceStatus
 
@@ -72,6 +71,11 @@ namespace SyncService
             if(ex != null)
             {
                 this.Log(ex.Message);
+
+                if (!string.IsNullOrEmpty(ex.StackTrace))
+                {
+                    this.Log(ex.StackTrace);
+                }
             }
 
             Thread.Sleep(60 * 1000);
@@ -102,6 +106,11 @@ namespace SyncService
         {
             int progress = (int)((actualValue / maxValue) * 100);
 
+            this.ServiceStatus.Progress = progress;
+
+            ServicesStatus servicesStatus = this.ServiceStatus;
+            this._serviceStatusCollection.Edit(ref servicesStatus);
+
             if (progress < 10)
             {
                 return "0" + progress.ToString("F0");
@@ -114,6 +123,11 @@ namespace SyncService
         {
             double progress = (actualValue / maxValue) * 100;
 
+            this.ServiceStatus.Progress = progress;
+
+            ServicesStatus servicesStatus = this.ServiceStatus;
+            this._serviceStatusCollection.Edit(ref servicesStatus);
+
             if (progress < 10)
             {
                 return "0" + progress.ToString("F2");
@@ -124,13 +138,6 @@ namespace SyncService
 
         public void Log(string message)
         {
-            ServicesLog log = new ServicesLog()
-            {
-                ServiceId = this.ServiceStatus.Id,
-                Message = message
-            };
-            this._ServicesLogCollection.Add(ref log);
-            
             Console.WriteLine($"[{this.ServiceStatus.Name}/{this.ServiceStatus.Status}/{DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss.fff")}]: {message}");
         }
 

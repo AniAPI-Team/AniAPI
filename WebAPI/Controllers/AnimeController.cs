@@ -9,9 +9,13 @@ using System.Collections.Generic;
 using System.Net;
 using WebAPI.Models;
 using MongoService;
+using Microsoft.AspNetCore.Cors;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// R Controller for Anime resource
+    /// </summary>
     [ApiVersion("1")]
     [Route("anime")]
     [ApiController]
@@ -26,9 +30,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieves a specific anime by anime id
+        /// Retrieves a specific Anime by id
         /// </summary>
-        /// <param name="id">The anime id</param>
+        /// <param name="id">The Anime id</param>
+        [EnableCors("CorsEveryone")]
         [HttpGet("{id}"), MapToApiVersion("1")]
         public APIResponse GetOne(long id)
         {
@@ -56,10 +61,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieves a list of anime
+        /// Retrieves a list of Anime
         /// </summary>
-        /// <param name="filter">The anime filter</param>
-        /// <returns></returns>
+        /// <param name="filter">The Anime filter</param>
+        [EnableCors("CorsEveryone")]
         [HttpGet, MapToApiVersion("1")]
         public APIResponse GetMore([FromQuery] AnimeFilter filter)
         {

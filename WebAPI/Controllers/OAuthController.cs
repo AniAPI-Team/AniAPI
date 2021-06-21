@@ -1,6 +1,7 @@
 ﻿using Commons;
 using Commons.Collections;
 using Commons.Filters;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
@@ -16,7 +17,7 @@ using WebAPI.Models;
 namespace WebAPI.Controllers
 {
     /// <summary>
-    /// Controller for oauth requests
+    /// Controller for OAuth requests
     /// </summary>
     [ApiVersion("1")]
     [Route("oauth")]
@@ -38,7 +39,7 @@ namespace WebAPI.Controllers
             _authController = new AuthController(null, configuration);
         }
 
-        //https://localhost:44349/api/v1/oauth?client_id=fd8482df-6554-4efe-be14-8354a0e2d3d0&response_type=code&redirect_uri=http%3A%2F%2Flocalhost
+        [EnableCors("CorsEveryone")]
         [HttpGet, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public IActionResult Index(string client_id, string redirect_uri, string response_type, string state)
@@ -85,6 +86,7 @@ namespace WebAPI.Controllers
             return View(client);
         }
 
+        [EnableCors("CorsEveryone")]
         [HttpPost, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse Authenticate([FromBody] APICredentials credentials)
@@ -135,13 +137,19 @@ namespace WebAPI.Controllers
             return login;
         }
 
+        /// <summary>
+        /// Exchange an OAuth code for an User token
+        /// </summary>
+        /// <param name="client_id">The OAauthClient client_id</param>
+        /// <param name="client_secret">The OAuthClient client_secret</param>
+        /// <param name="code">The generated code</param>
+        /// <param name="redirect_uri">The OAuthClient redirect_uri</param>
+        /// <returns></returns>
         [Route("token")]
+        [EnableCors("CorsEveryone")]
         [HttpPost, MapToApiVersion("1")]
         public APIResponse Token(string client_id, string client_secret, string code, string redirect_uri)
         {
-            // TODO: verificare code con quello generato lato server
-            // se è corretto, ritornare token dell'utente
-
             if (string.IsNullOrEmpty(client_id) ||
                 string.IsNullOrEmpty(redirect_uri) ||
                 string.IsNullOrEmpty(client_secret) ||

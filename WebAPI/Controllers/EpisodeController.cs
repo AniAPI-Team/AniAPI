@@ -9,9 +9,13 @@ using System.Collections.Generic;
 using System.Net;
 using WebAPI.Models;
 using MongoService;
+using Microsoft.AspNetCore.Cors;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// R Controller for Episode resource
+    /// </summary>
     [ApiVersion("1")]
     [Route("episode")]
     [ApiController]
@@ -26,9 +30,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieves a specific episode by episode id
+        /// Retrieves a specific Episode by id
         /// </summary>
-        /// <param name="id">The anime id</param>
+        /// <param name="id">The Episode id</param>
+        [EnableCors("CorsEveryone")]
         [HttpGet("{id}"), MapToApiVersion("1")]
         public APIResponse GetOne(long id)
         {
@@ -56,10 +61,10 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieves a list of episode
+        /// Retrieves a list of Episode
         /// </summary>
-        /// <param name="filter">The episode filter</param>
-        /// <returns></returns>
+        /// <param name="filter">The Episode filter</param>
+        [EnableCors("CorsEveryone")]
         [HttpGet, MapToApiVersion("1")]
         public APIResponse GetMore([FromQuery] EpisodeFilter filter)
         {

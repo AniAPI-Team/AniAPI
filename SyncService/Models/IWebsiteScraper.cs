@@ -12,11 +12,13 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 
 namespace SyncService.Models
 {
     public abstract class IWebsiteScraper
     {
+        private AppSettings _appSettings;
         private AnimeCollection _animeCollection = new AnimeCollection();
         private EpisodeCollection _episodeCollection = new EpisodeCollection();
         private AnimeSuggestionCollection _animeSuggestionCollection = new AnimeSuggestionCollection();
@@ -25,6 +27,7 @@ namespace SyncService.Models
         protected abstract long WebsiteID { get; }
         protected Website Website { get; private set; }
         protected abstract Type WebsiteType { get; }
+        protected virtual bool WebsiteForceReload { get; } = false;
         protected WebsiteScraperService Service { get; set; }
         protected Thread Thread { get; private set; }
         public bool Working { get; private set; }
@@ -33,6 +36,8 @@ namespace SyncService.Models
         {
             this.Service = service;
             this.Website = new WebsiteCollection().Get(this.WebsiteID);
+
+            this._appSettings = new AppSettingsCollection().Get(0);
         }
 
         public void Start()
@@ -91,31 +96,53 @@ namespace SyncService.Models
             return false;
         }
 
+        protected string BuildAPIProxyURL(string url, Dictionary<string, string> values = null)
+        {
+            string apiUrl = $"{_appSettings.APIEndpoint}/proxy/{HttpUtility.UrlEncode(url)}/{this.Website.Name}";
+
+            if(values != null)
+            {
+                apiUrl += "?";
+            }
+
+            foreach(string key in values.Keys)
+            {
+                apiUrl += $"{key}={HttpUtility.UrlEncode(values[key])}";
+            }
+
+            return apiUrl;
+        }
+
         protected abstract Task<AnimeMatching> GetMatching(Page webPage, string animeTitle);
         protected abstract Task<EpisodeMatching> GetEpisode(Page webPage, AnimeMatching matching, int number);
 
+
         private async void run()
         {
-            string browserKey = ProxyHelper.Instance.GenerateBrowserKey(this.WebsiteType);
-
             try
             {
                 long lastID = this._animeCollection.Last().Id;
 
-                for (int animeID = 1; animeID < lastID; animeID++)
+                for (long animeID = 1; animeID < lastID; animeID++)
                 {
                     try
                     {
                         _anime = this._animeCollection.Get(animeID);
+
+                        if(_anime == null)
+                        {
+                            continue;
+                        }
+
                         this.Service.Log($"Website {this.Website.Name} doing {_anime.Titles[LocalizationEnum.English]}");
 
-                        if (!this.animeNeedWork())
+                        if (!this.animeNeedWork(this.WebsiteForceReload))
                         {
                             throw new Exception();
                         }
 
                         AnimeMatching matching = null;
-                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browserKey, this.Website.CanBlockRequests))
+                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(this.Website.CanBlockRequests))
                         {
                             string animeTitle = _anime.Titles.ContainsKey(this.Website.Localization) ?
                                 _anime.Titles[this.Website.Localization] :
@@ -134,7 +161,7 @@ namespace SyncService.Models
                         {
                             for (int i = 1; i <= _anime.EpisodesCount; i++)
                             {
-                                using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browserKey, this.Website.CanBlockRequests))
+                                using (Page webPage = await ProxyHelper.Instance.GetBestProxy(this.Website.CanBlockRequests))
                                 {
                                     EpisodeMatching episode = await this.GetEpisode(webPage, matching, i);
 
@@ -196,13 +223,18 @@ namespace SyncService.Models
             }
             finally
             {
-                ProxyHelper.Instance.CloseProxy(browserKey);
+                ProxyHelper.Instance.CloseProxy();
                 this.Working = false;
             }
         }
 
-        private bool animeNeedWork()
+        private bool animeNeedWork(bool forceReload = false)
         {
+            if (forceReload)
+            {
+                return true;
+            }
+
             if(_anime.Status == AnimeStatusEnum.RELEASING)
             {
                 return true;

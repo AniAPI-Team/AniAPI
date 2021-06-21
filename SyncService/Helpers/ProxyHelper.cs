@@ -15,7 +15,7 @@ namespace SyncService.Helpers
 
         private AppSettings _appSettings;
         private Dictionary<int, long> _proxies = new Dictionary<int, long>();
-        private Dictionary<string, Browser> _browsers = new Dictionary<string, Browser>();
+        private Browser _browser;
 
         #endregion
 
@@ -47,16 +47,11 @@ namespace SyncService.Helpers
             new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision).Wait();
         }
 
-        public string GenerateBrowserKey(Type callerType)
+        public async Task<Page> GetBestProxy (bool canBlockRequests)
         {
-            return $"{callerType.Name}_{Guid.NewGuid()}";
-        }
-
-        public async Task<Page> GetBestProxy (string browserKey, bool canBlockRequests)
-        {
-            if (!this._browsers.Keys.Contains(browserKey))
+            if(_browser == null)
             {
-                this._browsers[browserKey] = await Puppeteer.LaunchAsync(new LaunchOptions()
+                _browser = await Puppeteer.LaunchAsync(new LaunchOptions()
                 {
                     Headless = true,
                     Args = new string[]
@@ -96,9 +91,9 @@ namespace SyncService.Helpers
 
             this._proxies[user]++;
 
-            Page webPage = (await this._browsers[browserKey].PagesAsync())[0];
+            Page webPage = (await _browser.PagesAsync())[0];
 
-            webPage = await this._browsers[browserKey].NewPageAsync();
+            webPage = await _browser.NewPageAsync();
             await webPage.SetCacheEnabledAsync(false);
             await webPage.SetViewportAsync(new ViewPortOptions()
             {
@@ -122,9 +117,14 @@ namespace SyncService.Helpers
             return webPage;
         }
 
-        public async void CloseProxy(string key)
+        public async void CloseProxy()
         {
-            await this._browsers[key].CloseAsync();
+            Page[] pages = await _browser.PagesAsync();
+
+            if (pages.Length == 1)
+            {
+                await _browser.CloseAsync();
+            }
         }
 
         private async void WebPage_Request(object sender, RequestEventArgs e)

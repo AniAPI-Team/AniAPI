@@ -1,6 +1,7 @@
 ﻿using Commons;
 using Commons.Collections;
 using Isopoh.Cryptography.Argon2;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
@@ -35,13 +36,16 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Authenticate an user
+        /// Authenticate an User
         /// </summary>
-        /// <param name="credentials">The user credentials</param>
-        /// <returns></returns>
+        /// <param name="credentials">The User credentials</param>
+        [EnableCors("CorsInternal")]
         [HttpPost, MapToApiVersion("1")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse Login([FromBody] APICredentials credentials)
         {
+            // TODO: mettere recaptcha
+
             try
             {
                 var builder = Builders<User>.Filter;
@@ -83,13 +87,15 @@ namespace WebAPI.Controllers
                 SecurityTokenDescriptor tokenDescriptor = new SecurityTokenDescriptor()
                 {
                     Subject = new ClaimsIdentity(new[] { new Claim("id", user.Id.ToString()) }),
-                    Expires = DateTime.UtcNow.AddDays(7),
+                    Expires = DateTime.UtcNow.AddDays(30),
                     SigningCredentials = new SigningCredentials(new SymmetricSecurityKey(key), SecurityAlgorithms.HmacSha256Signature)
                 };
                 SecurityToken token = tokenHandler.CreateToken(tokenDescriptor);
 
                 user.Token = tokenHandler.WriteToken(token);
                 user.PasswordHash = null;
+                user.AnilistToken = null;
+                user.MyAnimeListToken = null;
 
                 return APIManager.SuccessResponse("Login done", user);
             }
@@ -105,11 +111,12 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Verify an user email address
+        /// Verify an User email address
         /// </summary>
-        /// <param name="id">The user id</param>
-        /// <returns></returns>
+        /// <param name="id">The User id</param>
+        [EnableCors("CorsEveryone")]
         [HttpGet("{id}"), MapToApiVersion("1")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse VerifyEmail(long id)
         {
             try

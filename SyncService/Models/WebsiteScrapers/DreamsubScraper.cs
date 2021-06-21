@@ -121,7 +121,13 @@ namespace SyncService.Models.WebsiteScrapers
                         if (q > maxQuality)
                         {
                             maxQuality = q;
-                            episode.Source = (await source.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
+                            string sourceUrl = (await source.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
+
+                            episode.Source = BuildAPIProxyURL(sourceUrl, new Dictionary<string, string>()
+                            {
+                                { "host", "cdn.dreamsub.cc" },
+                                { "referrer", url }
+                            });
                         }
                     }
                 }

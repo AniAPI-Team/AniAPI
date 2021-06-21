@@ -2,6 +2,7 @@
 using Commons.Collections;
 using Commons.Enums;
 using Commons.Resources;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
 using Microsoft.Extensions.Logging;
@@ -18,6 +19,9 @@ using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
 {
+    /// <summary>
+    /// Controller for internal resources
+    /// </summary>
     [ApiVersion("1")]
     [Route("resources")]
     [ApiController]
@@ -36,8 +40,9 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieves the resources version
         /// </summary>
-        /// <returns></returns>
+        [EnableCors("CorsInternal")]
         [HttpGet, MapToApiVersion("1")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse GetVersion()
         {
             try
@@ -62,8 +67,9 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="resource_type">The resource type</param>
         /// <param name="resource_version">The resource version</param>
-        /// <returns></returns>
+        [EnableCors("CorsInternal")]
         [HttpGet("{resource_version}/{resource_type}"), MapToApiVersion("1")]
+        [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse GetResource(ResourceTypeEnum resource_type, string resource_version = "1.0")
         {
             try

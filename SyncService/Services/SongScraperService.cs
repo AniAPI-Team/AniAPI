@@ -36,7 +36,7 @@ namespace SyncService.Services
             await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
 
             SpotifyClientConfig config = SpotifyClientConfig.CreateDefault();
-            string accessToken = (await new OAuthClient(config).
+            string accessToken = (await new SpotifyAPI.Web.OAuthClient(config).
                 RequestToken(new ClientCredentialsRequest(
                     "b074c52808fb4394a28785f381872ea2", 
                     "ac2f818c3d0c463a9b3056dc5ed489fc"
@@ -52,8 +52,6 @@ namespace SyncService.Services
         {
             base.Work();
 
-            string browserKey = ProxyHelper.Instance.GenerateBrowserKey(typeof(SongScraperService));
-
             try
             {
                 for (int id = 1; id < this._lastId; id++)
@@ -63,7 +61,7 @@ namespace SyncService.Services
                         Anime anime = this._animeCollection.Get(id);
                         List<AnimeSong> animeSongs = new List<AnimeSong>();
 
-                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browserKey, true))
+                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(true))
                         {
                             string url = $"https://aniplaylist.com/{Uri.EscapeUriString(anime.Titles[LocalizationEnum.English])}?types=Opening~Ending";
                             await webPage.GoToAsync(url);
@@ -190,6 +188,9 @@ namespace SyncService.Services
                         continue;
                     }
                 }
+
+                ProxyHelper.Instance.CloseProxy();
+                this.Wait();
             }
             catch(Exception ex)
             {

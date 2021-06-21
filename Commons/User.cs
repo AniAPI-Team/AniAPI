@@ -63,6 +63,36 @@ namespace Commons
         [JsonProperty(PropertyName = "localization")]
         public string Localization { get; set; }
 
+        [BsonElement("anilist_id")]
+        [JsonPropertyName("anilist_id")]
+        [JsonProperty(PropertyName = "anilist_id")]
+        public long? AnilistId { get; set; }
+
+        [BsonElement("anilist_token")]
+        [JsonPropertyName("anilist_token")]
+        [JsonProperty(PropertyName = "anilist_token")]
+        public string AnilistToken { get; set; }
+
+        [BsonElement("mal_id")]
+        [JsonPropertyName("mal_id")]
+        [JsonProperty(PropertyName = "mal_id")]
+        public long? MyAnimeListId { get; set; }
+
+        [BsonElement("mal_token")]
+        [JsonPropertyName("mal_token")]
+        [JsonProperty(PropertyName = "mal_token")]
+        public string MyAnimeListToken { get; set; }
+
+        public bool HasAnilist()
+        {
+            return this.AnilistId != null && !string.IsNullOrEmpty(this.AnilistToken);
+        }
+
+        public bool HasMyAnimeList()
+        {
+            return this.MyAnimeListId != null && !string.IsNullOrEmpty(this.MyAnimeListToken);
+        }
+
         public void HideConfindentialValues()
         {
             this.Password = null;
@@ -71,6 +101,8 @@ namespace Commons
             this.EmailVerified = null;
             this.LastLoginDate = null;
             this.Token = null;
+            this.AnilistId = null;
+            this.MyAnimeListId = null;
             this.Localization = null;
         }
     }

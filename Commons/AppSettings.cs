@@ -28,5 +28,8 @@ namespace Commons
 
         [BsonElement("resources_version")]
         public string ResourcesVersion { get; set; }
+
+        [BsonElement("api_endpoint")]
+        public string APIEndpoint { get; set; }
     }
 }
