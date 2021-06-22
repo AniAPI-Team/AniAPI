@@ -44,7 +44,7 @@ namespace SyncService.Services
 
             try
             {
-                long lastID = this._userCollection.Last().Id;
+                long lastID = this._userCollection.Last() != null ? this._userCollection.Last().Id : 0;
 
                 for(long userID = 1; userID <= lastID; userID++)
                 {
