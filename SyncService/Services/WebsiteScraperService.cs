@@ -25,7 +25,7 @@ namespace SyncService.Services
 
         private List<IWebsiteScraper> _workers;
 
-        protected override int TimeToWait => 1000 * 60 * 60 * 6; // 6 Hours
+        protected override int TimeToWait => 1000 * 60; // 1 Minute
 
         #endregion
 
@@ -49,18 +49,17 @@ namespace SyncService.Services
 
                 foreach(IWebsiteScraper scraper in this._workers)
                 {
-                    scraper.Start();
-                    Thread.Sleep(1000 * 60);
+                    await scraper.Start();
                 }
 
-                int alives = this._workers.Where(x => x.Working == true).Count();
-
-                while (alives > 0)
-                {
-                    alives = this._workers.Where(x => x.Working == true).Count();
-
-                    Thread.Sleep(1000 * 60);
-                }
+                //int alives = this._workers.Where(x => x.Working == true).Count();
+                //
+                //while (alives > 0)
+                //{
+                //    alives = this._workers.Where(x => x.Working == true).Count();
+                //
+                //    Thread.Sleep(1000 * 60);
+                //}
             }
             catch(Exception ex)
             {

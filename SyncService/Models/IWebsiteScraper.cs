@@ -40,13 +40,10 @@ namespace SyncService.Models
             this._appSettings = new AppSettingsCollection().Get(0);
         }
 
-        public void Start()
+        public async Task Start()
         {
-            this.Thread = new Thread(new ThreadStart(run));
-            this.Thread.IsBackground = true;
-
-            this.Thread.Start();
             this.Working = true;
+            await this.run();
         }
 
         protected bool AnalyzeMatching(AnimeMatching matching, string sourceTitle)
@@ -117,7 +114,7 @@ namespace SyncService.Models
         protected abstract Task<EpisodeMatching> GetEpisode(Page webPage, AnimeMatching matching, int number);
 
 
-        private async void run()
+        private async Task run()
         {
             try
             {
