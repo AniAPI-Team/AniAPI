@@ -102,9 +102,16 @@ namespace SyncService.Models
                 apiUrl += "?";
             }
 
-            foreach(string key in values.Keys)
+            for(int i = 0; i < values.Keys.Count; i++)
             {
+                string key = values.Keys.ElementAt(i);
+
                 apiUrl += $"{key}={HttpUtility.UrlEncode(values[key])}";
+
+                if((i + 1) < values.Keys.Count)
+                {
+                    apiUrl += "&";
+                }
             }
 
             return apiUrl;

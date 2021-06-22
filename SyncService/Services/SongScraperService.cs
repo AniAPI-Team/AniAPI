@@ -1,6 +1,7 @@
 ﻿using Commons;
 using Commons.Collections;
 using Commons.Enums;
+using Commons.Filters;
 using PuppeteerSharp;
 using SpotifyAPI.Web;
 using SyncService.Helpers;
@@ -21,6 +22,7 @@ namespace SyncService.Services
         private AnimeSongCollection _animeSongCollection = new AnimeSongCollection();
         private SpotifyClient _spotifyClient;
         private long _lastId = -1;
+        private Anime _anime;
 
         protected override int TimeToWait => 60 * 1000 * 60 * 24; // 24 Hours
 
@@ -56,12 +58,18 @@ namespace SyncService.Services
                 {
                     try
                     {
-                        Anime anime = this._animeCollection.Get(id);
+                        _anime = this._animeCollection.Get(id);
+
+                        if (!this.animeNeedWork())
+                        {
+                            throw new Exception();
+                        }
+
                         List<AnimeSong> animeSongs = new List<AnimeSong>();
 
                         using (Page webPage = await ProxyHelper.Instance.GetBestProxy(true))
                         {
-                            string url = $"https://aniplaylist.com/{Uri.EscapeUriString(anime.Titles[LocalizationEnum.English])}?types=Opening~Ending";
+                            string url = $"https://aniplaylist.com/{Uri.EscapeUriString(_anime.Titles[LocalizationEnum.English])}?types=Opening~Ending";
                             await webPage.GoToAsync(url);
 
                             await webPage.WaitForSelectorAsync(".song-card", new WaitForSelectorOptions()
@@ -95,7 +103,7 @@ namespace SyncService.Services
                                 ElementHandle title = await song.QuerySelectorAsync(".card-image a .image .card-anime-title");
                                 string songAnimeTitle = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
 
-                                if (anime.Titles[LocalizationEnum.English].ToLower() == songAnimeTitle.ToLower())
+                                if (_anime.Titles[LocalizationEnum.English].ToLower() == songAnimeTitle.ToLower())
                                 {
                                     ElementHandle type = await song.QuerySelectorAsync(".card-content span.tag.is-primary");
                                     string songType = (await type.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
@@ -124,11 +132,11 @@ namespace SyncService.Services
                                             animeSongType = AnimeSongTypeEnum.ENDING;
                                         }
 
-                                        if(animeSongType != AnimeSongTypeEnum.NONE && !animeSongs.Select(x => x.SpotifyID).ToList().Contains(trackId))
+                                        if (animeSongType != AnimeSongTypeEnum.NONE && !animeSongs.Select(x => x.SpotifyID).ToList().Contains(trackId))
                                         {
                                             animeSongs.Add(new AnimeSong()
                                             {
-                                                AnimeID = anime.Id,
+                                                AnimeID = _anime.Id,
                                                 SpotifyID = trackId,
                                                 SongType = animeSongType
                                             });
@@ -178,12 +186,11 @@ namespace SyncService.Services
                                 }
                             }
                         }
-
-                        this.Log($"Done {GetProgressD(id, this._lastId)}% ({anime.Titles[LocalizationEnum.English]})");
                     }
-                    catch (Exception ex)
+                    catch { }
+                    finally
                     {
-                        continue;
+                        this.Log($"Done {GetProgressD(id, this._lastId)}% ({_anime.Titles[LocalizationEnum.English]})");
                     }
                 }
 
@@ -194,6 +201,26 @@ namespace SyncService.Services
             {
                 this.Stop(ex);
             }
+        }
+
+        private bool animeNeedWork()
+        {
+            if (_anime.Status == AnimeStatusEnum.RELEASING)
+            {
+                return true;
+            }
+
+            long songsCount = this._animeSongCollection.GetList<AnimeSongFilter>(new AnimeSongFilter()
+            {
+                anime_id = _anime.Id
+            }).Count;
+
+            if(songsCount == 0)
+            {
+                return true;
+            }
+
+            return false;
         }
     }
 }

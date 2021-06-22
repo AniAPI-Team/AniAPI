@@ -1,4 +1,6 @@
-﻿using MongoDB.Driver;
+﻿using Commons.Filters;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using MongoService;
 using System;
 using System.Linq;
@@ -61,12 +63,42 @@ namespace Commons.Collections
 
         public override AnimeSong Get(long id)
         {
-            throw new NotImplementedException();
+            return this.Collection.Find(x => x.Id == id).FirstOrDefault();
         }
 
         public override Paging<AnimeSong> GetList<TFilter>(IFilter<TFilter> filter)
         {
-            throw new NotImplementedException();
+            AnimeSongFilter songFilter = filter as AnimeSongFilter;
+
+            var builder = Builders<AnimeSong>.Filter;
+            FilterDefinition<AnimeSong> queryFilter = builder.Empty;
+
+            if (songFilter.anime_id != null)
+            {
+                queryFilter &= builder.Eq("anime_id", songFilter.anime_id);
+            }
+
+            if (!string.IsNullOrEmpty(songFilter.title))
+            {
+                queryFilter &= builder.Regex("title", new BsonRegularExpression($".*{songFilter.title}.*", "i"));
+            }
+
+            if(songFilter.year != null)
+            {
+                queryFilter &= builder.Eq("year", songFilter.year);
+            }
+
+            if(songFilter.season != null)
+            {
+                queryFilter &= builder.Eq("season", songFilter.season);
+            }
+
+            if(songFilter.type != null)
+            {
+                queryFilter &= builder.Eq("type", songFilter.type);
+            }
+
+            return new Paging<AnimeSong>(this.Collection, songFilter.page, queryFilter, songFilter.per_page);
         }
     }
 }
