@@ -33,8 +33,6 @@ namespace SyncService.Services
 
         public override async void Start()
         {
-            await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
-
             SpotifyClientConfig config = SpotifyClientConfig.CreateDefault();
             string accessToken = (await new SpotifyAPI.Web.OAuthClient(config).
                 RequestToken(new ClientCredentialsRequest(
