@@ -43,14 +43,14 @@ namespace SyncService.Helpers
             {
                 this._proxies[i] = 0;
             }
-
-            new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision).Wait();
         }
 
         public async Task<Page> GetBestProxy (bool canBlockRequests)
         {
             if(_browser == null)
             {
+                await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+
                 _browser = await Puppeteer.LaunchAsync(new LaunchOptions()
                 {
                     Headless = true,

@@ -50,7 +50,7 @@ namespace SyncService.Services
                 foreach(IWebsiteScraper scraper in this._workers)
                 {
                     scraper.Start();
-                    Thread.Sleep(1000 * 10);
+                    Thread.Sleep(1000 * 60);
                 }
 
                 int alives = this._workers.Where(x => x.Working == true).Count();
