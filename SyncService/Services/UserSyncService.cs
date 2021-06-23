@@ -124,7 +124,7 @@ namespace SyncService.Services
                         }
                     }
 
-                    this.Log($"Done {this.GetProgressD(userID, lastID)}%");
+                    this.Log($"Done {this.GetProgressD(userID, lastID)}%", true);
                 }
 
                 this.Wait();

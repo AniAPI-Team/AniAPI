@@ -15,6 +15,9 @@ namespace Commons
         [BsonElement("progress")]
         public double Progress { get; set; }
 
+        [BsonElement("info")]
+        public string Info { get; set; }
+
         public ServicesStatus() { }
 
         public ServicesStatus(string name)

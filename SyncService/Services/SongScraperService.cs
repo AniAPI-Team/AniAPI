@@ -190,7 +190,7 @@ namespace SyncService.Services
                     catch { }
                     finally
                     {
-                        this.Log($"Done {GetProgressD(id, this._lastId)}% ({_anime.Titles[LocalizationEnum.English]})");
+                        this.Log($"Done {GetProgressD(id, this._lastId)}% ({_anime.Titles[LocalizationEnum.English]})", true);
                     }
                 }
 
@@ -205,6 +205,11 @@ namespace SyncService.Services
 
         private bool animeNeedWork()
         {
+            if(_anime.Format != AnimeFormatEnum.TV)
+            {
+                return false;
+            }
+
             if (_anime.Status == AnimeStatusEnum.RELEASING)
             {
                 return true;

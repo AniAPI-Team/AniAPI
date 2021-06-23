@@ -45,17 +45,13 @@ namespace SyncService.Models.WebsiteScrapers
 
                 ElementHandle title = await element.QuerySelectorAsync(".name");
                 matching.Title = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
-                //Console.WriteLine($"Finding: { matching.Title }");
 
                 if (this.AnalyzeMatching(matching, animeTitle))
                 {
-                    //this.Service.Log($"Found: { matching.Title }");
-
                     // Setting Up URL
                     ElementHandle path = await title.QuerySelectorAsync("a");
                     matching.Path = (await path.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
 
-                    //this.Service.Log($"URL: { matching.Path }");
                     return matching;
                 }
             }
@@ -71,8 +67,6 @@ namespace SyncService.Models.WebsiteScrapers
             {
                 url = this.Website.SiteUrl.Substring(0, this.Website.SiteUrl.Length - 1);
                 url = $"{url}{matching.Path}";
-
-                //this.Service.Log(url);
 
                 await webPage.GoToAsync(url);
 
@@ -135,7 +129,6 @@ namespace SyncService.Models.WebsiteScrapers
                     await webPage.GoToAsync(url);
 
                     watch.Stop();
-                    //Console.WriteLine($"{episode.Path} - {number} - {watch.ElapsedMilliseconds}");
 
                     await webPage.WaitForSelectorAsync(".vidcdn", new WaitForSelectorOptions()
                     {

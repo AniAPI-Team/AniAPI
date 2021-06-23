@@ -136,9 +136,19 @@ namespace SyncService
             return progress.ToString("F2");
         }
 
-        public void Log(string message)
+        public void Log(string message, bool updateStatus = false)
         {
-            Console.WriteLine($"[{this.ServiceStatus.Name}/{this.ServiceStatus.Status}/{DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss.fff")}]: {message}");
+            if (updateStatus)
+            {
+                this.ServiceStatus.Info = message;
+
+                ServicesStatus servicesStatus = this.ServiceStatus;
+                this._serviceStatusCollection.Edit(ref servicesStatus);
+            }
+            else
+            {
+                Console.WriteLine($"[{this.ServiceStatus.Name}/{this.ServiceStatus.Status}/{DateTime.Now.ToString("dd-MM-yyyy HH:mm:ss.fff")}]: {message}");
+            }
         }
 
         #endregion

@@ -168,7 +168,7 @@ namespace SyncService.Services
 
                                 this._rateLimitRemaining = Convert.ToInt32(((string[])response.Headers.GetValues("X-RateLimit-Remaining"))[0]);
 
-                                this.Log($"Format {formatFilter} done {GetProgress(currentPage, this._totalPages)}%");
+                                this.Log($"Format {formatFilter} done {GetProgress(currentPage, this._totalPages)}%", true);
                             }
                         }
                         catch (HttpRequestException ex)
@@ -180,7 +180,7 @@ namespace SyncService.Services
 
                             TimeSpan timeToWait = timeOfReset - DateTime.Now;
 
-                            this.Log($"Waiting {timeToWait.TotalMilliseconds.ToString("F0")} ms!");
+                            this.Log($"Waiting {timeToWait.TotalMilliseconds.ToString("F0")} ms!", true);
 
                             Thread.Sleep((int)timeToWait.TotalMilliseconds + 1000);
                         }

@@ -43,17 +43,13 @@ namespace SyncService.Models.WebsiteScrapers
 
                 ElementHandle title = await element.QuerySelectorAsync(".inner .name");
                 matching.Title = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
-                //Console.WriteLine($"Finding: { matching.Title }");
 
                 if (this.AnalyzeMatching(matching, animeTitle))
                 {
-                    //this.Service.Log($"Found: { matching.Title }");
-
                     // Setting Up URL
                     ElementHandle path = await element.QuerySelectorAsync(".inner .name");
                     matching.Path = (await path.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
-
-                    //this.Service.Log($"URL: { matching.Path }");
+                    
                     return matching;
                 }
             }
@@ -126,7 +122,6 @@ namespace SyncService.Models.WebsiteScrapers
                     await webPage.GoToAsync(url);
 
                     watch.Stop();
-                    //Console.WriteLine($"{episode.Path} - {number} - {watch.ElapsedMilliseconds}");
 
                     await webPage.WaitForSelectorAsync("#download", new WaitForSelectorOptions()
                     {

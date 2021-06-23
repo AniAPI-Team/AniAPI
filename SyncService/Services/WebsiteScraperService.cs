@@ -51,19 +51,10 @@ namespace SyncService.Services
                 {
                     await scraper.Start();
                 }
-
-                //int alives = this._workers.Where(x => x.Working == true).Count();
-                //
-                //while (alives > 0)
-                //{
-                //    alives = this._workers.Where(x => x.Working == true).Count();
-                //
-                //    Thread.Sleep(1000 * 60);
-                //}
             }
             catch(Exception ex)
             {
-                this.Stop();
+                this.Stop(ex);
             }
             
             this.Wait();

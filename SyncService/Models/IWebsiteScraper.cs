@@ -138,7 +138,7 @@ namespace SyncService.Models
                             continue;
                         }
 
-                        this.Service.Log($"Website {this.Website.Name} doing {_anime.Titles[LocalizationEnum.English]}");
+                        this.Service.Log($"Website {this.Website.Name} doing {_anime.Titles[LocalizationEnum.English]}", true);
 
                         if (!this.animeNeedWork(this.WebsiteForceReload))
                         {
@@ -157,7 +157,9 @@ namespace SyncService.Models
 
                         if (matching == null)
                         {
+#if DEBUG
                             this.Service.Log($"Website {this.Website.Name} not found {_anime.Titles[LocalizationEnum.English]}");
+#endif
                             throw new Exception();
                         }
                         
@@ -178,7 +180,9 @@ namespace SyncService.Models
                         }
                         catch 
                         {
+#if DEBUG
                             this.Service.Log($"Website {this.Website.Name} no episode found ({_anime.Titles[LocalizationEnum.English]})");
+#endif
                         }
 
                         if (this.Website.Official)
@@ -217,13 +221,14 @@ namespace SyncService.Models
                     catch { }
                     finally
                     {
-                        this.Service.Log($"Website {this.Website.Name} done {this.Service.GetProgressD(animeID, lastID)}% ({_anime.Titles[LocalizationEnum.English]})");
+                        this.Service.Log($"Website {this.Website.Name} done {this.Service.GetProgressD(animeID, lastID)}% ({_anime.Titles[LocalizationEnum.English]})", true);
                     }
                 }
             }
             catch(Exception ex)
             {
                 this.Service.Log($"Error: {ex.Message}");
+                this.Service.Log(ex.StackTrace);
             }
             finally
             {
