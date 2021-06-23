@@ -244,18 +244,18 @@ namespace SyncService.Models
                 return true;
             }
 
-            if(_anime.Status == AnimeStatusEnum.RELEASING)
-            {
-                return true;
-            }
-
             long episodesCount = this._episodeCollection.GetList<EpisodeFilter>(new EpisodeFilter()
             {
                 anime_id = _anime.Id,
                 source = this.Website.Name
             }).Count;
 
-            if (episodesCount == 0 || (_anime.Status == AnimeStatusEnum.FINISHED && _anime.EpisodesCount != episodesCount))
+            if ((_anime.Status == AnimeStatusEnum.RELEASING || _anime.Status == AnimeStatusEnum.FINISHED) && _anime.EpisodesCount > episodesCount)
+            {
+                return true;
+            }
+
+            if(episodesCount == 0)
             {
                 return true;
             }
