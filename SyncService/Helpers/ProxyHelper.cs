@@ -4,6 +4,7 @@ using PuppeteerSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -57,7 +58,8 @@ namespace SyncService.Helpers
                     Args = new string[]
                     {
                         $"--proxy-server={this._appSettings.ProxyHost}:{this._appSettings.ProxyPort}"
-                    }
+                    },
+                    IgnoreHTTPSErrors = true
                 });
             }
 
@@ -114,7 +116,23 @@ namespace SyncService.Helpers
                 Password = this._appSettings.ProxyPassword
             });
 
+            webPage.Response += WebPage_Response;
+
             return webPage;
+        }
+        
+        private async void WebPage_Response(object sender, ResponseCreatedEventArgs e)
+        {
+            Page page = (Page)sender;
+            HttpResponseMessage response = new HttpResponseMessage(e.Response.Status);
+
+            if(page.MainFrame.Url == "about:blank")
+            {
+                if (!response.IsSuccessStatusCode)
+                {
+                    await ((Page)sender).CloseAsync();
+                }
+            }
         }
 
         private async void WebPage_Request(object sender, RequestEventArgs e)
