@@ -232,7 +232,6 @@ namespace SyncService.Models
             }
             finally
             {
-                ProxyHelper.Instance.CloseProxy();
                 this.Working = false;
             }
         }

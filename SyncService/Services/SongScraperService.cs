@@ -194,7 +194,6 @@ namespace SyncService.Services
                     }
                 }
 
-                ProxyHelper.Instance.CloseProxy();
                 this.Wait();
             }
             catch(Exception ex)

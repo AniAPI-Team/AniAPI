@@ -117,16 +117,6 @@ namespace SyncService.Helpers
             return webPage;
         }
 
-        public async void CloseProxy()
-        {
-            Page[] pages = await _browser.PagesAsync();
-
-            if (pages.Length == 1)
-            {
-                await _browser.CloseAsync();
-            }
-        }
-
         private async void WebPage_Request(object sender, RequestEventArgs e)
         {
             if (e.Request.ResourceType == ResourceType.Image || e.Request.ResourceType == ResourceType.Media || e.Request.ResourceType == ResourceType.StyleSheet || e.Request.ResourceType == ResourceType.Font)
