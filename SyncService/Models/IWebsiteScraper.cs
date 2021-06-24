@@ -246,7 +246,8 @@ namespace SyncService.Models
             long episodesCount = this._episodeCollection.GetList<EpisodeFilter>(new EpisodeFilter()
             {
                 anime_id = _anime.Id,
-                source = this.Website.Name
+                source = this.Website.Name,
+                locale = this.Website.Localization
             }).Count;
 
             if ((_anime.Status == AnimeStatusEnum.RELEASING || _anime.Status == AnimeStatusEnum.FINISHED) && _anime.EpisodesCount > episodesCount)

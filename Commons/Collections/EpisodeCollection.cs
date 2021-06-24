@@ -84,7 +84,7 @@ namespace Commons.Collections
 
             if (!string.IsNullOrEmpty(episodeFilter.source))
             {
-                queryFilter &= builder.Regex($"source", episodeFilter.source);
+                queryFilter &= builder.Eq("source", episodeFilter.source);
             }
 
             if (!string.IsNullOrEmpty(episodeFilter.locale))
