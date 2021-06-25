@@ -1,5 +1,6 @@
 ﻿using FuzzySharp;
 using PuppeteerSharp;
+using SyncService.Helpers;
 using SyncService.Services;
 using System;
 using System.Collections.Generic;
@@ -27,7 +28,7 @@ namespace SyncService.Models.WebsiteScrapers
             AnimeMatching matching = null;
 
             string url = $"{this.Website.SiteUrl}search?keyword={animeTitle}";
-            await webPage.GoToAsync(url);
+            await ProxyHelper.NavigateAsync(webPage, url);
 
             episodesMatchings.Clear();
 
@@ -65,7 +66,7 @@ namespace SyncService.Models.WebsiteScrapers
             {
                 url = this.Website.SiteUrl.Substring(0, this.Website.SiteUrl.Length - 1);
                 url = $"{url}{matching.Path}";
-                await webPage.GoToAsync(url);
+                await ProxyHelper.NavigateAsync(webPage, url);
 
                 await webPage.WaitForSelectorAsync(".widget.servers", new WaitForSelectorOptions()
                 {
@@ -119,7 +120,7 @@ namespace SyncService.Models.WebsiteScrapers
                     url = $"{url}{episode.Path}";
                     var watch = Stopwatch.StartNew();
 
-                    await webPage.GoToAsync(url);
+                    await ProxyHelper.NavigateAsync(webPage, url);
 
                     watch.Stop();
 

@@ -1,5 +1,6 @@
 ﻿using FuzzySharp;
 using PuppeteerSharp;
+using SyncService.Helpers;
 using SyncService.Services;
 using System;
 using System.Collections.Generic;
@@ -29,7 +30,7 @@ namespace SyncService.Models.WebsiteScrapers
             AnimeMatching matching = null;
 
             string url = $"{this.Website.SiteUrl}search.html?keyword={animeTitle}";
-            await webPage.GoToAsync(url);
+            await ProxyHelper.NavigateAsync(webPage, url);
 
             episodesMatchings.Clear();
 
@@ -68,7 +69,7 @@ namespace SyncService.Models.WebsiteScrapers
                 url = this.Website.SiteUrl.Substring(0, this.Website.SiteUrl.Length - 1);
                 url = $"{url}{matching.Path}";
 
-                await webPage.GoToAsync(url);
+                await ProxyHelper.NavigateAsync(webPage, url);
 
                 await webPage.WaitForSelectorAsync(".anime_info_episodes_next", new WaitForSelectorOptions()
                 {
@@ -89,7 +90,7 @@ namespace SyncService.Models.WebsiteScrapers
                     "&default_ep=0", animeID);
 
                 // Get Ajax request Page
-                await webPage.GoToAsync(ajax_url);
+                await ProxyHelper.NavigateAsync(webPage, ajax_url);
 
                 // Description
                 matching.Description = ""; // TODO: Aggiungere descrizione
@@ -126,7 +127,7 @@ namespace SyncService.Models.WebsiteScrapers
                     url = this.Website.SiteUrl.Substring(0, this.Website.SiteUrl.Length - 1);
                     url = $"{url}{episode.Path}";
 
-                    await webPage.GoToAsync(url);
+                    await ProxyHelper.NavigateAsync(webPage, url);
 
                     watch.Stop();
 
@@ -143,7 +144,7 @@ namespace SyncService.Models.WebsiteScrapers
                     if (!videoPageUrl.Contains("https:"))
                         videoPageUrl = $"https:{ videoPageUrl }";
 
-                    await webPage.GoToAsync(videoPageUrl);
+                    await ProxyHelper.NavigateAsync(webPage, videoPageUrl);
 
                     // Get Page HTML Content As String
                     string pageContent = await webPage.GetContentAsync();

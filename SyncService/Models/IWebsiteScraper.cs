@@ -142,7 +142,7 @@ namespace SyncService.Models
 
                         if (!this.animeNeedWork(this.WebsiteForceReload))
                         {
-                            throw new Exception();
+                            throw new ScrapingException($"Website {this.Website.Name} skipped {_anime}");
                         }
 
                         AnimeMatching matching = null;
@@ -157,10 +157,7 @@ namespace SyncService.Models
 
                         if (matching == null)
                         {
-#if DEBUG
-                            this.Service.Log($"Website {this.Website.Name} not found {_anime.Titles[LocalizationEnum.English]}");
-#endif
-                            throw new Exception();
+                            throw new ScrapingException($"Website {this.Website.Name} not found {_anime}");
                         }
                         
                         try
@@ -180,9 +177,7 @@ namespace SyncService.Models
                         }
                         catch 
                         {
-#if DEBUG
-                            this.Service.Log($"Website {this.Website.Name} no episode found ({_anime.Titles[LocalizationEnum.English]})");
-#endif
+                            throw new ScrapingException($"Website {this.Website.Name} no episode found ({_anime})");
                         }
 
                         if (this.Website.Official)
@@ -218,7 +213,17 @@ namespace SyncService.Models
                             }
                         }
                     }
-                    catch { }
+                    catch(ScrapingException ex) 
+                    {
+#if DEBUG
+                        this.Service.Log(ex.Message);
+#endif
+                    }
+                    catch (Exception ex) 
+                    {
+                        this.Service.Log($"Error: {ex.Message}");
+                        this.Service.Log(ex.StackTrace);
+                    }
                     finally
                     {
                         this.Service.Log($"Website {this.Website.Name} done {this.Service.GetProgressD(animeID, lastID)}% ({_anime.Titles[LocalizationEnum.English]})", true);
@@ -261,6 +266,13 @@ namespace SyncService.Models
             }
 
             return false;
+        }
+
+        [Serializable]
+        public class ScrapingException : Exception
+        {
+            public ScrapingException() { }
+            public ScrapingException(string message) : base(message) { }
         }
     }
 }
