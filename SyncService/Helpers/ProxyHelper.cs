@@ -79,7 +79,7 @@ namespace SyncService.Helpers
 #else
                     _browser = await Puppeteer.LaunchAsync(new LaunchOptions()
                     {
-                        Headless = true,
+                        Headless = false,
                         Args = new string[]
                         {
                             $"--proxy-server={this._appSettings.ProxyHost}:{this._appSettings.ProxyPort}"
