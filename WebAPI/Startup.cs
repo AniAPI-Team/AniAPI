@@ -55,7 +55,7 @@ namespace WebAPI
 
             services.AddMvc(o =>
             {
-                o.UseGeneralRoutePrefix("api/v{version:apiVersion}");
+                o.UseGeneralRoutePrefix("v{version:apiVersion}");
             }).AddJsonOptions(options => { 
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
