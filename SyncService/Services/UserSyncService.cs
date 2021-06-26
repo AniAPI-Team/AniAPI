@@ -48,83 +48,89 @@ namespace SyncService.Services
 
                 for(long userID = 1; userID <= lastID; userID++)
                 {
-                    _user = this._userCollection.Get(userID);
-
-                    if (_user == null)
+                    try
                     {
-                        continue;
-                    }
+                        _user = this._userCollection.Get(userID);
 
-                    if (!_user.HasAnilist() && !_user.HasMyAnimeList())
-                    {
-                        throw new Exception();
-                    }
-
-                    List<UserStory> toImport = new List<UserStory>();
-
-                    if (_user.HasAnilist())
-                    {
-                        toImport.AddRange(await this.importFromAnilist());
-                    }
-
-                    if (_user.HasMyAnimeList())
-                    {
-                        toImport.AddRange(await this.importFromMyAnimeList());
-                    }
-
-                    for(int i = 0; i < toImport.Count; i++)
-                    {
-                        UserStory s = toImport[i];
-
-                        if(this._userStoryCollection.Exists(ref s))
-                        {
-                            if(s.Synced)
-                            {
-                                this._userStoryCollection.Edit(ref s);
-                            }
-                        }
-                        else
-                        {
-                            this._userStoryCollection.Add(ref s);
-                        }
-                    }
-
-                    int lastPage = 1;
-                    for(int page = 1; page <= lastPage; page++)
-                    {
-                        var query = this._userStoryCollection.GetList(new UserStoryFilter()
-                        {
-                            user_id = userID,
-                            synced = false
-                        });
-
-                        lastPage = query.LastPage;
-
-                        if (query.Count == 0)
+                        if (_user == null)
                         {
                             continue;
                         }
 
-                        for(int i = 0; i < query.Documents.Count; i++)
+                        if (!_user.HasAnilist() && !_user.HasMyAnimeList())
                         {
-                            UserStory s = query.Documents[i];
+                            throw new Exception();
+                        }
 
-                            if (_user.HasAnilist())
+                        List<UserStory> toImport = new List<UserStory>();
+
+                        if (_user.HasAnilist())
+                        {
+                            toImport.AddRange(await this.importFromAnilist());
+                        }
+
+                        if (_user.HasMyAnimeList())
+                        {
+                            toImport.AddRange(await this.importFromMyAnimeList());
+                        }
+
+                        for (int i = 0; i < toImport.Count; i++)
+                        {
+                            UserStory s = toImport[i];
+
+                            if (this._userStoryCollection.Exists(ref s))
                             {
-                                await this.exportToAnilist(s);
+                                if (s.Synced)
+                                {
+                                    this._userStoryCollection.Edit(ref s);
+                                }
+                            }
+                            else
+                            {
+                                this._userStoryCollection.Add(ref s);
+                            }
+                        }
+
+                        int lastPage = 1;
+                        for (int page = 1; page <= lastPage; page++)
+                        {
+                            var query = this._userStoryCollection.GetList(new UserStoryFilter()
+                            {
+                                user_id = userID,
+                                synced = false
+                            });
+
+                            lastPage = query.LastPage;
+
+                            if (query.Count == 0)
+                            {
+                                continue;
                             }
 
-                            if (_user.HasMyAnimeList())
+                            for (int i = 0; i < query.Documents.Count; i++)
                             {
-                                await this.exportToMyAnimeList(s);
-                            }
+                                UserStory s = query.Documents[i];
 
-                            s.Synced = true;
-                            this._userStoryCollection.Edit(ref s);
+                                if (_user.HasAnilist())
+                                {
+                                    await this.exportToAnilist(s);
+                                }
+
+                                if (_user.HasMyAnimeList())
+                                {
+                                    await this.exportToMyAnimeList(s);
+                                }
+
+                                s.Synced = true;
+                                this._userStoryCollection.Edit(ref s);
+                            }
                         }
                     }
-
-                    this.Log($"Done {this.GetProgressD(userID, lastID)}%", true);
+                    catch { }
+                    finally
+                    {
+                        this.Log($"Done {this.GetProgressD(userID, lastID)}%", true);
+                    }
                 }
 
                 this.Wait();

@@ -24,13 +24,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="AngleSharp" Version="0.14.0" />
-    <PackageReference Include="AngleSharp.Js" Version="0.14.0" />
     <PackageReference Include="FuzzySharp" Version="2.0.2" />
-    <PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
-    <PackageReference Include="PuppeteerSharp" Version="2.0.4" />
-    <PackageReference Include="SpotifyAPI.Web" Version="6.0.0" />
-    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
+    <PackageReference Include="PuppeteerSharp" Version="4.0.0" />
+    <PackageReference Include="SpotifyAPI.Web" Version="6.2.0" />
+    <PackageReference Include="SpotifyAPI.Web.Auth" Version="6.2.0" />
   </ItemGroup>
 
   <ItemGroup>
