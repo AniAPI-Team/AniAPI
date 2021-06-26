@@ -4,18 +4,22 @@
         <name>WebAPI</name>
     </assembly>
     <members>
+        <member name="T:WebAPI.Controllers.AnimeController">
+            <summary>
+            R Controller for Anime resource
+            </summary>
+        </member>
         <member name="M:WebAPI.Controllers.AnimeController.GetOne(System.Int64)">
             <summary>
-            Retrieves a specific anime by anime id
+            Retrieves a specific Anime by id
             </summary>
-            <param name="id">The anime id</param>
+            <param name="id">The Anime id</param>
         </member>
         <member name="M:WebAPI.Controllers.AnimeController.GetMore(Commons.Filters.AnimeFilter)">
             <summary>
-            Retrieves a list of anime
+            Retrieves a list of Anime
             </summary>
-            <param name="filter">The anime filter</param>
-            <returns></returns>
+            <param name="filter">The Anime filter</param>
         </member>
         <member name="T:WebAPI.Controllers.AuthController">
             <summary>
@@ -24,41 +28,86 @@
         </member>
         <member name="M:WebAPI.Controllers.AuthController.Login(Commons.APICredentials)">
             <summary>
-            Authenticate an user
+            Authenticate an User
             </summary>
-            <param name="credentials">The user credentials</param>
-            <returns></returns>
+            <param name="credentials">The User credentials</param>
         </member>
         <member name="M:WebAPI.Controllers.AuthController.VerifyEmail(System.Int64)">
             <summary>
-            Verify an user email address
+            Verify an User email address
             </summary>
-            <param name="id">The user id</param>
-            <returns></returns>
+            <param name="id">The User id</param>
+        </member>
+        <member name="T:WebAPI.Controllers.EpisodeController">
+            <summary>
+            R Controller for Episode resource
+            </summary>
         </member>
         <member name="M:WebAPI.Controllers.EpisodeController.GetOne(System.Int64)">
             <summary>
-            Retrieves a specific episode by episode id
+            Retrieves a specific Episode by id
             </summary>
-            <param name="id">The anime id</param>
+            <param name="id">The Episode id</param>
         </member>
         <member name="M:WebAPI.Controllers.EpisodeController.GetMore(Commons.Filters.EpisodeFilter)">
             <summary>
-            Retrieves a list of episode
+            Retrieves a list of Episode
             </summary>
-            <param name="filter">The episode filter</param>
-            <returns></returns>
+            <param name="filter">The Episode filter</param>
+        </member>
+        <member name="T:WebAPI.Controllers.OAuthClientController">
+            <summary>
+            CRUD Controller for OAuthClient resource
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.OAuthClientController.GetOne(System.Int64)">
+            <summary>
+            Retrieves a specific OAuthClient by id
+            </summary>
+            <param name="id">The OAuthClient id</param>
+        </member>
+        <member name="M:WebAPI.Controllers.OAuthClientController.Create(Commons.OAuthClient)">
+            <summary>
+            Create a new OAuthClient
+            </summary>
+            <param name="model">The OAuthClient model</param>
+        </member>
+        <member name="M:WebAPI.Controllers.OAuthClientController.Update(Commons.OAuthClient)">
+            <summary>
+            Update an existing OAuthClient
+            </summary>
+            <param name="model">The OAuthClient model</param>
+        </member>
+        <member name="M:WebAPI.Controllers.OAuthClientController.Delete(System.Int64)">
+            <summary>
+            Delete an existing OAuthClient by id
+            </summary>
+            <param name="id">The OAuthClient id</param>
         </member>
         <member name="T:WebAPI.Controllers.OAuthController">
             <summary>
-            Controller for oauth requests
+            Controller for OAuth requests
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.OAuthController.Token(System.String,System.String,System.String,System.String)">
+            <summary>
+            Exchange an OAuth code for an User token
+            </summary>
+            <param name="client_id">The OAauthClient client_id</param>
+            <param name="client_secret">The OAuthClient client_secret</param>
+            <param name="code">The generated code</param>
+            <param name="redirect_uri">The OAuthClient redirect_uri</param>
+            <returns></returns>
+        </member>
+        <member name="T:WebAPI.Controllers.ResourcesController">
+            <summary>
+            Controller for internal resources
             </summary>
         </member>
         <member name="M:WebAPI.Controllers.ResourcesController.GetVersion">
             <summary>
             Retrieves the resources version
             </summary>
-            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.ResourcesController.GetResource(Commons.Enums.ResourceTypeEnum,System.String)">
             <summary>
@@ -66,52 +115,76 @@
             </summary>
             <param name="resource_type">The resource type</param>
             <param name="resource_version">The resource version</param>
-            <returns></returns>
         </member>
         <member name="T:WebAPI.Controllers.UserController">
             <summary>
-            CRUD Controller for User model
+            CRUD Controller for User resource
             </summary>
-        </member>
-        <member name="M:WebAPI.Controllers.UserController.#ctor(Microsoft.Extensions.Logging.ILogger{WebAPI.Controllers.UserController})">
-            <summary>
-            
-            </summary>
-            <param name="logger"></param>
         </member>
         <member name="M:WebAPI.Controllers.UserController.GetOne(System.Int64)">
             <summary>
-            Retrieve a specific user by user id
+            Retrieves a specific User by user id
             </summary>
-            <param name="id">The user id</param>
+            <param name="id">The User id</param>
         </member>
         <member name="M:WebAPI.Controllers.UserController.GetMore(Commons.Filters.UserFilter)">
             <summary>
-            Retrieve a list of user
+            Retrieves a list of User
             </summary>
-            <param name="filter">The MongoDB query filter</param>
-            <returns></returns>
+            <param name="filter">The User filter</param>
         </member>
         <member name="M:WebAPI.Controllers.UserController.Create(Commons.User)">
             <summary>
-            Create a new user
+            Create a new User
             </summary>
-            <param name="model">The user model</param>
-            <returns></returns>
+            <param name="model">The User model</param>
         </member>
         <member name="M:WebAPI.Controllers.UserController.Update(Commons.User)">
             <summary>
-            Update an existing user
+            Update an existing User
             </summary>
-            <param name="model">The user model</param>
-            <returns></returns>
+            <param name="model">The User model</param>
         </member>
         <member name="M:WebAPI.Controllers.UserController.Delete(System.Int64)">
             <summary>
-            Delete an existing user by user id
+            Delete an existing User by id
             </summary>
-            <param name="id">The user id</param>
-            <returns></returns>
+            <param name="id">The User id</param>
+        </member>
+        <member name="T:WebAPI.Controllers.UserStoryController">
+            <summary>
+            CRUD Controller for UserStory resources
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.UserStoryController.GetOne(System.Int64)">
+            <summary>
+            Retrieve a specific UserStory by id
+            </summary>
+            <param name="id">The UserStory id</param>
+        </member>
+        <member name="M:WebAPI.Controllers.UserStoryController.GetMore(Commons.Filters.UserStoryFilter)">
+            <summary>
+            Retrieves a list of UserStory
+            </summary>
+            <param name="filter">The UserStory filter</param>
+        </member>
+        <member name="M:WebAPI.Controllers.UserStoryController.Create(Commons.UserStory)">
+            <summary>
+            Create a new UserStory
+            </summary>
+            <param name="model">The UserStory model</param>
+        </member>
+        <member name="M:WebAPI.Controllers.UserStoryController.Update(Commons.UserStory)">
+            <summary>
+            Update an existing UserStory
+            </summary>
+            <param name="model">The UserStory model</param>
+        </member>
+        <member name="M:WebAPI.Controllers.UserStoryController.Delete(System.Int64)">
+            <summary>
+            Delete an existing UserStory by id
+            </summary>
+            <param name="id">The UserStory id</param>
         </member>
     </members>
 </doc>
