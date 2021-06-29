@@ -173,7 +173,9 @@ namespace SyncService.Helpers
             {
                 if (!response.IsSuccessStatusCode)
                 {
+#if DEBUG
                     Console.WriteLine(e.Response.Status.ToString());
+#endif
                 }
             }
         }
@@ -211,11 +213,6 @@ namespace SyncService.Helpers
                 return;
             }
 
-            if(e.Request.ResourceType == ResourceType.Fetch)
-            {
-                Console.WriteLine(e.Request.Url);
-            }
-
             string requestFormat = e.Request.Url.Split('.').Last().Split('?')[0];
 
             if (!string.IsNullOrEmpty(requestFormat))
@@ -228,7 +225,6 @@ namespace SyncService.Helpers
                 }
             }
 
-            Console.WriteLine(e.Request.Url);
             await e.Request.ContinueAsync();
         }
 
