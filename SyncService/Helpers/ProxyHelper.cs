@@ -38,14 +38,21 @@ namespace SyncService.Helpers
 
         public static async Task NavigateAsync(Page page, string url)
         {
-            int timeout = 1000 * 15;
-            WaitUntilNavigation[] waitUntil = new WaitUntilNavigation[]
+            try
             {
+                int timeout = 1000 * 15;
+                WaitUntilNavigation[] waitUntil = new WaitUntilNavigation[]
+                {
                 WaitUntilNavigation.Load,
                 WaitUntilNavigation.DOMContentLoaded
-            };
+                };
 
-            await page.GoToAsync(url, timeout, waitUntil);
+                await page.GoToAsync(url, timeout, waitUntil);
+            }
+            catch
+            {
+                throw;
+            }
         }
 
         private ProxyHelper()
@@ -64,7 +71,7 @@ namespace SyncService.Helpers
             {
                 if (_browser == null)
                 {
-                    await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultRevision);
+                    await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
 
 #if DEBUG
                     _browser = await Puppeteer.LaunchAsync(new LaunchOptions()
@@ -151,7 +158,12 @@ namespace SyncService.Helpers
                 throw;
             }
         }
-        
+
+        private void WebPage_Close(object sender, EventArgs e)
+        {
+            throw new NotImplementedException();
+        }
+
         private async void WebPage_Response(object sender, ResponseCreatedEventArgs e)
         {
             Page page = (Page)sender;
@@ -162,28 +174,62 @@ namespace SyncService.Helpers
                 if (!response.IsSuccessStatusCode)
                 {
                     Console.WriteLine(e.Response.Status.ToString());
-                    await ((Page)sender).CloseAsync();
                 }
             }
         }
 
         private async void WebPage_Request(object sender, RequestEventArgs e)
         {
-            if (e.Request.ResourceType == ResourceType.Image || e.Request.ResourceType == ResourceType.Media || e.Request.ResourceType == ResourceType.StyleSheet || e.Request.ResourceType == ResourceType.Font)
+            List<string> imageFormats = new List<string>()
+            {
+                ".jpg", 
+                ".png", 
+                ".gif", 
+                ".svg"
+            };
+            List<string> videoFormats = new List<string>()
+            {
+                ".mp4", 
+                ".avi", 
+                ".flv", 
+                ".mov", 
+                ".wmv"
+            };
+
+            if (e.Request.ResourceType == ResourceType.Image || e.Request.ResourceType == ResourceType.Media || e.Request.ResourceType == ResourceType.Img || e.Request.ResourceType == ResourceType.StyleSheet || e.Request.ResourceType == ResourceType.Font)
             {
                 await e.Request.AbortAsync();
+                return;
             }
             else if (e.Request.Url.ToLower().Contains("google") || 
                 e.Request.Url.ToLower().Contains("ads") || 
                 e.Request.Url.ToLower().Contains("antiadblocksystems") || 
-                e.Request.Url.ToLower().Contains("stats"))
+                e.Request.Url.ToLower().Contains("stats") ||
+                e.Request.Url.ToLower().Contains("run-syndicate"))
             {
                 await e.Request.AbortAsync();
+                return;
             }
-            else
+
+            if(e.Request.ResourceType == ResourceType.Fetch)
             {
-                await e.Request.ContinueAsync();
+                Console.WriteLine(e.Request.Url);
             }
+
+            string requestFormat = e.Request.Url.Split('.').Last().Split('?')[0];
+
+            if (!string.IsNullOrEmpty(requestFormat))
+            {
+                if (imageFormats.Contains($".{requestFormat}") ||
+                    videoFormats.Contains($".{requestFormat}"))
+                {
+                    await e.Request.AbortAsync();
+                    return;
+                }
+            }
+
+            Console.WriteLine(e.Request.Url);
+            await e.Request.ContinueAsync();
         }
 
         #endregion

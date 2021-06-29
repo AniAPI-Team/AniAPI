@@ -85,6 +85,9 @@ namespace WebAPI.Controllers
         {
             try
             {
+                User authenticatedUser = (User)HttpContext.Items["user"];
+
+                filter.user_id = authenticatedUser.Id;
                 Paging<UserStory> result = this._userStoryCollection.GetList<UserStoryFilter>(filter);
 
                 if (result.LastPage == 0)
@@ -99,18 +102,6 @@ namespace WebAPI.Controllers
                     throw new APIException(HttpStatusCode.NotFound,
                         "Page out of range",
                         $"Last page number available is {result.LastPage}");
-                }
-
-                User authenticatedUser = (User)HttpContext.Items["user"];
-
-                foreach (UserStory story in result.Documents)
-                {
-                    if (authenticatedUser.Role == Commons.Enums.UserRoleEnum.BASIC && authenticatedUser.Id != story.UserID)
-                    {
-                        throw new APIException(HttpStatusCode.Forbidden,
-                            "Forbidden",
-                            "You have no access rights to get a story found");
-                    }
                 }
 
                 return APIManager.SuccessResponse($"Page {result.CurrentPage} contains {result.Documents.Count} stories. Last page number is {result.LastPage} for a total of {result.Count} stories", result);

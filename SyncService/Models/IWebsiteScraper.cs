@@ -43,7 +43,11 @@ namespace SyncService.Models
         public async Task Start()
         {
             this.Working = true;
-            await this.run();
+
+            if (this.Website.Active)
+            {
+                await this.run();
+            }
         }
 
         protected bool AnalyzeMatching(AnimeMatching matching, string sourceTitle)

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text;
@@ -35,73 +36,94 @@ namespace WebAPI.Helpers
 
         protected override async Task<AuthenticateResult> HandleAuthenticateAsync()
         {
-            Endpoint? endpoint = Context.GetEndpoint();
-
-            if(endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
-            {
-                return AuthenticateResult.NoResult();
-            }
-
-            if (!Request.Headers.ContainsKey("Authorization"))
-            {
-                return AuthenticateResult.Fail("Missing Authorization header");
-            }
-
-            User user = null;
-
             try
             {
-                AuthenticationHeaderValue auth = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
-                
-                if(auth.Scheme != "Bearer")
+                Endpoint? endpoint = Context.GetEndpoint();
+
+                if (endpoint?.Metadata?.GetMetadata<IAllowAnonymous>() != null)
                 {
-                    throw new Exception();
+                    return AuthenticateResult.NoResult();
                 }
 
-                JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
-                byte[] key = Encoding.ASCII.GetBytes((string)_configuration.GetValue(typeof(string), "jwt_secret"));
-
-                tokenHandler.ValidateToken(auth.Parameter, new TokenValidationParameters()
+                if (!Request.Headers.ContainsKey("Authorization"))
                 {
-                    ValidateIssuerSigningKey = true,
-                    IssuerSigningKey = new SymmetricSecurityKey(key),
-                    ValidateIssuer = false,
-                    ValidateAudience = false,
-                    ClockSkew = TimeSpan.Zero
-                }, out SecurityToken validatedToken);
+                    throw new Exception("Missing Authorization header");
+                }
 
-                JwtSecurityToken jwtToken = (JwtSecurityToken)validatedToken;
-                long userId = long.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
+                User user = null;
 
-                user = _userCollection.Get(userId);
+                try
+                {
+                    AuthenticationHeaderValue auth = AuthenticationHeaderValue.Parse(Request.Headers["Authorization"]);
+
+                    if (auth.Scheme != "Bearer")
+                    {
+                        throw new Exception();
+                    }
+
+                    JwtSecurityTokenHandler tokenHandler = new JwtSecurityTokenHandler();
+                    byte[] key = Encoding.ASCII.GetBytes((string)_configuration.GetValue(typeof(string), "jwt_secret"));
+
+                    tokenHandler.ValidateToken(auth.Parameter, new TokenValidationParameters()
+                    {
+                        ValidateIssuerSigningKey = true,
+                        IssuerSigningKey = new SymmetricSecurityKey(key),
+                        ValidateIssuer = false,
+                        ValidateAudience = false,
+                        ClockSkew = TimeSpan.Zero
+                    }, out SecurityToken validatedToken);
+
+                    JwtSecurityToken jwtToken = (JwtSecurityToken)validatedToken;
+                    long userId = long.Parse(jwtToken.Claims.First(x => x.Type == "id").Value);
+
+                    user = _userCollection.Get(userId);
+                }
+                catch
+                {
+                    throw new Exception("Invalid Authorization header");
+                }
+
+                if (user == null)
+                {
+                    throw new Exception("Invalid JWT token");
+                }
+
+                if (!user.EmailVerified.Value)
+                {
+                    throw new Exception("Email not verified");
+                }
+
+                var claims = new[]
+                {
+                    new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                    new Claim(ClaimTypes.Name, user.Email)
+                };
+                var identity = new ClaimsIdentity(claims, Scheme.Name);
+                var principal = new ClaimsPrincipal(identity);
+                var ticket = new AuthenticationTicket(principal, Scheme.Name);
+
+                Context.Items["user"] = user;
+
+                return AuthenticateResult.Success(ticket);
             }
-            catch
+            catch(Exception ex)
             {
-                return AuthenticateResult.Fail("Invalid Authorization header");
+                Context.Response.OnStarting(async () => {
+                    Context.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+
+                    APIResponse response = new APIResponse()
+                    {
+                        StatusCode = HttpStatusCode.Unauthorized,
+                        Message = "Unauthorized",
+                        Data = ex.Message
+                    };
+
+                    Context.Response.ContentType = "application/json";
+                    await Context.Response.WriteAsJsonAsync(response);
+                });
+
+                return AuthenticateResult.Fail(ex.Message);
             }
-
-            if(user == null)
-            {
-                return AuthenticateResult.Fail("Invalid JWT token");
-            }
-
-            if (!user.EmailVerified.Value)
-            {
-                return AuthenticateResult.Fail("Email not verified");
-            }
-
-            var claims = new[]
-            {
-                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-                new Claim(ClaimTypes.Name, user.Email)
-            };
-            var identity = new ClaimsIdentity(claims, Scheme.Name);
-            var principal = new ClaimsPrincipal(identity);
-            var ticket = new AuthenticationTicket(principal, Scheme.Name);
-
-            Context.Items["user"] = user;
-
-            return AuthenticateResult.Success(ticket);
         }
     }
 }

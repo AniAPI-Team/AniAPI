@@ -1,4 +1,6 @@
-﻿using FuzzySharp;
+﻿using Commons;
+using Commons.Collections;
+using FuzzySharp;
 using PuppeteerSharp;
 using SyncService.Helpers;
 using SyncService.Services;
@@ -31,6 +33,17 @@ namespace SyncService.Models.WebsiteScrapers
 
             string url = $"{this.Website.SiteUrl}search.html?keyword={animeTitle}";
             await ProxyHelper.NavigateAsync(webPage, url);
+
+            Uri oldUri = new Uri(url);
+            Uri pageUri = new Uri(webPage.Url);
+
+            if(oldUri.Host != pageUri.Host)
+            {
+                this.Website.SiteUrl = $"https://{pageUri.Host}/";
+
+                Website website = this.Website;
+                new WebsiteCollection().Edit(ref website);
+            }
 
             episodesMatchings.Clear();
 
