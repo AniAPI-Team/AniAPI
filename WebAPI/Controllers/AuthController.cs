@@ -1,19 +1,24 @@
 ﻿using Commons;
 using Commons.Collections;
 using Isopoh.Cryptography.Argon2;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using MongoDB.Driver;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Security.Claims;
 using System.Text;
+using System.Threading.Tasks;
+using System.Web;
 
 namespace WebAPI.Controllers
 {
@@ -28,6 +33,7 @@ namespace WebAPI.Controllers
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthController> _logger;
         private UserCollection _userCollection = new UserCollection();
+        private readonly string _recaptchaBaseURL = "https://www.google.com/recaptcha/api/siteverify";
 
         public AuthController(ILogger<AuthController> logger, IConfiguration configuration)
         {
@@ -39,15 +45,29 @@ namespace WebAPI.Controllers
         /// Authenticate an User
         /// </summary>
         /// <param name="credentials">The User credentials</param>
+        [AllowAnonymous]
         [EnableCors("CorsInternal")]
         [HttpPost, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public APIResponse Login([FromBody] APICredentials credentials)
+        public async Task<APIResponse> Login([FromBody] APICredentials credentials)
         {
-            // TODO: mettere recaptcha
-
             try
             {
+                HttpClient httpClient = new HttpClient();
+
+                string recaptchaUrl = $"{_recaptchaBaseURL}?secret={_configuration.GetValue<string>("recaptcha_secret")}&response={credentials.GRecaptchaResponse}&remoteip={HttpUtility.UrlEncode(Request.HttpContext.Connection.RemoteIpAddress.ToString())}";
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, recaptchaUrl);
+                HttpResponseMessage response = await httpClient.SendAsync(request);
+
+                GRecaptchaResponse result = JsonConvert.DeserializeObject<GRecaptchaResponse>(await response.Content.ReadAsStringAsync());
+
+                if (!result.Success)
+                {
+                    throw new APIException(System.Net.HttpStatusCode.Unauthorized,
+                        "Invalid CAPTCHA",
+                        "CAPTCHA result is not valid");
+                }
+
                 var builder = Builders<User>.Filter;
                 FilterDefinition<User> filter = builder.Eq("email", credentials.Email);
 
@@ -114,6 +134,7 @@ namespace WebAPI.Controllers
         /// Verify an User email address
         /// </summary>
         /// <param name="id">The User id</param>
+        [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet("{id}"), MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]

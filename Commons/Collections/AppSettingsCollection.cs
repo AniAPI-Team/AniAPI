@@ -53,7 +53,14 @@ namespace Commons.Collections
             return new[]
             {
                 new KeyValuePair<string, string>("jwt_secret", settings.JWTSecret),
-                new KeyValuePair<string, string>("resources_version", settings.ResourcesVersion)
+                new KeyValuePair<string, string>("recaptcha_secret", settings.RecaptchaSecret),
+                new KeyValuePair<string, string>("resources_version", settings.ResourcesVersion),
+                new KeyValuePair<string, string>("smtp_host", settings.Smtp.Host),
+                new KeyValuePair<string, string>("smtp_port", settings.Smtp.Port.ToString()),
+                new KeyValuePair<string, string>("smtp_username", settings.Smtp.Username),
+                new KeyValuePair<string, string>("smtp_password", settings.Smtp.Password),
+                new KeyValuePair<string, string>("smtp_address", settings.Smtp.Address)
+
             };
         }
     }

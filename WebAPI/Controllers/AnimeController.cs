@@ -10,6 +10,7 @@ using System.Net;
 using WebAPI.Models;
 using MongoService;
 using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAPI.Controllers
 {
@@ -33,6 +34,7 @@ namespace WebAPI.Controllers
         /// Retrieves a specific Anime by id
         /// </summary>
         /// <param name="id">The Anime id</param>
+        [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet("{id}"), MapToApiVersion("1")]
         public APIResponse GetOne(long id)
@@ -64,6 +66,7 @@ namespace WebAPI.Controllers
         /// Retrieves a list of Anime
         /// </summary>
         /// <param name="filter">The Anime filter</param>
+        [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet, MapToApiVersion("1")]
         public APIResponse GetMore([FromQuery] AnimeFilter filter)

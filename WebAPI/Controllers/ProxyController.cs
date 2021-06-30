@@ -2,6 +2,7 @@
 using AspNetCore.Proxy.Options;
 using Commons;
 using Commons.Collections;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -29,6 +30,7 @@ namespace WebAPI.Controllers
             _logger = logger;
         }
 
+        [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet("{url}/{websiteName}"), MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]

@@ -2,6 +2,7 @@
 using Commons.Collections;
 using Commons.Enums;
 using Commons.Resources;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
@@ -40,6 +41,7 @@ namespace WebAPI.Controllers
         /// <summary>
         /// Retrieves the resources version
         /// </summary>
+        [AllowAnonymous]
         [EnableCors("CorsInternal")]
         [HttpGet, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
@@ -67,6 +69,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="resource_type">The resource type</param>
         /// <param name="resource_version">The resource version</param>
+        [AllowAnonymous]
         [EnableCors("CorsInternal")]
         [HttpGet("{resource_version}/{resource_type}"), MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]

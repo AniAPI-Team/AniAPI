@@ -85,6 +85,12 @@
             cursor: pointer;
             transition: .3s;
         }
+
+        .signup {
+            display: block;
+            margin-top: 12px;
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -99,7 +105,11 @@
             <div id="errors"></div>
             <button type="button" id="login">Login</button>
         </form>
+        <a href="https://aniapi.com/signup" target="_blank" class="signup">
+            Create an account
+        </a>
     </div>
+    <script src="https://www.google.com/recaptcha/api.js?render=6Lf98EgbAAAAAHSXXQIrsL-yByCMxOHsukzOqvHV"></script>
     <script>
         document.getElementById('email').addEventListener('keypress', (e) => {
             if (e.keyCode === 13) {
@@ -133,29 +143,34 @@
                 return;
             }
 
-            const response = await fetch('', {
-                method: 'POST',
-                headers: {
-                    'Accept': 'application/json',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    email: email,
-                    password: password
-                })
+            window.grecaptcha.ready(() => {
+                window.grecaptcha.execute('6Lf98EgbAAAAAHSXXQIrsL-yByCMxOHsukzOqvHV', { action: 'submit' }).then(async (token) => {
+                    const response = await fetch('', {
+                        method: 'POST',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            password: password,
+                            g_recaptcha_response: token
+                        })
+                    });
+
+                    const body = await response.json();
+                    console.log(body);
+
+                    if (body.status_code === 200) {
+                        window.location.href = body.data;
+                    }
+                    else {
+                        errors.innerHTML += body.data;
+                        e.preventDefault();
+                        return;
+                    }
+                });
             });
-
-            const body = await response.json();
-            console.log(body);
-
-            if (body.status_code === 200) {
-                window.location.href = body.data;
-            }
-            else {
-                errors.innerHTML += body.data;
-                e.preventDefault();
-                return;
-            }
         }, true);
     </script>
 </body>

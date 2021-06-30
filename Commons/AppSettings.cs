@@ -11,6 +11,9 @@ namespace Commons
         [BsonElement("jwt_secret")]
         public string JWTSecret { get; set; }
 
+        [BsonElement("recaptcha_secret")]
+        public string RecaptchaSecret { get; set; }
+
         [BsonElement("proxy_host")]
         public string ProxyHost { get; set; }
 
@@ -31,5 +34,26 @@ namespace Commons
 
         [BsonElement("api_endpoint")]
         public string APIEndpoint { get; set; }
+
+        [BsonElement("smtp")]
+        public SmtpConfig Smtp { get; set; }
+
+        public class SmtpConfig
+        {
+            [BsonElement("host")]
+            public string Host { get; set; }
+
+            [BsonElement("port")]
+            public int Port { get; set; }
+
+            [BsonElement("username")]
+            public string Username { get; set; }
+
+            [BsonElement("password")]
+            public string Password { get; set; }
+
+            [BsonElement("address")]
+            public string Address{ get; set; }
+        }
     }
 }

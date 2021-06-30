@@ -14,5 +14,8 @@ namespace Commons
 
         [JsonPropertyName("password")]
         public string Password { get; set; }
+
+        [JsonPropertyName("g_recaptcha_response")]
+        public string GRecaptchaResponse { get; set; }
     }
 }

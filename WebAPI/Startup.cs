@@ -42,13 +42,18 @@ namespace WebAPI
             {
                 o.AddPolicy("CorsEveryone", builder =>
                 {
-                    builder.AllowAnyOrigin();
+                    builder.AllowAnyOrigin()
+                        .AllowAnyHeader()
+                        .AllowAnyMethod();
                 });
                 o.AddPolicy("CorsInternal", builder =>
                 {
                     builder.WithOrigins(
                         "http://aniapi.com",
-                        "https://aniapi.com")
+                        "https://aniapi.com",
+                        "https://api.aniapi.com")
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
                     .SetIsOriginAllowedToAllowWildcardSubdomains();
                 });
             });

@@ -34,6 +34,7 @@ namespace WebAPI.Controllers
         /// Retrieves a specific OAuthClient by id
         /// </summary>
         /// <param name="id">The OAuthClient id</param>
+        [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet("{id}"), MapToApiVersion("1")]
         public APIResponse GetOne(long id)

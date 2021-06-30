@@ -4,17 +4,25 @@ using Commons.Enums;
 using Commons.Filters;
 using Isopoh.Cryptography.Argon2;
 using Isopoh.Cryptography.SecureArray;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using MongoService;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Net;
+using System.Net.Http;
+using System.Net.Mail;
 using System.Security.Cryptography;
 using System.Text;
+using System.Threading.Tasks;
+using System.Web;
 using WebAPI.Attributes;
 using WebAPI.Models;
+using static Commons.AppSettings;
 
 namespace WebAPI.Controllers
 {
@@ -27,18 +35,22 @@ namespace WebAPI.Controllers
     public class UserController : Controller
     {
         private readonly ILogger<UserController> _logger;
+        private IConfiguration _configuration;
         private UserCollection _userCollection = new UserCollection();
+        private readonly string _recaptchaBaseURL = "https://www.google.com/recaptcha/api/siteverify";
         private static readonly RandomNumberGenerator _rng = RandomNumberGenerator.Create();
 
-        public UserController(ILogger<UserController> logger)
+        public UserController(ILogger<UserController> logger, IConfiguration configuration)
         {
             _logger = logger;
+            _configuration = configuration;
         }
 
         /// <summary>
         /// Retrieves a specific User by user id
         /// </summary>
         /// <param name="id">The User id</param>
+        [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet("{id}"), MapToApiVersion("1")]
         public APIResponse GetOne(long id)
@@ -73,6 +85,7 @@ namespace WebAPI.Controllers
         /// Retrieves a list of User
         /// </summary>
         /// <param name="filter">The User filter</param>
+        [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet, MapToApiVersion("1")]
         public APIResponse GetMore([FromQuery] UserFilter filter)
@@ -114,17 +127,34 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Create a new User
+        /// /// Create a new User
         /// </summary>
+        /// <param name="g_recaptcha_response">The CAPTCHA status token</param>
         /// <param name="model">The User model</param>
+        /// <returns></returns>
+        [AllowAnonymous]
         [EnableCors("CorsInternal")]
         [HttpPut, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public APIResponse Create([FromBody] User model)
+        public async Task<APIResponse> Create(string g_recaptcha_response, [FromBody] User model)
         {
-            // TODO: mettere recaptcha
             try
             {
+                HttpClient httpClient = new HttpClient();
+
+                string recaptchaUrl = $"{_recaptchaBaseURL}?secret={_configuration.GetValue<string>("recaptcha_secret")}&response={g_recaptcha_response}&remoteip={HttpUtility.UrlEncode(Request.HttpContext.Connection.RemoteIpAddress.ToString())}";
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, recaptchaUrl);
+                HttpResponseMessage response = await httpClient.SendAsync(request);
+
+                GRecaptchaResponse result = JsonConvert.DeserializeObject<GRecaptchaResponse>(await response.Content.ReadAsStringAsync());
+
+                if (!result.Success)
+                {
+                    throw new APIException(System.Net.HttpStatusCode.Unauthorized,
+                        "Invalid CAPTCHA",
+                        "CAPTCHA result is not valid");
+                }
+
                 if (string.IsNullOrEmpty(model.Username))
                 {
                     throw new APIException(HttpStatusCode.BadRequest,
@@ -203,6 +233,24 @@ namespace WebAPI.Controllers
 
                 this._userCollection.Add(ref model);
 
+                SmtpClient smtp = new SmtpClient(_configuration.GetValue<string>("smtp_host"), _configuration.GetValue<int>("smtp_port"))
+                {
+                    Credentials = new NetworkCredential(_configuration.GetValue<string>("smtp_username"), _configuration.GetValue<string>("smtp_password")),
+                    EnableSsl = true
+                };
+
+                MailMessage mail = new MailMessage()
+                {
+                    From = new MailAddress(_configuration.GetValue<string>("smtp_address")),
+                    Subject = "Welcome to AniAPI",
+                    Body = $"Welcome <b>{model.Username}</b>,<br/>click on the link below to confirm your account and start using <a href=\"https://aniapi.com\" target=\"_blank\">AniAPI</a>.<br/><a href=\"https://api.aniapi.com/v1/auth/{model.Id}\" target=\"_blank\">Complete registration</a>",
+                    IsBodyHtml = true
+                };
+
+                mail.To.Add(model.Email);
+
+                smtp.Send(mail);
+
                 return APIManager.SuccessResponse("User created", model);
             }
             catch(APIException ex)
@@ -220,7 +268,7 @@ namespace WebAPI.Controllers
         /// Update an existing User
         /// </summary>
         /// <param name="model">The User model</param>
-        [Authorize]
+        [Attributes.Authorize]
         [EnableCors("CorsInternal")]
         [HttpPost, MapToApiVersion("1")]
         public APIResponse Update([FromBody] User model)
@@ -265,7 +313,7 @@ namespace WebAPI.Controllers
         /// Delete an existing User by id
         /// </summary>
         /// <param name="id">The User id</param>
-        [Authorize]
+        [Attributes.Authorize]
         [EnableCors("CorsInternal")]
         [HttpDelete("{id}"), MapToApiVersion("1")]
         public APIResponse Delete(long id)

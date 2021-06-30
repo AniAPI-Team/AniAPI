@@ -1,6 +1,7 @@
 ﻿using Commons;
 using Commons.Collections;
 using Commons.Filters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -39,6 +40,7 @@ namespace WebAPI.Controllers
             _authController = new AuthController(null, configuration);
         }
 
+        [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
@@ -86,14 +88,15 @@ namespace WebAPI.Controllers
             return View(client);
         }
 
+        [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpPost, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public APIResponse Authenticate([FromBody] APICredentials credentials)
+        public async Task<APIResponse> Authenticate([FromBody] APICredentials credentials)
         {
             OAuthRequest request = JsonConvert.DeserializeObject<OAuthRequest>(HttpContext.Session.GetString("oauth"));
 
-            APIResponse login = _authController.Login(credentials);
+            APIResponse login = await _authController.Login(credentials);
 
             if(login.StatusCode == System.Net.HttpStatusCode.OK)
             {
@@ -145,6 +148,7 @@ namespace WebAPI.Controllers
         /// <param name="code">The generated code</param>
         /// <param name="redirect_uri">The OAuthClient redirect_uri</param>
         /// <returns></returns>
+        [AllowAnonymous]
         [Route("token")]
         [EnableCors("CorsEveryone")]
         [HttpPost, MapToApiVersion("1")]
