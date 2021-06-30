@@ -55,7 +55,7 @@ namespace WebAPI.Controllers
             {
                 HttpClient httpClient = new HttpClient();
 
-                string recaptchaUrl = $"{_recaptchaBaseURL}?secret={_configuration.GetValue<string>("recaptcha_secret")}&response={credentials.GRecaptchaResponse}&remoteip={HttpUtility.UrlEncode(Request.HttpContext.Connection.RemoteIpAddress.ToString())}";
+                string recaptchaUrl = $"{_recaptchaBaseURL}?secret={_configuration.GetValue<string>("recaptcha_secret")}&response={credentials.GRecaptchaResponse}";
                 HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, recaptchaUrl);
                 HttpResponseMessage response = await httpClient.SendAsync(request);
 
