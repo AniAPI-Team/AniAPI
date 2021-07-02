@@ -8,6 +8,7 @@ namespace Commons.Enums
 {
     public enum UserGenderEnum
     {
+        UNKNOWN,
         MALE,
         FEMALE
     }

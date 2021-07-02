@@ -46,7 +46,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="credentials">The User credentials</param>
         [AllowAnonymous]
+#if DEBUG
+        [EnableCors("CorsEveryone")]
+#else
         [EnableCors("CorsInternal")]
+#endif
         [HttpPost, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<APIResponse> Login([FromBody] APICredentials credentials)
@@ -156,6 +160,35 @@ namespace WebAPI.Controllers
                 this._userCollection.Edit(ref user);
 
                 return APIManager.SuccessResponse("Email verified");
+            }
+            catch (APIException ex)
+            {
+                return APIManager.ErrorResponse(ex);
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex.Message);
+                return APIManager.ErrorResponse();
+            }
+        }
+
+        [Authorize]
+        [EnableCors("CorsEveryone")]
+        [HttpGet("me"), MapToApiVersion("1")]
+        public APIResponse Me()
+        {
+            try
+            {
+                User authenticatedUser = (User)HttpContext.Items["user"];
+
+                if (authenticatedUser == null)
+                {
+                    throw new APIException(HttpStatusCode.NotFound,
+                        "User not found",
+                        $"The token you provided has no user on it");
+                }
+
+                return APIManager.SuccessResponse($"Hi {authenticatedUser.Username}", authenticatedUser);
             }
             catch (APIException ex)
             {

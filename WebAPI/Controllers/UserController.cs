@@ -133,7 +133,11 @@ namespace WebAPI.Controllers
         /// <param name="model">The User model</param>
         /// <returns></returns>
         [AllowAnonymous]
+#if DEBUG
+        [EnableCors("CorsEveryone")]
+#else
         [EnableCors("CorsInternal")]
+#endif
         [HttpPut, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public async Task<APIResponse> Create(string g_recaptcha_response, [FromBody] User model)
@@ -269,7 +273,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="model">The User model</param>
         [Attributes.Authorize]
+#if DEBUG
+        [EnableCors("CorsEveryone")]
+#else
         [EnableCors("CorsInternal")]
+#endif
         [HttpPost, MapToApiVersion("1")]
         public APIResponse Update([FromBody] User model)
         {
@@ -292,7 +300,17 @@ namespace WebAPI.Controllers
                 }
 
                 User user = this._userCollection.Get(model.Id);
-                user.Localization = model.Localization;
+                
+                if(model.Localization != null)
+                {
+                    user.Localization = model.Localization;
+                }
+
+                if(model.AnilistId != null)
+                {
+                    user.AnilistId = model.AnilistId;
+                    user.AnilistToken = model.AnilistToken;
+                }
 
                 this._userCollection.Edit(ref user);
 
