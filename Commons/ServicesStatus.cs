@@ -18,6 +18,9 @@ namespace Commons
         [BsonElement("info")]
         public string Info { get; set; }
 
+        [BsonElement("last_error")]
+        public string LastError { get; set; }
+
         public ServicesStatus() { }
 
         public ServicesStatus(string name)

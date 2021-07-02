@@ -221,6 +221,7 @@ namespace SyncService.Models
                     {
 #if DEBUG
                         this.Service.Log(ex.Message);
+                        this.Service.Error(ex.Message);
 #endif
                     }
                     catch (Exception ex) 

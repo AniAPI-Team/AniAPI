@@ -151,6 +151,14 @@ namespace SyncService
             }
         }
 
+        public void Error(string message)
+        {
+            this.ServiceStatus.LastError = message;
+
+            ServicesStatus servicesStatus = this.ServiceStatus;
+            this._serviceStatusCollection.Edit(ref servicesStatus);
+        }
+
         #endregion
     }
 }

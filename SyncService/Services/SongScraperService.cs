@@ -187,7 +187,10 @@ namespace SyncService.Services
                             }
                         }
                     }
-                    catch { }
+                    catch(Exception ex)
+                    {
+                        this.Error(ex.Message);
+                    }
                     finally
                     {
                         this.Log($"Done {GetProgressD(id, this._lastId)}% ({_anime.Titles[LocalizationEnum.English]})", true);

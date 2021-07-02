@@ -126,7 +126,10 @@ namespace SyncService.Services
                             }
                         }
                     }
-                    catch { }
+                    catch(Exception ex)
+                    {
+                        this.Error(ex.Message);
+                    }
                     finally
                     {
                         this.Log($"Done {this.GetProgressD(userID, lastID)}%", true);
