@@ -188,6 +188,11 @@ namespace WebAPI.Controllers
                         $"The token you provided has no user on it");
                 }
 
+                authenticatedUser.PasswordHash = null;
+                authenticatedUser.Token = null;
+                authenticatedUser.AnilistId = null;
+                authenticatedUser.MyAnimeListId = null;
+
                 return APIManager.SuccessResponse($"Hi {authenticatedUser.Username}", authenticatedUser);
             }
             catch (APIException ex)
