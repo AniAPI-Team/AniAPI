@@ -26,40 +26,29 @@ namespace SyncService
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                Task.Run(async () => await _animeScraper.StartAsync(cancellationToken));
-
-                bool canProceed = false;
-                while (!canProceed)
-                {
-                    Thread.Sleep(60 * 1000);
-                
-                    if (_animeScraper.HasDoneFirstRound)
-                    {
-                        canProceed = true;
-                    }
-                }
-
-                Task.Run(async () => await _userSync.StartAsync(cancellationToken));
-
-                Task.Run(async () => await _websiteScraper.StartAsync(cancellationToken));
-                Thread.Sleep(60 * 1000);
-                
-                Task.Run(async () => await _songScraper.StartAsync(cancellationToken));
-            }
-
-            return Task.CompletedTask;
+            return base.StartAsync(cancellationToken);
         }
 
         public override Task StopAsync(CancellationToken cancellationToken)
         {
-            return Task.WhenAll(StartAsync(cancellationToken));
+            return Task.WhenAll(ExecuteAsync(cancellationToken));
         }
 
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            throw new NotImplementedException();
+            if (!stoppingToken.IsCancellationRequested)
+            {
+                Task.Run(async () => await _animeScraper.StartAsync(stoppingToken));
+
+                Task.Run(async () => await _userSync.StartAsync(stoppingToken));
+
+                Task.Run(async () => await _websiteScraper.StartAsync(stoppingToken));
+                Thread.Sleep(10 * 1000);
+
+                Task.Run(async () => await _songScraper.StartAsync(stoppingToken));
+            }
+
+            return Task.CompletedTask;
         }
     }
 }
