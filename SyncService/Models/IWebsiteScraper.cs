@@ -233,7 +233,16 @@ namespace SyncService.Models
                     {
                         this.Service.Log($"Website {this.Website.Name} done {this.Service.GetProgressD(animeID, lastID)}% ({_anime.Titles[LocalizationEnum.English]})", true);
                     }
+
+                    if (this.Service._cancellationToken.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException("Process cancellation requested!");
+                    }
                 }
+            }
+            catch(TaskCanceledException ex)
+            {
+                throw;
             }
             catch(Exception ex)
             {

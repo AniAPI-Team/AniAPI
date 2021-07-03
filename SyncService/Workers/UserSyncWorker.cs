@@ -15,7 +15,7 @@ namespace SyncService.Workers
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _service.Start();
+            await _service.Start(stoppingToken);
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -23,6 +23,10 @@ namespace SyncService.Workers
                 {
                     await _service.Work();
                     _service.Wait();
+                }
+                catch (TaskCanceledException ex)
+                {
+                    _service.kill(ex);
                 }
                 catch (Exception ex)
                 {

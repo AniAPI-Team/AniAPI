@@ -26,25 +26,28 @@ namespace SyncService
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
-            Task.Run(async () => await _animeScraper.StartAsync(cancellationToken));
-            
-            bool canProceed = false;
-            while (!canProceed)
+            if (!cancellationToken.IsCancellationRequested)
             {
-                Thread.Sleep(60 * 1000);
-            
-                if (_animeScraper.HasDoneFirstRound)
+                Task.Run(async () => await _animeScraper.StartAsync(cancellationToken));
+
+                bool canProceed = false;
+                while (!canProceed)
                 {
-                    canProceed = true;
+                    Thread.Sleep(60 * 1000);
+                
+                    if (_animeScraper.HasDoneFirstRound)
+                    {
+                        canProceed = true;
+                    }
                 }
+
+                Task.Run(async () => await _userSync.StartAsync(cancellationToken));
+
+                Task.Run(async () => await _websiteScraper.StartAsync(cancellationToken));
+                Thread.Sleep(60 * 1000);
+                
+                Task.Run(async () => await _songScraper.StartAsync(cancellationToken));
             }
-
-            Task.Run(async () => await _userSync.StartAsync(cancellationToken));
-
-            Task.Run(async () => await _websiteScraper.StartAsync(cancellationToken));
-            Thread.Sleep(60 * 1000);
-
-            Task.Run(async () => await _songScraper.StartAsync(cancellationToken));
 
             return Task.CompletedTask;
         }

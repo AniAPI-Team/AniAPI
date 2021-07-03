@@ -129,6 +129,11 @@ namespace SyncService.Services
                     {
                         this.Log($"Done {this.GetProgressD(userID, lastID)}%", true);
                     }
+
+                    if (_cancellationToken.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException("Process cancellation requested!");
+                    }
                 }
             }
             catch(Exception ex)

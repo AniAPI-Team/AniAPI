@@ -33,7 +33,7 @@ namespace SyncService.Services
             return new ServicesStatus("SongScraper");
         }
 
-        public override async Task Start()
+        public override async Task Start(CancellationToken cancellationToken)
         {
             SpotifyClientConfig config = SpotifyClientConfig.CreateDefault();
             string accessToken = (await new SpotifyAPI.Web.OAuthClient(config).
@@ -45,7 +45,7 @@ namespace SyncService.Services
 
             this._lastId = this._animeCollection.Last().Id;
 
-            await base.Start();
+            await base.Start(cancellationToken);
         }
 
         public override async Task Work()
@@ -194,6 +194,11 @@ namespace SyncService.Services
                     finally
                     {
                         this.Log($"Done {GetProgressD(id, this._lastId)}% ({_anime.Titles[LocalizationEnum.English]})", true);
+                    }
+
+                    if (_cancellationToken.IsCancellationRequested)
+                    {
+                        throw new TaskCanceledException("Process cancellation requested!");
                     }
                 }
             }

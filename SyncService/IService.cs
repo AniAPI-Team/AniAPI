@@ -13,6 +13,7 @@ namespace SyncService
     {
         #region Members
 
+        public CancellationToken _cancellationToken;
         protected ServicesStatusCollection _serviceStatusCollection = new ServicesStatusCollection();
 
         #region ServiceStatus
@@ -44,11 +45,10 @@ namespace SyncService
 
         #region Methods
 
-        public async virtual Task Start()
+        public async virtual Task Start(CancellationToken cancellationToken)
         {
+            _cancellationToken = cancellationToken;
             this.UpdateStatus(ServiceStatusEnum.STARTING);
-
-            //this.Work();
         }
 
         public async virtual Task Work()
@@ -61,8 +61,6 @@ namespace SyncService
             this.UpdateStatus(ServiceStatusEnum.WAITING);
 
             Thread.Sleep(this.TimeToWait);
-            
-            //this.Work();
         }
 
         public virtual void Stop(Exception ex = null)
@@ -79,9 +77,17 @@ namespace SyncService
                 }
             }
 
-            Thread.Sleep(60 * 1000);
+            if (!_cancellationToken.IsCancellationRequested)
+            {
+                Thread.Sleep(60 * 1000);
+            }
+        }
 
-            //this.Start();
+        public void kill(Exception ex)
+        {
+            this.UpdateStatus(ServiceStatusEnum.STOPPED);
+
+            this.Log(ex.Message);
         }
 
         protected void UpdateStatus(ServiceStatusEnum status)

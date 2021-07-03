@@ -99,12 +99,12 @@ namespace SyncService.Services
             return new ServicesStatus("AnimeScraper");
         }
 
-        public override async Task Start()
+        public override async Task Start(CancellationToken cancellationToken)
         {
             this._rateLimitRemaining = 90;
             this._rateLimitReset = DateTime.Now.Ticks;
             
-            await base.Start();
+            await base.Start(cancellationToken);
         }
 
         public override async Task Work()
@@ -183,6 +183,11 @@ namespace SyncService.Services
                             this.Log($"Waiting {timeToWait.TotalMilliseconds.ToString("F0")} ms!", true);
 
                             Thread.Sleep((int)timeToWait.TotalMilliseconds + 1000);
+                        }
+
+                        if (_cancellationToken.IsCancellationRequested)
+                        {
+                            throw new TaskCanceledException("Process cancellation requested!");
                         }
                     }
                 }
