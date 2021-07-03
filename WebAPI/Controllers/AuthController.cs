@@ -189,6 +189,7 @@ namespace WebAPI.Controllers
                 }
 
                 authenticatedUser.PasswordHash = null;
+                authenticatedUser.LastLoginDate = null;
                 authenticatedUser.Token = null;
                 authenticatedUser.AnilistId = null;
                 authenticatedUser.MyAnimeListId = null;

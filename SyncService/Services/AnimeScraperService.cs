@@ -90,7 +90,7 @@ namespace SyncService.Services
         private int _rateLimitRemaining;
         private long _rateLimitReset;
 
-        protected override int TimeToWait => 60 * 1000 * 60 * 12; // 12 Hours
+        protected override int TimeToWait => 60 * 1000;// * 60 * 12; // 12 Hours
 
         #endregion
         
@@ -107,9 +107,9 @@ namespace SyncService.Services
             base.Start();
         }
 
-        public override async void Work()
+        public override async Task Work()
         {
-            base.Work();
+            await base.Work();
 
             try
             {
@@ -186,12 +186,10 @@ namespace SyncService.Services
                         }
                     }
                 }
-
-                this.Wait();
             }
             catch(Exception ex)
             {
-                this.Stop(ex);
+                throw;
             }
         }
     }

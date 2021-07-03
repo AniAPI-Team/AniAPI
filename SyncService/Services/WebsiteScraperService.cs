@@ -32,9 +32,9 @@ namespace SyncService.Services
             return new ServicesStatus("WebsiteScraper");
         }
 
-        public override async void Work()
+        public override async Task Work()
         {
-            base.Work();
+            await base.Work();
 
             try
             {

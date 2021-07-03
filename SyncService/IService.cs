@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SyncService
 {
@@ -47,10 +48,10 @@ namespace SyncService
         {
             this.UpdateStatus(ServiceStatusEnum.STARTING);
 
-            this.Work();
+            //this.Work();
         }
 
-        public virtual void Work()
+        public async virtual Task Work()
         {
             this.UpdateStatus(ServiceStatusEnum.WORKING);
         }
@@ -61,7 +62,7 @@ namespace SyncService
 
             Thread.Sleep(this.TimeToWait);
             
-            this.Work();
+            //this.Work();
         }
 
         public virtual void Stop(Exception ex = null)
@@ -80,7 +81,7 @@ namespace SyncService
 
             Thread.Sleep(60 * 1000);
 
-            this.Start();
+            //this.Start();
         }
 
         protected void UpdateStatus(ServiceStatusEnum status)

@@ -48,9 +48,9 @@ namespace SyncService.Services
             base.Start();
         }
 
-        public override async void Work()
+        public override async Task Work()
         {
-            base.Work();
+            await base.Work();
 
             try
             {

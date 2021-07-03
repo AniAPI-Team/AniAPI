@@ -4,35 +4,27 @@ using SyncService.Services;
 using System;
 using System.Collections.Generic;
 using System.Threading;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using SyncService.Workers;
 
 namespace SyncService
 {
-    class Program
+    public class Program
     {
-        private static List<IService> services = new List<SyncService.IService>()
+        public static void Main(string[] args)
         {
-            new AnimeScraperService(),
-            new WebsiteScraperService(),
-            new SongScraperService(),
-            new UserSyncService()
-        };
-
-        static void Main(string[] args)
-        {
-            new Thread(services[0].Start).Start();
-
-            while(services[0].ServiceStatus.Status != Commons.Enums.ServiceStatusEnum.WAITING)
-            {
-                Thread.Sleep(60 * 1000);
-            }
-
-            for (int i = 1; i < services.Count; i++)
-            {
-                new Thread(services[i].Start).Start();
-                Thread.Sleep(60 * 1000);
-            }
-
-            Console.ReadLine();
+            CreateHostBuilder(args).Build().Run();
         }
+
+        public static IHostBuilder CreateHostBuilder(string[] args) =>
+            Host.CreateDefaultBuilder(args)
+#if !DEBUG
+                .UseSystemd()
+#endif
+                .ConfigureServices((hostContext, services) =>
+                {
+                    services.AddHostedService<Worker>();
+                });
     }
 }
