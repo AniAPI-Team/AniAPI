@@ -18,10 +18,10 @@ namespace SyncService
 
         public Worker()
         {
-            _animeScraper = WorkerPool.AnimeScraperWorker;
-            _websiteScraper = WorkerPool.WebsiteScraperWorker;
-            _songScraper = WorkerPool.SongScraperWorker;
-            _userSync = WorkerPool.UserSyncWorker;
+            _animeScraper = new AnimeScraperWorker();
+            _websiteScraper = new WebsiteScraperWorker();
+            _songScraper = new SongScraperWorker();
+            _userSync = new UserSyncWorker();
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)

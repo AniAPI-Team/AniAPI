@@ -150,7 +150,8 @@ namespace SyncService.Models
                         }
 
                         AnimeMatching matching = null;
-                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(this.Website.CanBlockRequests))
+                        Browser browser = await ProxyHelper.Instance.GetBrowser();
+                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browser, this.Website.CanBlockRequests))
                         {
                             string animeTitle = _anime.Titles.ContainsKey(this.Website.Localization) ?
                                 _anime.Titles[this.Website.Localization] :
@@ -158,6 +159,7 @@ namespace SyncService.Models
 
                             matching = await this.GetMatching(webPage, animeTitle);
                         }
+                        await browser.CloseAsync();
 
                         if (matching == null)
                         {
@@ -168,7 +170,8 @@ namespace SyncService.Models
                         {
                             for (int i = 1; i <= _anime.EpisodesCount; i++)
                             {
-                                using (Page webPage = await ProxyHelper.Instance.GetBestProxy(this.Website.CanBlockRequests))
+                                browser = await ProxyHelper.Instance.GetBrowser();
+                                using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browser, this.Website.CanBlockRequests))
                                 {
                                     EpisodeMatching episode = await this.GetEpisode(webPage, matching, i);
 
@@ -177,6 +180,7 @@ namespace SyncService.Models
                                         matching.Episodes.Add(episode);
                                     }
                                 }
+                                await browser.CloseAsync();
                             }
                         }
                         catch 

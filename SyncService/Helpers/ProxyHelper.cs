@@ -65,7 +65,7 @@ namespace SyncService.Helpers
             }
         }
 
-        public async Task<Page> GetBestProxy (bool canBlockRequests)
+        public async Task<Browser> GetBrowser()
         {
             try
             {
@@ -99,6 +99,18 @@ namespace SyncService.Helpers
                 });
 #endif
 
+                return browser;
+            }
+            catch
+            {
+                throw;
+            }
+        }
+
+        public async Task<Page> GetBestProxy (Browser browser, bool canBlockRequests)
+        {
+            try
+            {
                 int user = -1;
                 bool needReset = false;
                 long best = long.MaxValue;
@@ -160,11 +172,6 @@ namespace SyncService.Helpers
             {
                 throw;
             }
-        }
-
-        private void WebPage_Close(object sender, EventArgs e)
-        {
-            throw new NotImplementedException();
         }
 
         private async void WebPage_Response(object sender, ResponseCreatedEventArgs e)

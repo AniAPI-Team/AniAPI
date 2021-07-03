@@ -67,7 +67,8 @@ namespace SyncService.Services
 
                         List<AnimeSong> animeSongs = new List<AnimeSong>();
 
-                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(true))
+                        Browser browser = await ProxyHelper.Instance.GetBrowser();
+                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browser, true))
                         {
                             string url = $"https://aniplaylist.com/{Uri.EscapeUriString(_anime.Titles[LocalizationEnum.English])}?types=Opening~Ending";
                             await webPage.GoToAsync(url);
@@ -145,6 +146,7 @@ namespace SyncService.Services
                                 }
                             }
                         }
+                        await browser.CloseAsync();
 
                         List<string> ids = animeSongs.Select(x => x.SpotifyID).ToList();
 
