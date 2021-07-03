@@ -90,7 +90,7 @@ namespace SyncService.Services
         private int _rateLimitRemaining;
         private long _rateLimitReset;
 
-        protected override int TimeToWait => 60 * 1000;// * 60 * 12; // 12 Hours
+        protected override int TimeToWait => 60 * 1000 * 60 * 12; // 12 Hours
 
         #endregion
         
