@@ -177,7 +177,24 @@ namespace SyncService.Models
 
                                     if (episode != null)
                                     {
-                                        matching.Episodes.Add(episode);
+                                        Episode ep = new Episode()
+                                        {
+                                            AnimeID = _anime.Id,
+                                            Source = this.Website.Name,
+                                            Number = episode.Number,
+                                            Title = episode.Title,
+                                            Video = episode.Source,
+                                            Locale = this.Website.Localization
+                                        };
+
+                                        if (this._episodeCollection.Exists(ref ep))
+                                        {
+                                            this._episodeCollection.Edit(ref ep);
+                                        }
+                                        else
+                                        {
+                                            this._episodeCollection.Add(ref ep);
+                                        }
                                     }
                                 }
                                 await browser.CloseAsync();
@@ -194,31 +211,6 @@ namespace SyncService.Models
                             _anime.Descriptions[this.Website.Localization] = matching.Description;
 
                             this._animeCollection.Edit(ref _anime);
-                        }
-
-                        if (matching.Episodes.Count > 0)
-                        {
-                            foreach (EpisodeMatching episode in matching.Episodes)
-                            {
-                                Episode ep = new Episode()
-                                {
-                                    AnimeID = _anime.Id,
-                                    Source = this.Website.Name,
-                                    Number = episode.Number,
-                                    Title = episode.Title,
-                                    Video = episode.Source,
-                                    Locale = this.Website.Localization
-                                };
-
-                                if (this._episodeCollection.Exists(ref ep))
-                                {
-                                    this._episodeCollection.Edit(ref ep);
-                                }
-                                else
-                                {
-                                    this._episodeCollection.Add(ref ep);
-                                }
-                            }
                         }
                     }
                     catch(ScrapingException ex) 
