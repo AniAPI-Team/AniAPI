@@ -151,15 +151,22 @@ namespace SyncService.Models
 
                         AnimeMatching matching = null;
                         Browser browser = await ProxyHelper.Instance.GetBrowser();
-                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browser, this.Website.CanBlockRequests))
+                        try
                         {
-                            string animeTitle = _anime.Titles.ContainsKey(this.Website.Localization) ?
-                                _anime.Titles[this.Website.Localization] :
-                                _anime.Titles[LocalizationEnum.English];
+                            using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browser, this.Website.CanBlockRequests))
+                            {
+                                string animeTitle = _anime.Titles.ContainsKey(this.Website.Localization) ?
+                                    _anime.Titles[this.Website.Localization] :
+                                    _anime.Titles[LocalizationEnum.English];
 
-                            matching = await this.GetMatching(webPage, animeTitle);
+                                matching = await this.GetMatching(webPage, animeTitle);
+                            }
                         }
-                        await browser.CloseAsync();
+                        catch { }
+                        finally
+                        {
+                            await browser.CloseAsync();
+                        }
 
                         if (matching == null)
                         {
@@ -171,33 +178,40 @@ namespace SyncService.Models
                             for (int i = 1; i <= _anime.EpisodesCount; i++)
                             {
                                 browser = await ProxyHelper.Instance.GetBrowser();
-                                using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browser, this.Website.CanBlockRequests))
+                                try
                                 {
-                                    EpisodeMatching episode = await this.GetEpisode(webPage, matching, i);
-
-                                    if (episode != null)
+                                    using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browser, this.Website.CanBlockRequests))
                                     {
-                                        Episode ep = new Episode()
-                                        {
-                                            AnimeID = _anime.Id,
-                                            Source = this.Website.Name,
-                                            Number = episode.Number,
-                                            Title = episode.Title,
-                                            Video = episode.Source,
-                                            Locale = this.Website.Localization
-                                        };
+                                        EpisodeMatching episode = await this.GetEpisode(webPage, matching, i);
 
-                                        if (this._episodeCollection.Exists(ref ep))
+                                        if (episode != null)
                                         {
-                                            this._episodeCollection.Edit(ref ep);
-                                        }
-                                        else
-                                        {
-                                            this._episodeCollection.Add(ref ep);
+                                            Episode ep = new Episode()
+                                            {
+                                                AnimeID = _anime.Id,
+                                                Source = this.Website.Name,
+                                                Number = episode.Number,
+                                                Title = episode.Title,
+                                                Video = episode.Source,
+                                                Locale = this.Website.Localization
+                                            };
+
+                                            if (this._episodeCollection.Exists(ref ep))
+                                            {
+                                                this._episodeCollection.Edit(ref ep);
+                                            }
+                                            else
+                                            {
+                                                this._episodeCollection.Add(ref ep);
+                                            }
                                         }
                                     }
                                 }
-                                await browser.CloseAsync();
+                                catch { }
+                                finally
+                                {
+                                    await browser.CloseAsync();
+                                }
                             }
                         }
                         catch 

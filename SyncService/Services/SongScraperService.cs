@@ -68,85 +68,92 @@ namespace SyncService.Services
                         List<AnimeSong> animeSongs = new List<AnimeSong>();
 
                         Browser browser = await ProxyHelper.Instance.GetBrowser();
-                        using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browser, true))
+                        try
                         {
-                            string url = $"https://aniplaylist.com/{Uri.EscapeUriString(_anime.Titles[LocalizationEnum.English])}?types=Opening~Ending";
-                            await webPage.GoToAsync(url);
-
-                            await webPage.WaitForSelectorAsync(".song-card", new WaitForSelectorOptions()
+                            using (Page webPage = await ProxyHelper.Instance.GetBestProxy(browser, true))
                             {
-                                Visible = true,
-                                Timeout = 2000
-                            });
+                                string url = $"https://aniplaylist.com/{Uri.EscapeUriString(_anime.Titles[LocalizationEnum.English])}?types=Opening~Ending";
+                                await webPage.GoToAsync(url);
 
-                            ElementHandle[] songs = new ElementHandle[0];
-                            int lastSongsCount = 0;
-
-                            do
-                            {
-                                lastSongsCount = songs.Length;
-                                string windowHeight = "Math.max(" +
-                                    "document.body.scrollHeight, " +
-                                    "document.body.offsetHeight, " +
-                                    "document.documentElement.clientHeight, " +
-                                    "document.documentElement.scrollHeight, " +
-                                    "document.documentElement.offsetHeight" +
-                                ")";
-                                await webPage.EvaluateExpressionAsync($"window.scrollBy(0, {windowHeight})");
-
-                                Thread.Sleep(200);
-
-                                songs = await webPage.QuerySelectorAllAsync(".song-card");
-                            } while (lastSongsCount != songs.Length);
-
-                            foreach (ElementHandle song in songs)
-                            {
-                                ElementHandle title = await song.QuerySelectorAsync(".card-image a .image .card-anime-title");
-                                string songAnimeTitle = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
-
-                                if (_anime.Titles[LocalizationEnum.English].ToLower() == songAnimeTitle.ToLower())
+                                await webPage.WaitForSelectorAsync(".song-card", new WaitForSelectorOptions()
                                 {
-                                    ElementHandle type = await song.QuerySelectorAsync(".card-content span.tag.is-primary");
-                                    string songType = (await type.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
+                                    Visible = true,
+                                    Timeout = 2000
+                                });
 
-                                    ElementHandle anchor = await song.QuerySelectorAsync(".card-image a");
-                                    string[] spotifyUrl = (await anchor.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Split('/');
-                                    string trackId = spotifyUrl[spotifyUrl.Length - 1];
+                                ElementHandle[] songs = new ElementHandle[0];
+                                int lastSongsCount = 0;
 
-                                    if (songType.Contains("Opening") || songType.Contains("Ending"))
+                                do
+                                {
+                                    lastSongsCount = songs.Length;
+                                    string windowHeight = "Math.max(" +
+                                        "document.body.scrollHeight, " +
+                                        "document.body.offsetHeight, " +
+                                        "document.documentElement.clientHeight, " +
+                                        "document.documentElement.scrollHeight, " +
+                                        "document.documentElement.offsetHeight" +
+                                    ")";
+                                    await webPage.EvaluateExpressionAsync($"window.scrollBy(0, {windowHeight})");
+
+                                    Thread.Sleep(200);
+
+                                    songs = await webPage.QuerySelectorAllAsync(".song-card");
+                                } while (lastSongsCount != songs.Length);
+
+                                foreach (ElementHandle song in songs)
+                                {
+                                    ElementHandle title = await song.QuerySelectorAsync(".card-image a .image .card-anime-title");
+                                    string songAnimeTitle = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
+
+                                    if (_anime.Titles[LocalizationEnum.English].ToLower() == songAnimeTitle.ToLower())
                                     {
-                                        string[] parts = songType.Split(' ');
+                                        ElementHandle type = await song.QuerySelectorAsync(".card-content span.tag.is-primary");
+                                        string songType = (await type.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
 
-                                        if (parts.Length == 1)
-                                        {
-                                            parts = new string[2] { parts[0], "0" };
-                                        }
+                                        ElementHandle anchor = await song.QuerySelectorAsync(".card-image a");
+                                        string[] spotifyUrl = (await anchor.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Split('/');
+                                        string trackId = spotifyUrl[spotifyUrl.Length - 1];
 
-                                        AnimeSongTypeEnum animeSongType = AnimeSongTypeEnum.NONE;
+                                        if (songType.Contains("Opening") || songType.Contains("Ending"))
+                                        {
+                                            string[] parts = songType.Split(' ');
 
-                                        if (songType.Contains("Opening"))
-                                        {
-                                            animeSongType = AnimeSongTypeEnum.OPENING;
-                                        }
-                                        else if (songType.Contains("Ending"))
-                                        {
-                                            animeSongType = AnimeSongTypeEnum.ENDING;
-                                        }
-
-                                        if (animeSongType != AnimeSongTypeEnum.NONE && !animeSongs.Select(x => x.SpotifyID).ToList().Contains(trackId))
-                                        {
-                                            animeSongs.Add(new AnimeSong()
+                                            if (parts.Length == 1)
                                             {
-                                                AnimeID = _anime.Id,
-                                                SpotifyID = trackId,
-                                                SongType = animeSongType
-                                            });
+                                                parts = new string[2] { parts[0], "0" };
+                                            }
+
+                                            AnimeSongTypeEnum animeSongType = AnimeSongTypeEnum.NONE;
+
+                                            if (songType.Contains("Opening"))
+                                            {
+                                                animeSongType = AnimeSongTypeEnum.OPENING;
+                                            }
+                                            else if (songType.Contains("Ending"))
+                                            {
+                                                animeSongType = AnimeSongTypeEnum.ENDING;
+                                            }
+
+                                            if (animeSongType != AnimeSongTypeEnum.NONE && !animeSongs.Select(x => x.SpotifyID).ToList().Contains(trackId))
+                                            {
+                                                animeSongs.Add(new AnimeSong()
+                                                {
+                                                    AnimeID = _anime.Id,
+                                                    SpotifyID = trackId,
+                                                    SongType = animeSongType
+                                                });
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                        await browser.CloseAsync();
+                        catch { }
+                        finally
+                        {
+                            await browser.CloseAsync();
+                        }
 
                         List<string> ids = animeSongs.Select(x => x.SpotifyID).ToList();
 
