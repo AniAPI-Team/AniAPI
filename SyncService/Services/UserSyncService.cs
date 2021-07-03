@@ -33,11 +33,6 @@ namespace SyncService.Services
             return new ServicesStatus("UserSync");
         }
 
-        public override void Start()
-        {
-            base.Start();
-        }
-
         public override async Task Work()
         {
             await base.Work();
@@ -135,12 +130,10 @@ namespace SyncService.Services
                         this.Log($"Done {this.GetProgressD(userID, lastID)}%", true);
                     }
                 }
-
-                this.Wait();
             }
             catch(Exception ex)
             {
-                this.Stop(ex);
+                throw;
             }
         }
 

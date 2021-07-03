@@ -99,12 +99,12 @@ namespace SyncService.Services
             return new ServicesStatus("AnimeScraper");
         }
 
-        public override void Start()
+        public override async Task Start()
         {
             this._rateLimitRemaining = 90;
             this._rateLimitReset = DateTime.Now.Ticks;
             
-            base.Start();
+            await base.Start();
         }
 
         public override async Task Work()

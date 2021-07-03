@@ -133,11 +133,13 @@
             </summary>
             <param name="filter">The User filter</param>
         </member>
-        <member name="M:WebAPI.Controllers.UserController.Create(Commons.User)">
+        <member name="M:WebAPI.Controllers.UserController.Create(System.String,Commons.User)">
             <summary>
-            Create a new User
+            /// Create a new User
             </summary>
+            <param name="g_recaptcha_response">The CAPTCHA status token</param>
             <param name="model">The User model</param>
+            <returns></returns>
         </member>
         <member name="M:WebAPI.Controllers.UserController.Update(Commons.User)">
             <summary>

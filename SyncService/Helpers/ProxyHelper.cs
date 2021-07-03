@@ -16,7 +16,7 @@ namespace SyncService.Helpers
 
         private AppSettings _appSettings;
         private Dictionary<int, long> _proxies = new Dictionary<int, long>();
-        private Browser _browser;
+        bool _needDownload = true;
 
         #endregion
 
@@ -69,32 +69,35 @@ namespace SyncService.Helpers
         {
             try
             {
-                if (_browser == null)
+                if (_needDownload)
                 {
                     await new BrowserFetcher().DownloadAsync(BrowserFetcher.DefaultChromiumRevision);
+                    _needDownload = false;
+                }
 
 #if DEBUG
-                    _browser = await Puppeteer.LaunchAsync(new LaunchOptions()
-                    {
-                        Headless = false,
-                        Args = new string[]
+                Browser browser = await Puppeteer.LaunchAsync(new LaunchOptions()
+                {
+                    Headless = false,
+                    Args = new string[]
                         {
+                            "--incognito",
                             $"--proxy-server={this._appSettings.ProxyHost}:{this._appSettings.ProxyPort}"
                         },
-                        IgnoreHTTPSErrors = true
-                    });
+                    IgnoreHTTPSErrors = true
+                });
 #else
-                    _browser = await Puppeteer.LaunchAsync(new LaunchOptions()
-                    {
-                        Headless = true,
-                        Args = new string[]
+                Browser browser = await Puppeteer.LaunchAsync(new LaunchOptions()
+                {
+                    Headless = true,
+                    Args = new string[]
                         {
+                            "--incognito",
                             $"--proxy-server={this._appSettings.ProxyHost}:{this._appSettings.ProxyPort}"
                         },
-                        IgnoreHTTPSErrors = true
-                    });
+                    IgnoreHTTPSErrors = true
+                });
 #endif
-                }
 
                 int user = -1;
                 bool needReset = false;
@@ -126,9 +129,8 @@ namespace SyncService.Helpers
 
                 this._proxies[user]++;
 
-                Page webPage = (await _browser.PagesAsync())[0];
+                Page webPage = (await browser.PagesAsync())[0];
 
-                webPage = await _browser.NewPageAsync();
                 await webPage.SetCacheEnabledAsync(false);
                 await webPage.SetViewportAsync(new ViewPortOptions()
                 {
@@ -143,9 +145,10 @@ namespace SyncService.Helpers
                     webPage.Request += WebPage_Request;
                 }
 
+                string proxyUsername = $"{this._appSettings.ProxyUsername}{user}";
                 await webPage.AuthenticateAsync(new Credentials()
                 {
-                    Username = $"{this._appSettings.ProxyUsername}{user}",
+                    Username = proxyUsername,
                     Password = this._appSettings.ProxyPassword
                 });
 

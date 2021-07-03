@@ -52,10 +52,8 @@ namespace SyncService.Services
             }
             catch(Exception ex)
             {
-                this.Stop(ex);
+                throw;
             }
-            
-            this.Wait();
         }
     }
 }

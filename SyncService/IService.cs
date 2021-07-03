@@ -44,7 +44,7 @@ namespace SyncService
 
         #region Methods
 
-        public virtual void Start()
+        public async virtual Task Start()
         {
             this.UpdateStatus(ServiceStatusEnum.STARTING);
 

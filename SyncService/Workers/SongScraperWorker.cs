@@ -9,23 +9,19 @@ using System.Threading.Tasks;
 
 namespace SyncService.Workers
 {
-    public class AnimeScraperWorker : BackgroundService
+    public class SongScraperWorker : BackgroundService
     {
-        private IService _service = new AnimeScraperService();
-
-        public bool HasDoneFirstRound { get; private set; } = false;
+        private IService _service = new SongScraperService();
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _service.Start();
+            await _service.Start();
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 try
                 {
                     await _service.Work();
-                    HasDoneFirstRound = true;
-
                     _service.Wait();
                 }
                 catch(Exception ex)

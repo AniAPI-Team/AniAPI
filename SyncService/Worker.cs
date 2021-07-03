@@ -12,15 +12,39 @@ namespace SyncService
     public class Worker : BackgroundService
     {
         private readonly AnimeScraperWorker _animeScraper;
+        private readonly WebsiteScraperWorker _websiteScraper;
+        private readonly SongScraperWorker _songScraper;
+        private readonly UserSyncWorker _userSync;
 
         public Worker()
         {
             _animeScraper = WorkerPool.AnimeScraperWorker;
+            _websiteScraper = WorkerPool.WebsiteScraperWorker;
+            _songScraper = WorkerPool.SongScraperWorker;
+            _userSync = WorkerPool.UserSyncWorker;
         }
 
         public override Task StartAsync(CancellationToken cancellationToken)
         {
             Task.Run(async () => await _animeScraper.StartAsync(cancellationToken));
+            
+            bool canProceed = false;
+            while (!canProceed)
+            {
+                Thread.Sleep(60 * 1000);
+            
+                if (_animeScraper.HasDoneFirstRound)
+                {
+                    canProceed = true;
+                }
+            }
+
+            Task.Run(async () => await _userSync.StartAsync(cancellationToken));
+
+            Task.Run(async () => await _websiteScraper.StartAsync(cancellationToken));
+            Thread.Sleep(60 * 1000);
+
+            Task.Run(async () => await _songScraper.StartAsync(cancellationToken));
 
             return Task.CompletedTask;
         }
