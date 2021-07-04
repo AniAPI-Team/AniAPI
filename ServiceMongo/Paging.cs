@@ -1,8 +1,10 @@
 ﻿using MongoDB.Driver;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Text;
+using System.Text.Json.Serialization;
 
 namespace MongoService
 {
@@ -17,6 +19,8 @@ namespace MongoService
         /// <summary>
         /// The current list page
         /// </summary>
+        [JsonPropertyName("current_page")]
+        [JsonProperty(PropertyName = "current_page")]
         public int CurrentPage { get; set; }
 
         /// <summary>
@@ -35,6 +39,8 @@ namespace MongoService
         /// <summary>
         /// The last page available
         /// </summary>
+        [JsonPropertyName("last_page")]
+        [JsonProperty(PropertyName = "last_page")]
         public int LastPage => (int)Math.Ceiling((double)this.Count / this._documentsPerPage);
 
         /// <summary>

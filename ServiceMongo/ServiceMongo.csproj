@@ -11,6 +11,7 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="5.0.0" />
     <PackageReference Include="MongoDB.Bson" Version="2.11.6" />
     <PackageReference Include="MongoDB.Driver" Version="2.11.6" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
   </ItemGroup>
 
 </Project>
