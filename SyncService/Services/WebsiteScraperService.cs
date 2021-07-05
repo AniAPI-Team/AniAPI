@@ -23,7 +23,7 @@ namespace SyncService.Services
 
         private List<IWebsiteScraper> _workers;
 
-        protected override int TimeToWait => 1000 * 60; // 1 Minute
+        protected override int TimeToWait => 1000 * 60 * 10; // 10 Minutes
 
         #endregion
 

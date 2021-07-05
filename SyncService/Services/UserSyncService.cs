@@ -24,7 +24,7 @@ namespace SyncService.Services
         private User _user;
         private HttpClient _anilistClient = new HttpClient() { BaseAddress = new Uri("https://graphql.anilist.co") };
 
-        protected override int TimeToWait => 60 * 1000 * 10; // 10 Minutes
+        protected override int TimeToWait => 60 * 1000; // 1 Minute
 
         #endregion
 
