@@ -230,10 +230,6 @@ namespace Commons
         [JsonProperty(PropertyName = "score")]
         public int Score { get; set; }
 
-        [JsonPropertyName("user_status")]
-        [JsonProperty(PropertyName = "user_status")]
-        public AnimeUserStatusEnum UserStatus { get; set; }
-
         public override string ToString()
         {
             return this.Titles[LocalizationEnum.English];
