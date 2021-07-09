@@ -352,6 +352,7 @@ namespace WebAPI.Controllers
                 this._userCollection.Edit(ref user);
 
                 user.Email = null;
+                user.EmailVerified = null;
                 user.PasswordHash = null;
                 user.LastLoginDate = null;
                 user.Token = null;
