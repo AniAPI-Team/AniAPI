@@ -86,7 +86,7 @@ namespace Commons.Collections
 
             if (!string.IsNullOrEmpty(userFilter.email))
             {
-                queryFilter = queryFilter & builder.Regex($"email", userFilter.email);
+                queryFilter = queryFilter & builder.Eq($"email", userFilter.email);
             }
 
             SortDefinition<User> sort = Builders<User>.Sort.Ascending(x => x.Username);

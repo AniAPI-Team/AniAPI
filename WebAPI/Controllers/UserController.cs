@@ -339,10 +339,28 @@ namespace WebAPI.Controllers
                 if(model.AnilistId != null)
                 {
                     user.AnilistId = model.AnilistId;
+
+                    if (string.IsNullOrEmpty(model.AnilistToken))
+                    {
+                        throw new APIException(HttpStatusCode.BadRequest,
+                            "Bad request",
+                            "'anilist_id' field must come with 'anilist_token' field");
+                    }
                     user.AnilistToken = model.AnilistToken;
                 }
 
                 this._userCollection.Edit(ref user);
+
+                user.PasswordHash = null;
+                user.LastLoginDate = null;
+                user.Token = null;
+
+                user.CalcDerivedFields();
+
+                user.AnilistId = null;
+                user.AnilistToken = null;
+                user.MyAnimeListId = null;
+                user.MyAnimeListToken = null;
 
                 return APIManager.SuccessResponse("User updated", user);
             }
