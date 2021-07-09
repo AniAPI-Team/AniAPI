@@ -42,7 +42,7 @@ namespace WebAPI.Controllers
         /// Retrieves the resources version
         /// </summary>
         [AllowAnonymous]
-        [EnableCors("CorsInternal")]
+        [EnableCors("CorsEveryone")]
         [HttpGet, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse GetVersion()
@@ -70,7 +70,7 @@ namespace WebAPI.Controllers
         /// <param name="resource_type">The resource type</param>
         /// <param name="resource_version">The resource version</param>
         [AllowAnonymous]
-        [EnableCors("CorsInternal")]
+        [EnableCors("CorsEveryone")]
         [HttpGet("{resource_version}/{resource_type}"), MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse GetResource(ResourceTypeEnum resource_type, string resource_version = "1.0")
@@ -89,8 +89,8 @@ namespace WebAPI.Controllers
                     case ResourceTypeEnum.GENRES:
                         resourceName = "genres";
                         break;
-                    case ResourceTypeEnum.TRANSLATIONS:
-                        resourceName = "translations";
+                    case ResourceTypeEnum.LOCALIZATIONS:
+                        resourceName = "localizations";
                         break;
                 }
 
@@ -114,8 +114,8 @@ namespace WebAPI.Controllers
                         case ResourceTypeEnum.GENRES:
                             resourceContent = JsonConvert.DeserializeObject<GenresResource>(reader.ReadToEnd());
                             break;
-                        case ResourceTypeEnum.TRANSLATIONS:
-                            resourceContent = JsonConvert.DeserializeObject<TranslationsResource>(reader.ReadToEnd());
+                        case ResourceTypeEnum.LOCALIZATIONS:
+                            resourceContent = JsonConvert.DeserializeObject<LocalizationResource>(reader.ReadToEnd());
                             break;
                     }
                 }

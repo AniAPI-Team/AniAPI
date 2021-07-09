@@ -71,7 +71,9 @@ namespace Commons.Collections
                 queryFilter = queryFilter & builder.Regex($"name", new BsonRegularExpression($".*{websiteFilter.name}.*", "i"));
             }
 
-            return new Paging<Website>(this.Collection, websiteFilter.page, queryFilter, websiteFilter.per_page);
+            SortDefinition<Website> sort = Builders<Website>.Sort.Ascending(x => x.Id);
+
+            return new Paging<Website>(this.Collection, websiteFilter.page, queryFilter, sort, websiteFilter.per_page);
         }
     }
 }

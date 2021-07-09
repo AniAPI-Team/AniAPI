@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
+using MongoService;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -65,12 +66,57 @@ namespace WebAPI.Controllers
             }
         }
 
+        [AllowAnonymous]
+        [EnableCors("CorsEveryone")]
+        [HttpGet, MapToApiVersion("1")]
+        public APIResponse GetMore([FromQuery] OAuthClientFilter filter)
+        {
+            try
+            {
+                Paging<OAuthClient> result = this._oAuthClientCollection.GetList<OAuthClientFilter>(filter);
+
+                if (result.LastPage == 0)
+                {
+                    throw new APIException(HttpStatusCode.NotFound,
+                        "Zero clients found",
+                        "");
+                }
+
+                if (filter.page > result.LastPage)
+                {
+                    throw new APIException(HttpStatusCode.NotFound,
+                        "Page out of range",
+                        $"Last page number available is {result.LastPage}");
+                }
+
+                foreach (OAuthClient c in result.Documents)
+                {
+                    c.ClientSecret = Guid.Empty;
+                }
+
+                return APIManager.SuccessResponse($"Page {result.CurrentPage} contains {result.Documents.Count} clients. Last page number is {result.LastPage} for a total of {result.Count} clients", result);
+            }
+            catch (APIException ex)
+            {
+                return APIManager.ErrorResponse(ex);
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex.Message);
+                return APIManager.ErrorResponse();
+            }
+        }
+
         /// <summary>
         /// Create a new OAuthClient
         /// </summary>
         /// <param name="model">The OAuthClient model</param>
         [Authorize]
+#if DEBUG
+        [EnableCors("CorsEveryone")]
+#else
         [EnableCors("CorsInternal")]
+#endif
         [HttpPut, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse Create([FromBody] OAuthClient model)
@@ -109,7 +155,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="model">The OAuthClient model</param>
         [Authorize]
+#if DEBUG
+        [EnableCors("CorsEveryone")]
+#else
         [EnableCors("CorsInternal")]
+#endif
         [HttpPost, MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse Update([FromBody] OAuthClient model)
@@ -156,7 +206,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">The OAuthClient id</param>
         [Authorize]
+#if DEBUG
+        [EnableCors("CorsEveryone")]
+#else
         [EnableCors("CorsInternal")]
+#endif
         [HttpDelete("{id}"), MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
         public APIResponse Delete(long id)

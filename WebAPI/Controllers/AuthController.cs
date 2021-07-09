@@ -57,6 +57,7 @@ namespace WebAPI.Controllers
         {
             try
             {
+#if !DEBUG
                 HttpClient httpClient = new HttpClient();
 
                 string recaptchaUrl = $"{_recaptchaBaseURL}?secret={_configuration.GetValue<string>("recaptcha_secret")}&response={credentials.GRecaptchaResponse}";
@@ -71,6 +72,7 @@ namespace WebAPI.Controllers
                         "Invalid CAPTCHA",
                         "CAPTCHA result is not valid");
                 }
+#endif
 
                 var builder = Builders<User>.Filter;
                 FilterDefinition<User> filter = builder.Eq("email", credentials.Email);
@@ -118,7 +120,13 @@ namespace WebAPI.Controllers
 
                 user.Token = tokenHandler.WriteToken(token);
                 user.PasswordHash = null;
+
+                user.HasAnilist = user.AnilistId != null && !string.IsNullOrEmpty(user.AnilistToken);
+                user.HasMyAnimeList = user.MyAnimeListId != null && !string.IsNullOrEmpty(user.MyAnimeListToken);
+
+                user.AnilistId = null;
                 user.AnilistToken = null;
+                user.MyAnimeListId = null;
                 user.MyAnimeListToken = null;
 
                 return APIManager.SuccessResponse("Login done", user);
@@ -191,8 +199,14 @@ namespace WebAPI.Controllers
                 authenticatedUser.PasswordHash = null;
                 authenticatedUser.LastLoginDate = null;
                 authenticatedUser.Token = null;
+
+                authenticatedUser.HasAnilist = authenticatedUser.AnilistId != null && !string.IsNullOrEmpty(authenticatedUser.AnilistToken);
+                authenticatedUser.HasMyAnimeList = authenticatedUser.MyAnimeListId != null && !string.IsNullOrEmpty(authenticatedUser.MyAnimeListToken);
+
                 authenticatedUser.AnilistId = null;
+                authenticatedUser.AnilistToken = null;
                 authenticatedUser.MyAnimeListId = null;
+                authenticatedUser.MyAnimeListToken = null;
 
                 return APIManager.SuccessResponse($"Hi {authenticatedUser.Username}", authenticatedUser);
             }

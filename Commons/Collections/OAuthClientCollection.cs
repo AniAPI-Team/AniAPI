@@ -86,7 +86,9 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("client_id", oAuthClientFilter.client_id);
             }
 
-            return new Paging<OAuthClient>(this.Collection, oAuthClientFilter.page, queryFilter, oAuthClientFilter.per_page);
+            SortDefinition<OAuthClient> sort = Builders<OAuthClient>.Sort.Ascending(x => x.Id);
+
+            return new Paging<OAuthClient>(this.Collection, oAuthClientFilter.page, queryFilter, sort, oAuthClientFilter.per_page);
         }
     }
 }

@@ -18,10 +18,13 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
+using System.Net.Mime;
 using System.Text.Json;
 using System.Threading.Tasks;
 using WebAPI.Helpers;
 using WebAPI.Middlewares;
+using WebAPI.Models;
 
 namespace WebAPI
 {
@@ -64,6 +67,16 @@ namespace WebAPI
             }).AddJsonOptions(options => { 
                 options.JsonSerializerOptions.IgnoreNullValues = true;
                 options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+            }).ConfigureApiBehaviorOptions(option =>
+            {
+                option.InvalidModelStateResponseFactory = context =>
+                {
+                    string[] messages = context.ModelState.FirstOrDefault().Value.Errors.Select(x => x.ErrorMessage).ToArray();
+
+                    return new BadRequestObjectResult(
+                        APIManager.ErrorResponse(
+                            new APIException(System.Net.HttpStatusCode.BadRequest, "Bad request", String.Join(';', messages))));
+                };
             });
 
             services.AddDistributedMemoryCache();
@@ -128,6 +141,15 @@ namespace WebAPI
             services.AddHttpContextAccessor();
 
             services.AddSingleton<IRateLimitDependency, RateLimitDependency>();
+
+            services.AddHttpClient("HttpClientWithSSLUntrusted").ConfigurePrimaryHttpMessageHandler(() => new HttpClientHandler
+            {
+                ClientCertificateOptions = ClientCertificateOption.Manual,
+                ServerCertificateCustomValidationCallback = (request, cert, certChain, policyErrors) =>
+                {
+                    return true;
+                }
+            });
 
             services.AddProxies();
         }

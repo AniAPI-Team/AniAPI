@@ -92,7 +92,9 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("synced", userStoryFilter.synced);
             }
 
-            return new Paging<UserStory>(this.Collection, userStoryFilter.page, queryFilter, userStoryFilter.per_page);
+            SortDefinition<UserStory> sort = Builders<UserStory>.Sort.Descending(x => x.CreationDate);
+
+            return new Paging<UserStory>(this.Collection, userStoryFilter.page, queryFilter, sort, userStoryFilter.per_page);
         }
     }
 }

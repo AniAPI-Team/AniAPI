@@ -89,7 +89,9 @@ namespace Commons.Collections
                 queryFilter = queryFilter & builder.Regex($"email", userFilter.email);
             }
 
-            return new Paging<User>(this.Collection, userFilter.page, queryFilter, userFilter.per_page);
+            SortDefinition<User> sort = Builders<User>.Sort.Ascending(x => x.Username);
+
+            return new Paging<User>(this.Collection, userFilter.page, queryFilter, sort, userFilter.per_page);
         }
     }
 }

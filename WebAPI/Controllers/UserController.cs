@@ -300,7 +300,37 @@ namespace WebAPI.Controllers
                 }
 
                 User user = this._userCollection.Get(model.Id);
-                
+
+                if (!string.IsNullOrEmpty(model.Password))
+                {
+                    byte[] passwordBytes = Encoding.UTF8.GetBytes(model.Password);
+                    byte[] salt = new byte[16];
+                    _rng.GetBytes(salt);
+
+                    Argon2Config argonConfig = new Argon2Config()
+                    {
+                        Type = Argon2Type.DataIndependentAddressing,
+                        Version = Argon2Version.Nineteen,
+                        TimeCost = 10,
+                        MemoryCost = 32768,
+                        Lanes = 5,
+                        Threads = Environment.ProcessorCount,
+                        Password = passwordBytes,
+                        Salt = salt,
+                        HashLength = 20
+                    };
+                    Argon2 argon = new Argon2(argonConfig);
+
+                    using (SecureArray<byte> hash = argon.Hash())
+                    {
+                        user.PasswordHash = argonConfig.EncodeString(hash.Buffer);
+                    }
+
+                    model.Password = null;
+                }
+
+                user.Gender = model.Gender;
+
                 if(model.Localization != null)
                 {
                     user.Localization = model.Localization;

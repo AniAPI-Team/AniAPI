@@ -87,7 +87,9 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("source", animeSuggestionFilter.source);
             }
 
-            return new Paging<AnimeSuggestion>(this.Collection, animeSuggestionFilter.page, queryFilter, animeSuggestionFilter.per_page);
+            SortDefinition<AnimeSuggestion> sort = Builders<AnimeSuggestion>.Sort.Ascending(x => x.Id);
+
+            return new Paging<AnimeSuggestion>(this.Collection, animeSuggestionFilter.page, queryFilter, sort, animeSuggestionFilter.per_page);
         }
     }
 }

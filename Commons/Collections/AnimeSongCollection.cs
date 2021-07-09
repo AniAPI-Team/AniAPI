@@ -98,7 +98,9 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("type", songFilter.type);
             }
 
-            return new Paging<AnimeSong>(this.Collection, songFilter.page, queryFilter, songFilter.per_page);
+            SortDefinition<AnimeSong> sort = Builders<AnimeSong>.Sort.Descending(x => x.Year).Descending(x => x.Season);
+
+            return new Paging<AnimeSong>(this.Collection, songFilter.page, queryFilter, sort, songFilter.per_page);
         }
     }
 }

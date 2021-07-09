@@ -49,7 +49,7 @@ namespace MongoService
         /// <param name="collection">A MongoDB collection reference</param>
         /// <param name="page">A page number</param>
         /// <param name="filter">A MongoDB query filter</param>
-        public Paging(IMongoCollection<TDocument> collection, int page, FilterDefinition<TDocument> filter, int documentsPerPage = 100)
+        public Paging(IMongoCollection<TDocument> collection, int page, FilterDefinition<TDocument> filter, SortDefinition<TDocument> sort, int documentsPerPage = 100)
         {
             if(documentsPerPage > 100)
             {
@@ -59,7 +59,7 @@ namespace MongoService
             this._documentsPerPage = documentsPerPage;
             this.CurrentPage = page;
             this.Count = collection.CountDocuments(filter);
-            this.Documents = collection.Find(filter).Skip(this._skip).Limit(this._limit).ToList();
+            this.Documents = collection.Find(filter).Sort(sort).Skip(this._skip).Limit(this._limit).ToList();
         }
     }
 }

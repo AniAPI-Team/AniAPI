@@ -73,6 +73,10 @@ namespace Commons
         [JsonProperty(PropertyName = "anilist_token")]
         public string AnilistToken { get; set; }
 
+        [JsonPropertyName("has_anilist")]
+        [JsonProperty(PropertyName = "has_anilist")]
+        public bool? HasAnilist { get; set; } = null;
+
         [BsonElement("mal_id")]
         [JsonPropertyName("mal_id")]
         [JsonProperty(PropertyName = "mal_id")]
@@ -83,15 +87,9 @@ namespace Commons
         [JsonProperty(PropertyName = "mal_token")]
         public string MyAnimeListToken { get; set; }
 
-        public bool HasAnilist()
-        {
-            return this.AnilistId != null && !string.IsNullOrEmpty(this.AnilistToken);
-        }
-
-        public bool HasMyAnimeList()
-        {
-            return this.MyAnimeListId != null && !string.IsNullOrEmpty(this.MyAnimeListToken);
-        }
+        [JsonPropertyName("has_mal")]
+        [JsonProperty(PropertyName = "has_mal")]
+        public bool? HasMyAnimeList { get; set; } = null;
 
         public void HideConfindentialValues()
         {
@@ -101,9 +99,13 @@ namespace Commons
             this.EmailVerified = null;
             this.LastLoginDate = null;
             this.Token = null;
-            this.AnilistId = null;
-            this.MyAnimeListId = null;
             this.Localization = null;
+            this.AnilistId = null;
+            this.AnilistToken = null;
+            this.HasAnilist = null;
+            this.MyAnimeListId = null;
+            this.MyAnimeListToken = null;
+            this.HasMyAnimeList = null;
         }
     }
 }

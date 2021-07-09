@@ -46,6 +46,8 @@ namespace WebAPI.Controllers
                 {
                     case "dreamsub":
                         options = HttpProxyOptionsBuilder.Instance
+                            .WithHttpClientName("HttpClientWithSSLUntrusted")
+                            .WithShouldAddForwardedHeaders(false)
                             .WithBeforeSend((context, request) =>
                             {
                                 request.Headers.Host = values["host"];

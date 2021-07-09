@@ -87,7 +87,7 @@ namespace Commons.Collections
 
             if(animeFilter.formats.Count > 0)
             {
-                queryFilter &= builder.In("format", animeFilter.formats);
+                queryFilter &= builder.AnyIn("format", animeFilter.formats);
             }
 
             if(animeFilter.status != null)
@@ -107,7 +107,7 @@ namespace Commons.Collections
 
             if(animeFilter.genres.Count > 0)
             {
-                queryFilter &= builder.AnyIn<string>("genres", animeFilter.genres);
+                queryFilter &= builder.AnyIn("genres", animeFilter.genres);
             }
 
             if (!string.IsNullOrEmpty(animeFilter.locale))
@@ -115,7 +115,9 @@ namespace Commons.Collections
                 queryFilter &= builder.Exists($"titles.{animeFilter.locale}");
             }
 
-            return new Paging<Anime>(this.Collection, animeFilter.page, queryFilter, animeFilter.per_page);
+            SortDefinition<Anime> sort = Builders<Anime>.Sort.Descending(x => x.Score);
+
+            return new Paging<Anime>(this.Collection, animeFilter.page, queryFilter, sort, animeFilter.per_page);
         }
     }
 }

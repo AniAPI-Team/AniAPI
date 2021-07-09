@@ -1,0 +1,12 @@
+{
+    "localizations": [
+        {
+            "i18n": "en",
+            "label": "English"
+        },
+        {
+            "i18n": "it",
+            "label": "Italian"
+        }
+    ]
+}
