@@ -52,19 +52,21 @@ namespace SyncService.Services
                             continue;
                         }
 
-                        if (!_user.HasAnilist() && !_user.HasMyAnimeList())
+                        _user.CalcDerivedFields();
+
+                        if (!_user.HasAnilist.Value && !_user.HasMyAnimeList.Value)
                         {
                             throw new Exception();
                         }
 
                         List<UserStory> toImport = new List<UserStory>();
 
-                        if (_user.HasAnilist())
+                        if (_user.HasAnilist.Value)
                         {
                             toImport.AddRange(await this.importFromAnilist());
                         }
 
-                        if (_user.HasMyAnimeList())
+                        if (_user.HasMyAnimeList.Value)
                         {
                             toImport.AddRange(await this.importFromMyAnimeList());
                         }
@@ -106,12 +108,12 @@ namespace SyncService.Services
                             {
                                 UserStory s = query.Documents[i];
 
-                                if (_user.HasAnilist())
+                                if (_user.HasAnilist.Value)
                                 {
                                     await this.exportToAnilist(s);
                                 }
 
-                                if (_user.HasMyAnimeList())
+                                if (_user.HasMyAnimeList.Value)
                                 {
                                     await this.exportToMyAnimeList(s);
                                 }

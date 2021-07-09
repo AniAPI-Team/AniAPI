@@ -121,8 +121,7 @@ namespace WebAPI.Controllers
                 user.Token = tokenHandler.WriteToken(token);
                 user.PasswordHash = null;
 
-                user.HasAnilist = user.AnilistId != null && !string.IsNullOrEmpty(user.AnilistToken);
-                user.HasMyAnimeList = user.MyAnimeListId != null && !string.IsNullOrEmpty(user.MyAnimeListToken);
+                user.CalcDerivedFields();
 
                 user.AnilistId = null;
                 user.AnilistToken = null;
@@ -200,8 +199,7 @@ namespace WebAPI.Controllers
                 authenticatedUser.LastLoginDate = null;
                 authenticatedUser.Token = null;
 
-                authenticatedUser.HasAnilist = authenticatedUser.AnilistId != null && !string.IsNullOrEmpty(authenticatedUser.AnilistToken);
-                authenticatedUser.HasMyAnimeList = authenticatedUser.MyAnimeListId != null && !string.IsNullOrEmpty(authenticatedUser.MyAnimeListToken);
+                authenticatedUser.CalcDerivedFields();
 
                 authenticatedUser.AnilistId = null;
                 authenticatedUser.AnilistToken = null;

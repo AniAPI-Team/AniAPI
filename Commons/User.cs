@@ -91,6 +91,12 @@ namespace Commons
         [JsonProperty(PropertyName = "has_mal")]
         public bool? HasMyAnimeList { get; set; } = null;
 
+        public void CalcDerivedFields()
+        {
+            HasAnilist = AnilistId != null && !string.IsNullOrEmpty(AnilistToken);
+            HasMyAnimeList = MyAnimeListId != null && !string.IsNullOrEmpty(MyAnimeListToken);
+        }
+
         public void HideConfindentialValues()
         {
             this.Password = null;
