@@ -100,7 +100,6 @@ namespace SyncService.Models.WebsiteScrapers
                 if (!string.IsNullOrEmpty(episode.Path))
                 {
                     episode.Path = episode.Path.Trim();
-                    episode.Title = 
 
                     url = $"{this.Website.SiteUrl}{episode.Path}";
 

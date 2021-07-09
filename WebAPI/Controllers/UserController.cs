@@ -362,7 +362,11 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">The User id</param>
         [Attributes.Authorize]
+#if DEBUG
+        [EnableCors("CorsEveryone")]
+#else
         [EnableCors("CorsInternal")]
+#endif
         [HttpDelete("{id}"), MapToApiVersion("1")]
         public APIResponse Delete(long id)
         {
