@@ -253,8 +253,8 @@ namespace SyncService.Services
             GraphQLQuery query = new GraphQLQuery()
             {
                 Query = @"
-                mutation($mediaId: Int, $status: MediaListStatus) {
-                    SaveMediaListEntry(mediaId: $mediaId, status: $status) {
+                mutation($mediaId: Int, $status: MediaListStatus, $progress: Int) {
+                    SaveMediaListEntry(mediaId: $mediaId, status: $status, progress: $progress) {
                         id
                     }
                 }
@@ -262,7 +262,8 @@ namespace SyncService.Services
                 Variables = new Dictionary<string, object>()
                 {
                     { "mediaId", anime.AnilistId },
-                    { "status", s.Status.ToString() }
+                    { "status", s.Status.ToString() },
+                    { "progress", s.CurrentEpisode }
                 }
             };
 
