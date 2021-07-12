@@ -226,7 +226,7 @@ namespace SyncService.Services
                                     AnimeID = animeId,
                                     Status = media.Status,
                                     CurrentEpisode = media.Progress,
-                                    CurrentEpisodeTime = TimeSpan.Zero,
+                                    CurrentEpisodeTicks = 0,
                                     Synced = true
                                 });
                             }

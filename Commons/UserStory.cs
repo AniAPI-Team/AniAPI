@@ -33,10 +33,10 @@ namespace Commons
         [JsonProperty(PropertyName = "current_episode")]
         public int CurrentEpisode { get; set; }
 
-        [BsonElement("current_episode_time")]
-        [JsonPropertyName("current_episode_time")]
-        [JsonProperty(PropertyName = "current_episode_time")]
-        public TimeSpan? CurrentEpisodeTime { get; set; }
+        [BsonElement("current_episode_ticks")]
+        [JsonPropertyName("current_episode_ticks")]
+        [JsonProperty(PropertyName = "current_episode_ticks")]
+        public long? CurrentEpisodeTicks { get; set; }
 
         [BsonElement("synced")]
         [System.Text.Json.Serialization.JsonIgnore]

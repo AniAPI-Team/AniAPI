@@ -140,15 +140,24 @@ namespace WebAPI.Controllers
                 if (this._userCollection.Get(model.UserID) == null)
                 {
                     throw new APIException(HttpStatusCode.BadRequest,
-                        "User not found",
+                        "Bad request",
                         "Please provide a valid user_id");
                 }
 
-                if (this._animeCollection.Get(model.AnimeID) == null)
+                Anime anime = this._animeCollection.Get(model.AnimeID);
+
+                if (anime == null)
                 {
                     throw new APIException(HttpStatusCode.BadRequest,
-                        "Anime not found",
+                        "Bad request",
                         "Please provide a valid anime_id");
+                }
+
+                if(model.CurrentEpisode > anime.EpisodesCount)
+                {
+                    throw new APIException(HttpStatusCode.BadRequest,
+                        "Bad request",
+                        $"Anime with id {anime.Id} has a maximum of {anime.EpisodesCount} released episodes");
                 }
 
                 List<UserStory> collisions = new List<UserStory>();
@@ -167,6 +176,16 @@ namespace WebAPI.Controllers
                 }
 
                 collisions = null;
+
+                switch (model.Status)
+                {
+                    case Commons.Enums.UserStoryStatusEnum.COMPLETED:
+                        model.CurrentEpisode = anime.EpisodesCount;
+                        break;
+                    case Commons.Enums.UserStoryStatusEnum.PLANNING:
+                        model.CurrentEpisode = 0;
+                        break;
+                }
 
                 model.Synced = false;
 
@@ -208,15 +227,24 @@ namespace WebAPI.Controllers
                 if (!this._userStoryCollection.Exists(ref model, false))
                 {
                     throw new APIException(HttpStatusCode.NotFound,
-                        "Story not found",
+                        "Not found",
                         $"Story with id {model.Id} does not exists");
                 }
 
                 UserStory story = this._userStoryCollection.Get(model.Id);
 
+                Anime anime = this._animeCollection.Get(model.AnimeID);
+
+                if (model.CurrentEpisode > anime.EpisodesCount)
+                {
+                    throw new APIException(HttpStatusCode.BadRequest,
+                        "Bad request",
+                        $"Anime with id {anime.Id} has a maximum of {anime.EpisodesCount} released episodes");
+                }
+
                 story.Status = model.Status;
                 story.CurrentEpisode = model.CurrentEpisode;
-                story.CurrentEpisodeTime = model.CurrentEpisodeTime;
+                story.CurrentEpisodeTicks = model.CurrentEpisodeTicks;
                 story.Synced = false;
 
                 this._userStoryCollection.Edit(ref story);
@@ -252,7 +280,7 @@ namespace WebAPI.Controllers
                 if (story == null)
                 {
                     throw new APIException(HttpStatusCode.NotFound,
-                        "Story not found",
+                        "Not found",
                         $"Story with id {id} does not exists");
                 }
 
