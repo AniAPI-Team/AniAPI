@@ -42,12 +42,24 @@ namespace SyncService.Services
                 {
                     new DreamsubScraper(this),
                     new AnimeworldScraper(this),
-                    new GoganimeScraper(this)
+                    new GogoanimeScraper(this)
                 };
 
                 foreach(IWebsiteScraper scraper in this._workers)
                 {
-                    await scraper.Start();
+                    Task.Run(async () => await scraper.Start());
+                }
+
+                while (true)
+                {
+                    Thread.Sleep(1000 * 60);
+                
+                    int working = this._workers.Count(x => x.Working == true);
+                    
+                    if(working == 0)
+                    {
+                        break;
+                    }
                 }
             }
             catch(Exception ex)

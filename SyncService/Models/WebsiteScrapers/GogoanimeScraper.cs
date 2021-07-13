@@ -13,17 +13,16 @@ using System.Threading.Tasks;
 
 namespace SyncService.Models.WebsiteScrapers
 {
-    public class GoganimeScraper : IWebsiteScraper
+    public class GogoanimeScraper : IWebsiteScraper
     {
 
-        public GoganimeScraper(WebsiteScraperService service) : base(service)
+        public GogoanimeScraper(WebsiteScraperService service) : base(service)
         {
         }
 
         protected override long WebsiteID => 3;
 
-        protected override Type WebsiteType => typeof(GoganimeScraper);
-        protected override bool WebsiteForceReload { get => true; }
+        protected override Type WebsiteType => typeof(GogoanimeScraper);
 
         private List<EpisodeMatching> episodesMatchings = new List<EpisodeMatching>();
 
@@ -53,7 +52,7 @@ namespace SyncService.Models.WebsiteScrapers
                 Timeout = 2000
             });
 
-            foreach (ElementHandle element in await webPage.QuerySelectorAllAsync(".items"))
+            foreach (ElementHandle element in await webPage.QuerySelectorAllAsync(".items li"))
             {
                 matching = new AnimeMatching();
 
@@ -157,22 +156,13 @@ namespace SyncService.Models.WebsiteScrapers
                     if (!videoPageUrl.Contains("https:"))
                         videoPageUrl = $"https:{ videoPageUrl }";
 
-                    await ProxyHelper.NavigateAsync(webPage, videoPageUrl);
-
-                    // Get Page HTML Content As String
-                    string pageContent = await webPage.GetContentAsync();
-
-                    Regex rgx = new Regex(@"playerInstance\.setup\(\s*[^s]+sources\:\[\{file\: \'([^\']+)\'\,", RegexOptions.None);
-                    Match match = rgx.Match(pageContent);
-
-                    if (!match.Success)
-                        return null;
-                    else
-                        episode.Source = match.Groups[1].Value;
+                    episode.Source = BuildAPIProxyURL(videoPageUrl);
                 }
 
                 if (!string.IsNullOrEmpty(episode.Source))
+                {
                     return episode;
+                }
             }
 
             return null;

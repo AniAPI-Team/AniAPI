@@ -122,6 +122,13 @@ namespace SyncService.Services
                                 this._userStoryCollection.Edit(ref s);
                             }
                         }
+
+                        if (_user.HasAnilist.Value)
+                        {
+                            await importAvatar();
+
+                            this._userCollection.Edit(ref _user);
+                        }
                     }
                     catch(Exception ex)
                     {
@@ -142,6 +149,70 @@ namespace SyncService.Services
             {
                 throw;
             }
+        }
+
+        private async Task importAvatar()
+        {
+            bool done = false;
+
+            GraphQLQuery query = new GraphQLQuery()
+            {
+                Query = @"
+                query($userId: Int) {
+                    User(id: $userId) {
+                        avatar {
+                            large
+                        }
+                    }
+                }
+                ",
+                Variables = new Dictionary<string, object>()
+                {
+                    { "userId", _user.AnilistId }
+                }
+            };
+
+            var request = new HttpRequestMessage
+            {
+                Method = HttpMethod.Post,
+                Content = new StringContent(JsonConvert.SerializeObject(query), Encoding.UTF8, "application/json"),
+            };
+            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _user.AnilistToken);
+
+            do
+            {
+                using (var response = await _anilistClient.SendAsync(request))
+                {
+                    try
+                    {
+                        response.EnsureSuccessStatusCode();
+                    }
+                    catch (Exception ex)
+                    {
+                        if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                        {
+                            Thread.Sleep(60 * 1000);
+                            continue;
+                        }
+
+                        throw;
+                    }
+
+                    done = true;
+
+                    AnilistAvatarResponse anilistResponse = JsonConvert.DeserializeObject<AnilistAvatarResponse>(await response.Content.ReadAsStringAsync());
+
+                    _user.Avatar = anilistResponse.Data.User.Avatar.Large;
+                }
+
+                if (!done)
+                {
+                    Thread.Sleep(10 * 1000);
+                }
+            }
+            while (done == false);
+
+            return;
         }
 
         private async Task<List<UserStory>> importFromAnilist()
@@ -233,6 +304,11 @@ namespace SyncService.Services
                         }
                     }
                 }
+
+                if (!done)
+                {
+                    Thread.Sleep(10 * 1000);
+                }
             }
             while (done == false);
 
@@ -294,6 +370,11 @@ namespace SyncService.Services
                     }
 
                     done = true;
+                }
+
+                if (!done)
+                {
+                    Thread.Sleep(10 * 1000);
                 }
             }
             while (done == false);

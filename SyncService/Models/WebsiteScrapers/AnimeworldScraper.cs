@@ -136,7 +136,9 @@ namespace SyncService.Models.WebsiteScrapers
                 }
 
                 if (!string.IsNullOrEmpty(episode.Source))
+                {
                     return episode;
+                }
             }
 
             return null;

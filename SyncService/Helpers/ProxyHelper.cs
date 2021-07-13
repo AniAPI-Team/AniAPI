@@ -43,8 +43,8 @@ namespace SyncService.Helpers
                 int timeout = 1000 * 15;
                 WaitUntilNavigation[] waitUntil = new WaitUntilNavigation[]
                 {
-                WaitUntilNavigation.Load,
-                WaitUntilNavigation.DOMContentLoaded
+                    WaitUntilNavigation.Load,
+                    WaitUntilNavigation.DOMContentLoaded
                 };
 
                 await page.GoToAsync(url, timeout, waitUntil);
@@ -163,6 +163,15 @@ namespace SyncService.Helpers
                     Username = proxyUsername,
                     Password = this._appSettings.ProxyPassword
                 });
+
+                await webPage.Client.SendAsync("Network.setBlockedURLs", new Dictionary<string, object>
+                {
+                    ["urls"] = new string[]
+                    {
+                        "*.jpg", "*.png", "*.gif", "*.svg",
+                        "*.mp4", "*.avi", "*.flv", "*.mov", "*.wmv",
+                    }
+                }).ConfigureAwait(false);
 
                 webPage.Response += WebPage_Response;
 

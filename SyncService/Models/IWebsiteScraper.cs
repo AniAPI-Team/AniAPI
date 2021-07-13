@@ -30,7 +30,7 @@ namespace SyncService.Models
         protected virtual bool WebsiteForceReload { get; } = false;
         protected WebsiteScraperService Service { get; set; }
         protected Thread Thread { get; private set; }
-        public bool Working { get; private set; }
+        public bool Working { get; private set; } = false;
 
         public IWebsiteScraper(WebsiteScraperService service)
         {
@@ -42,10 +42,9 @@ namespace SyncService.Models
 
         public async Task Start()
         {
-            this.Working = true;
-
             if (this.Website.Active)
             {
+                this.Working = true;
                 await this.run();
             }
         }
@@ -106,7 +105,7 @@ namespace SyncService.Models
                 apiUrl += "?";
             }
 
-            for(int i = 0; i < values.Keys.Count; i++)
+            for(int i = 0; i < values?.Keys.Count; i++)
             {
                 string key = values.Keys.ElementAt(i);
 

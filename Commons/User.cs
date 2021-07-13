@@ -58,6 +58,11 @@ namespace Commons
         [JsonProperty(PropertyName = "gender")]
         public UserGenderEnum Gender { get; set; }
 
+        [BsonElement("avatar")]
+        [JsonPropertyName("avatar")]
+        [JsonProperty(PropertyName = "avatar")]
+        public string Avatar { get; set; }
+
         [BsonElement("localization")]
         [JsonPropertyName("localization")]
         [JsonProperty(PropertyName = "localization")]

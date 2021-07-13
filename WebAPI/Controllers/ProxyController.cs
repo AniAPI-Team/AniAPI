@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Http;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 
@@ -39,7 +41,7 @@ namespace WebAPI.Controllers
             try
             {
                 HttpProxyOptions options = null;
-
+                
                 url = HttpUtility.UrlDecode(url);
 
                 switch (websiteName)
@@ -57,6 +59,9 @@ namespace WebAPI.Controllers
                             })
                             .Build();
                         break;
+                    case "gogoanime":
+                        url = getGogoanimeURL(url);
+                        return new RedirectResult(url).ExecuteResultAsync(ControllerContext);
                 }
 
                 if(options == null)
@@ -67,6 +72,33 @@ namespace WebAPI.Controllers
                 return this.HttpProxyAsync(url, options);
             }
             catch(Exception ex)
+            {
+                throw;
+            }
+        }
+
+        private string getGogoanimeURL(string url)
+        {
+            try
+            {
+                HttpClient client = new HttpClient();
+
+                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+                HttpResponseMessage response = client.SendAsync(request).Result;
+
+                string res = response.Content.ReadAsStringAsync().Result;
+
+                Regex rgx = new Regex(@"playerInstance\.setup\(\s*[^s]+sources\:\[\{file\: \'([^\']+)\'\,", RegexOptions.None);
+                Match match = rgx.Match(res);
+
+                if (!match.Success)
+                {
+                    throw new Exception("URL not found!");
+                }
+                
+                return match.Groups[1].Value;
+            }
+            catch (Exception ex)
             {
                 throw;
             }
