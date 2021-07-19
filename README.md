@@ -50,7 +50,7 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 
 If you wanna help us to provide an even better service, you can contribute on things like:
 * Fixing untracked bugs
-* Adding a new website for episodes' scraping
+* [Adding a new website for episodes' scraping](https://github.com/AniAPI-Team/AniAPI/tree/main/SyncService/Models/WebsiteScrapers)
 
 ## Disclaimer
 
