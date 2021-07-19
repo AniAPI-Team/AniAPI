@@ -1,39 +1,39 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using Commons;
+﻿using Commons;
 using Commons.Collections;
-using Commons.Enums;
 using Commons.Filters;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Cors;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
+using MongoService;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Net;
-using WebAPI.Models;
-using MongoService;
-using Microsoft.AspNetCore.Cors;
-using Microsoft.AspNetCore.Authorization;
+using System.Threading.Tasks;
 
 namespace WebAPI.Controllers
 {
     /// <summary>
-    /// R Controller for Anime resource
+    /// R Controller for AnimeSong resource
     /// </summary>
     [ApiVersion("1")]
-    [Route("anime")]
+    [Route("song")]
     [ApiController]
-    public class AnimeController : Controller
+    public class AnimeSongController : Controller
     {
-        private readonly ILogger<AnimeController> _logger;
-        private AnimeCollection _animeCollection = new AnimeCollection();
+        private readonly ILogger<AnimeSongController> _logger;
+        private AnimeSongCollection _animeSongCollection = new AnimeSongCollection();
 
-        public AnimeController(ILogger<AnimeController> logger)
+        public AnimeSongController(ILogger<AnimeSongController> logger)
         {
             _logger = logger;
         }
 
         /// <summary>
-        /// Retrieves a specific Anime by id
+        /// Retrieves a specific AnimeSong by id
         /// </summary>
-        /// <param name="id">The Anime id</param>
+        /// <param name="id">The AnimeSong id</param>
         [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet("{id}"), MapToApiVersion("1")]
@@ -41,22 +41,22 @@ namespace WebAPI.Controllers
         {
             try
             {
-                Anime anime = this._animeCollection.Get(id);
+                AnimeSong song = this._animeSongCollection.Get(id);
 
-                if (anime == null)
+                if (song == null)
                 {
                     throw new APIException(HttpStatusCode.NotFound,
-                        "Anime not found",
-                        $"Anime with id {id} does not exists");
+                        "Song not found",
+                        $"Song with id {id} does not exists");
                 }
 
-                return APIManager.SuccessResponse("Anime found", anime);
+                return APIManager.SuccessResponse("Song found", song);
             }
             catch (APIException ex)
             {
                 return APIManager.ErrorResponse(ex);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this._logger.LogError(ex.Message);
                 return APIManager.ErrorResponse();
@@ -64,39 +64,39 @@ namespace WebAPI.Controllers
         }
 
         /// <summary>
-        /// Retrieves a list of Anime
+        /// Retrieves a list of AnimeSong
         /// </summary>
-        /// <param name="filter">The Anime filter</param>
+        /// <param name="filter">The AnimeSong filter</param>
         [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet, MapToApiVersion("1")]
-        public APIResponse GetMore([FromQuery] AnimeFilter filter)
+        public APIResponse GetMore([FromQuery] AnimeSongFilter filter)
         {
             try
             {
-                Paging<Anime> result = this._animeCollection.GetList<AnimeFilter>(filter);
+                Paging<AnimeSong> result = this._animeSongCollection.GetList<AnimeSongFilter>(filter);
 
-                if(result.LastPage == 0)
+                if (result.LastPage == 0)
                 {
                     throw new APIException(HttpStatusCode.NotFound,
-                        "Zero anime found",
+                        "Zero songs found",
                         "");
                 }
 
-                if(filter.page > result.LastPage)
+                if (filter.page > result.LastPage)
                 {
                     throw new APIException(HttpStatusCode.NotFound,
                         "Page out of range",
                         $"Last page number available is {result.LastPage}");
                 }
 
-                return APIManager.SuccessResponse($"Page {result.CurrentPage} contains {result.Documents.Count} anime. Last page number is {result.LastPage} for a total of {result.Count} anime", result);
+                return APIManager.SuccessResponse($"Page {result.CurrentPage} contains {result.Documents.Count} songs. Last page number is {result.LastPage} for a total of {result.Count} songs", result);
             }
-            catch(APIException ex)
+            catch (APIException ex)
             {
                 return APIManager.ErrorResponse(ex);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 this._logger.LogError(ex.Message);
                 return APIManager.ErrorResponse();

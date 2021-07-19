@@ -83,6 +83,11 @@ namespace Commons.Collections
                 queryFilter &= builder.Regex("title", new BsonRegularExpression($".*{songFilter.title}.*", "i"));
             }
 
+            if (!string.IsNullOrEmpty(songFilter.artist))
+            {
+                queryFilter &= builder.Regex("artist", new BsonRegularExpression($".*{songFilter.artist}.*", "i"));
+            }
+
             if(songFilter.year != null)
             {
                 queryFilter &= builder.Eq("year", songFilter.year);
