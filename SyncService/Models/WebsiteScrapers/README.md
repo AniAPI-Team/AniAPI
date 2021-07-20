@@ -25,12 +25,19 @@ public class GogoanimeScraper : IWebsiteScraper {
   
   protected override async Task<AnimeMatching> GetMatching(Page webPage, string animeTitle)
   {
-  
+    // Go to the page to scrape
+    // Navigate throught HTML to get data
+    // Calls AnalyzeMatching
+    // If true, returns the matching
+    // Else, return null
   }
   
   protected override async Task<EpisodeMatching> GetEpisode(Page webPage, AnimeMatching matching, int number)
   {
-  
+    // Handle a list of episodes in order to avoid useless requests (if possible)
+    // Go to the page to scrape
+    // Navigate throught HTML to get data
+    // Returns the episode
   }
 
 }
@@ -38,9 +45,8 @@ public class GogoanimeScraper : IWebsiteScraper {
 
 ### WebsiteID
 
-This is the internal reference used by **MongoDB** to fetch the website's informations.
-We will discuss this later.
-For now, give it a progressive numeric value (check already implemented websites to know which value you have to give).
+This is the internal reference used by **MongoDB** to fetch the website's informations, must be unique.
+Give it a progressive numeric value (check already implemented websites to know which value you have to give).
 
 ### WebsiteType
 
