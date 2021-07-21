@@ -70,10 +70,7 @@ namespace Commons.Collections
             var builder = Builders<Anime>.Filter;
             FilterDefinition<Anime> queryFilter = builder.Empty;
 
-            if(animeFilter.ids.Count > 0)
-            {
-                queryFilter &= builder.AnyIn("_id", animeFilter.ids);
-            }
+            animeFilter.ApplyBaseFilter(builder, ref queryFilter);
 
             if (!string.IsNullOrEmpty(animeFilter.title))
             {

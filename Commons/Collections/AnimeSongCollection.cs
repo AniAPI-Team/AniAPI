@@ -73,10 +73,7 @@ namespace Commons.Collections
             var builder = Builders<AnimeSong>.Filter;
             FilterDefinition<AnimeSong> queryFilter = builder.Empty;
 
-            if (songFilter.ids.Count > 0)
-            {
-                queryFilter &= builder.AnyIn("_id", songFilter.ids);
-            }
+            songFilter.ApplyBaseFilter(builder, ref queryFilter);
 
             if (songFilter.anime_id != null)
             {

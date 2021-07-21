@@ -1,4 +1,5 @@
-﻿using System;
+﻿using MongoDB.Driver;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -26,5 +27,19 @@ namespace MongoService
         public int per_page { get { return this._per_page; } set { this._per_page = value; } }
 
         public List<long> ids { get; set; } = new List<long>();
+
+        public List<string> sorts { get; set; } = new List<string>();
+
+        public FilterDefinition<XDocument> ApplyBaseFilter<XDocument>(FilterDefinitionBuilder<XDocument> builder, ref FilterDefinition<XDocument> filter)
+        {
+            if (ids.Count > 0)
+            {
+                filter &= builder.AnyIn("_id", ids);
+            }
+
+
+
+            return filter;
+        }
     }
 }

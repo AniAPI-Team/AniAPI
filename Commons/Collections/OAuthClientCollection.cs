@@ -76,7 +76,9 @@ namespace Commons.Collections
             var builder = Builders<OAuthClient>.Filter;
             FilterDefinition<OAuthClient> queryFilter = builder.Empty;
 
-            if(oAuthClientFilter.user_id != null)
+            oAuthClientFilter.ApplyBaseFilter(builder, ref queryFilter);
+
+            if (oAuthClientFilter.user_id != null)
             {
                 queryFilter &= builder.Eq("user_id", oAuthClientFilter.user_id);
             }
