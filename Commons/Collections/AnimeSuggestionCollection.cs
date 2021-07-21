@@ -72,7 +72,9 @@ namespace Commons.Collections
             var builder = Builders<AnimeSuggestion>.Filter;
             FilterDefinition<AnimeSuggestion> queryFilter = builder.Empty;
 
-            if(animeSuggestionFilter.anime_id != null)
+            animeSuggestionFilter.ApplyBaseFilter(builder, ref queryFilter);
+
+            if (animeSuggestionFilter.anime_id != null)
             {
                 queryFilter &= builder.Eq("anime_id", animeSuggestionFilter.anime_id);
             }
@@ -87,7 +89,15 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("source", animeSuggestionFilter.source);
             }
 
-            SortDefinition<AnimeSuggestion> sort = Builders<AnimeSuggestion>.Sort.Ascending(x => x.Id);
+            SortDefinition<AnimeSuggestion> sort = animeSuggestionFilter.ApplySort<AnimeSuggestion>(
+                new System.Collections.Generic.List<string>
+                {
+                    "_id"
+                },
+                new System.Collections.Generic.List<short>
+                {
+                    1
+                });
 
             return new Paging<AnimeSuggestion>(this.Collection, animeSuggestionFilter.page, queryFilter, sort, animeSuggestionFilter.per_page);
         }

@@ -79,6 +79,8 @@ namespace Commons.Collections
             var builder = Builders<User>.Filter;
             FilterDefinition<User> queryFilter = builder.Empty;
 
+            userFilter.ApplyBaseFilter(builder, ref queryFilter);
+
             if (!string.IsNullOrEmpty(userFilter.username))
             {
                 queryFilter = queryFilter & builder.Regex($"username", new BsonRegularExpression($".*{userFilter.username}.*", "i"));
@@ -89,7 +91,15 @@ namespace Commons.Collections
                 queryFilter = queryFilter & builder.Eq($"email", userFilter.email);
             }
 
-            SortDefinition<User> sort = Builders<User>.Sort.Ascending(x => x.Username);
+            SortDefinition<User> sort = userFilter.ApplySort<User>(
+                new System.Collections.Generic.List<string>
+                {
+                    "username"
+                },
+                new System.Collections.Generic.List<short>
+                {
+                    1
+                });
 
             return new Paging<User>(this.Collection, userFilter.page, queryFilter, sort, userFilter.per_page);
         }

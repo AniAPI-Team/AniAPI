@@ -72,7 +72,9 @@ namespace Commons.Collections
             var builder = Builders<UserStory>.Filter;
             FilterDefinition<UserStory> queryFilter = builder.Empty;
 
-            if(userStoryFilter.user_id != null)
+            userStoryFilter.ApplyBaseFilter(builder, ref queryFilter);
+
+            if (userStoryFilter.user_id != null)
             {
                 queryFilter &= builder.Eq("user_id", userStoryFilter.user_id);
             }
@@ -92,7 +94,15 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("synced", userStoryFilter.synced);
             }
 
-            SortDefinition<UserStory> sort = Builders<UserStory>.Sort.Descending(x => x.CreationDate);
+            SortDefinition<UserStory> sort = userStoryFilter.ApplySort<UserStory>(
+                new System.Collections.Generic.List<string>
+                {
+                    "creation_date"
+                },
+                new System.Collections.Generic.List<short>
+                {
+                    -1
+                });
 
             return new Paging<UserStory>(this.Collection, userStoryFilter.page, queryFilter, sort, userStoryFilter.per_page);
         }

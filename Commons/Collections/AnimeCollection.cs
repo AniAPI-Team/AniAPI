@@ -70,6 +70,8 @@ namespace Commons.Collections
             var builder = Builders<Anime>.Filter;
             FilterDefinition<Anime> queryFilter = builder.Empty;
 
+            animeFilter.ApplyBaseFilter(builder, ref queryFilter);
+
             if (!string.IsNullOrEmpty(animeFilter.title))
             {
                 queryFilter &= builder.Regex($"titles.{animeFilter.locale}", new BsonRegularExpression($".*{animeFilter.title}.*", "i"));
@@ -115,7 +117,15 @@ namespace Commons.Collections
                 queryFilter &= builder.Exists($"titles.{animeFilter.locale}");
             }
 
-            SortDefinition<Anime> sort = Builders<Anime>.Sort.Descending(x => x.Score);
+            SortDefinition<Anime> sort = animeFilter.ApplySort<Anime>(
+                new System.Collections.Generic.List<string>
+                {
+                    "score"
+                },
+                new System.Collections.Generic.List<short>
+                {
+                    -1
+                });
 
             return new Paging<Anime>(this.Collection, animeFilter.page, queryFilter, sort, animeFilter.per_page);
         }
