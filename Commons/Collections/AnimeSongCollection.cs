@@ -105,7 +105,17 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("type", songFilter.type);
             }
 
-            SortDefinition<AnimeSong> sort = Builders<AnimeSong>.Sort.Descending(x => x.Year).Descending(x => x.Season);
+            SortDefinition<AnimeSong> sort = songFilter.ApplySort<AnimeSong>(
+                new System.Collections.Generic.List<string>
+                {
+                    "year",
+                    "season"
+                },
+                new System.Collections.Generic.List<short>
+                {
+                    -1,
+                    -1
+                });
 
             return new Paging<AnimeSong>(this.Collection, songFilter.page, queryFilter, sort, songFilter.per_page);
         }

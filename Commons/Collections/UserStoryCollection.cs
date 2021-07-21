@@ -94,7 +94,15 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("synced", userStoryFilter.synced);
             }
 
-            SortDefinition<UserStory> sort = Builders<UserStory>.Sort.Descending(x => x.CreationDate);
+            SortDefinition<UserStory> sort = userStoryFilter.ApplySort<UserStory>(
+                new System.Collections.Generic.List<string>
+                {
+                    "creation_date"
+                },
+                new System.Collections.Generic.List<short>
+                {
+                    -1
+                });
 
             return new Paging<UserStory>(this.Collection, userStoryFilter.page, queryFilter, sort, userStoryFilter.per_page);
         }

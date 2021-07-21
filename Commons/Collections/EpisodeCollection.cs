@@ -94,7 +94,17 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("locale", episodeFilter.locale);  
             }
 
-            SortDefinition<Episode> sort = Builders<Episode>.Sort.Ascending(x => x.AnimeID).Ascending(x => x.Number);
+            SortDefinition<Episode> sort = episodeFilter.ApplySort<Episode>(
+                new System.Collections.Generic.List<string>
+                {
+                    "anime_id",
+                    "number"
+                },
+                new System.Collections.Generic.List<short>
+                {
+                    1,
+                    1
+                });
 
             return new Paging<Episode>(this.Collection, episodeFilter.page, queryFilter, sort, episodeFilter.per_page);
         }

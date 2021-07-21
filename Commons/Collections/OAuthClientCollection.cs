@@ -88,7 +88,15 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("client_id", oAuthClientFilter.client_id);
             }
 
-            SortDefinition<OAuthClient> sort = Builders<OAuthClient>.Sort.Ascending(x => x.Id);
+            SortDefinition<OAuthClient> sort = oAuthClientFilter.ApplySort<OAuthClient>(
+                new System.Collections.Generic.List<string>
+                {
+                    "_id"
+                },
+                new System.Collections.Generic.List<short>
+                {
+                    1
+                });
 
             return new Paging<OAuthClient>(this.Collection, oAuthClientFilter.page, queryFilter, sort, oAuthClientFilter.per_page);
         }
