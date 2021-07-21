@@ -70,6 +70,11 @@ namespace Commons.Collections
             var builder = Builders<Anime>.Filter;
             FilterDefinition<Anime> queryFilter = builder.Empty;
 
+            if(animeFilter.ids.Count > 0)
+            {
+                queryFilter &= builder.AnyIn("_id", animeFilter.ids);
+            }
+
             if (!string.IsNullOrEmpty(animeFilter.title))
             {
                 queryFilter &= builder.Regex($"titles.{animeFilter.locale}", new BsonRegularExpression($".*{animeFilter.title}.*", "i"));

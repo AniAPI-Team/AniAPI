@@ -24,5 +24,7 @@ namespace MongoService
 
         private int _per_page = 100;
         public int per_page { get { return this._per_page; } set { this._per_page = value; } }
+
+        public List<long> ids { get; set; } = new List<long>();
     }
 }

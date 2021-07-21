@@ -72,7 +72,12 @@ namespace Commons.Collections
             var builder = Builders<Episode>.Filter;
             FilterDefinition<Episode> queryFilter = builder.Empty;
 
-            if(episodeFilter.anime_id != null)
+            if (episodeFilter.ids.Count > 0)
+            {
+                queryFilter &= builder.AnyIn("_id", episodeFilter.ids);
+            }
+
+            if (episodeFilter.anime_id != null)
             {
                 queryFilter &= builder.Eq("anime_id", episodeFilter.anime_id);
             }

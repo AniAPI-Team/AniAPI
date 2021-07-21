@@ -79,6 +79,11 @@ namespace Commons.Collections
             var builder = Builders<User>.Filter;
             FilterDefinition<User> queryFilter = builder.Empty;
 
+            if (userFilter.ids.Count > 0)
+            {
+                queryFilter &= builder.AnyIn("_id", userFilter.ids);
+            }
+
             if (!string.IsNullOrEmpty(userFilter.username))
             {
                 queryFilter = queryFilter & builder.Regex($"username", new BsonRegularExpression($".*{userFilter.username}.*", "i"));

@@ -72,7 +72,12 @@ namespace Commons.Collections
             var builder = Builders<UserStory>.Filter;
             FilterDefinition<UserStory> queryFilter = builder.Empty;
 
-            if(userStoryFilter.user_id != null)
+            if (userStoryFilter.ids.Count > 0)
+            {
+                queryFilter &= builder.AnyIn("_id", userStoryFilter.ids);
+            }
+
+            if (userStoryFilter.user_id != null)
             {
                 queryFilter &= builder.Eq("user_id", userStoryFilter.user_id);
             }
