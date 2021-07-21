@@ -1,4 +1,5 @@
 ﻿using MongoDB.Driver;
+using ServiceMongo.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -26,9 +27,13 @@ namespace MongoService
         private int _per_page = 100;
         public int per_page { get { return this._per_page; } set { this._per_page = value; } }
 
+        [CommaSeparated]
         public List<long> ids { get; set; } = new List<long>();
 
+        [CommaSeparated]
         public List<string> sort_fields { get; set; } = new List<string>();
+
+        [CommaSeparated]
         public List<short> sort_directions { get; set; } = new List<short>();
 
         public FilterDefinition<XDocument> ApplyBaseFilter<XDocument>(FilterDefinitionBuilder<XDocument> builder, ref FilterDefinition<XDocument> filter)
