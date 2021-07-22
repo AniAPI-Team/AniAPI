@@ -152,7 +152,27 @@ namespace SyncService.Services
 
                         if (ids.Count > 0)
                         {
-                            TracksResponse spotifyResponse = await this._spotifyClient.Tracks.GetSeveral(new TracksRequest(ids));
+                            bool done = false;
+                            TracksResponse spotifyResponse = null;
+
+                            while (done == false)
+                            {
+                                try
+                                {
+                                    spotifyResponse = await this._spotifyClient.Tracks.GetSeveral(new TracksRequest(ids));
+                                    done = true;
+                                }
+                                catch
+                                {
+                                    SpotifyClientConfig config = SpotifyClientConfig.CreateDefault();
+                                    string accessToken = (await new SpotifyAPI.Web.OAuthClient(config).
+                                        RequestToken(new ClientCredentialsRequest(
+                                            "b074c52808fb4394a28785f381872ea2",
+                                            "ac2f818c3d0c463a9b3056dc5ed489fc"
+                                        ))).AccessToken;
+                                    this._spotifyClient = new SpotifyClient(config.WithToken(accessToken));
+                                }
+                            }
 
                             foreach (FullTrack track in spotifyResponse.Tracks)
                             {
