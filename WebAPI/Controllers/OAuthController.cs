@@ -111,8 +111,8 @@ namespace WebAPI.Controllers
                     case "code":
                         string code = generateCode();
 
-                        _cache.Set(Request.HttpContext.Connection.RemoteIpAddress.ToString(),
-                            new Tuple<string, string>(code, user.Token),
+                        _cache.Set(code,
+                            user.Token,
                             new MemoryCacheEntryOptions()
                             {
                                 AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(3)
@@ -196,9 +196,7 @@ namespace WebAPI.Controllers
                             "redirect_uri content mismatch from registered client"));
             }
 
-            string ip = Request.HttpContext.Connection.RemoteIpAddress.ToString();
-            
-            if(!_cache.TryGetValue(ip, out Tuple<string, string> tuple))
+            if(!_cache.TryGetValue(code, out string token))
             {
                 return APIManager.ErrorResponse(new APIException(
                             System.Net.HttpStatusCode.Forbidden,
@@ -206,15 +204,7 @@ namespace WebAPI.Controllers
                             "code not valid"));
             }
             
-            if(code != tuple.Item1)
-            {
-                return APIManager.ErrorResponse(new APIException(
-                            System.Net.HttpStatusCode.Forbidden,
-                            "Forbidden",
-                            "code not valid"));
-            }
-
-            return APIManager.SuccessResponse("Code verified", tuple.Item2);
+            return APIManager.SuccessResponse("Code verified", token);
         }
 
         private Random _random = new Random();
