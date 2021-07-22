@@ -53,6 +53,7 @@ namespace SyncService
 
         public async virtual Task Work()
         {
+            this.Error(null);
             this.UpdateStatus(ServiceStatusEnum.WORKING);
         }
 
