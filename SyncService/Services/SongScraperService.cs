@@ -117,13 +117,6 @@ namespace SyncService.Services
 
                                         if (songType.Contains("Opening") || songType.Contains("Ending"))
                                         {
-                                            string[] parts = songType.Split(' ');
-
-                                            if (parts.Length == 1)
-                                            {
-                                                parts = new string[2] { parts[0], "0" };
-                                            }
-
                                             AnimeSongTypeEnum animeSongType = AnimeSongTypeEnum.NONE;
 
                                             if (songType.Contains("Opening"))
