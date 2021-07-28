@@ -41,8 +41,9 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 
 ## Wrappers
 
-| Language    | Wrappers    |
-| ---         | ---         |
+| Language    | Wrappers                                                |
+| ---         | ---                                                     |
+| C#          | [AniApi.NET](https://github.com/AniAPI-Team/AniAPI.NET) |
 
 **[Add your wrapper here](https://github.com/AniAPI-Team/AniAPI/edit/main/README.md)**
 
