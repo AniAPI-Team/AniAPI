@@ -53,6 +53,13 @@ If you wanna help us to provide an even better service, you can contribute on th
 * Fixing untracked bugs
 * [Adding a new website for episodes' scraping](https://github.com/AniAPI-Team/AniAPI/tree/main/SyncService/Models/WebsiteScrapers)
 
+## Links
+
+* [Roadmap](https://github.com/AniAPI-Team/AniAPI/projects/4)
+* [Discussions](https://github.com/AniAPI-Team/AniAPI/discussions)
+* [Blog](https://aniapi.com/blog/)
+* [Help us](https://www.paypal.com/pools/c/8Bjc9dtmwM)
+
 ## Disclaimer
 
 **AniAPI** is a no-profit project, we are not affiliated with **[Anilist](https://anilist.co)** or **[MyAnimeList](https://myanimelist.net/)** and we do not host illegal files.
