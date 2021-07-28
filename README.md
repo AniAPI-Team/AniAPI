@@ -41,8 +41,9 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 
 ## Wrappers
 
-| Language    | Wrappers    |
-| ---         | ---         |
+| Language    | Wrappers                                                |
+| ---         | ---                                                     |
+| C#          | [AniApi.NET](https://github.com/AniAPI-Team/AniAPI.NET) |
 
 **[Add your wrapper here](https://github.com/AniAPI-Team/AniAPI/edit/main/README.md)**
 
@@ -51,6 +52,13 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 If you wanna help us to provide an even better service, you can contribute on things like:
 * Fixing untracked bugs
 * [Adding a new website for episodes' scraping](https://github.com/AniAPI-Team/AniAPI/tree/main/SyncService/Models/WebsiteScrapers)
+
+## Links
+
+* [Roadmap](https://github.com/AniAPI-Team/AniAPI/projects/4)
+* [Discussions](https://github.com/AniAPI-Team/AniAPI/discussions)
+* [Blog](https://aniapi.com/blog/)
+* [Help us](https://www.paypal.com/pools/c/8Bjc9dtmwM)
 
 ## Disclaimer
 
