@@ -58,7 +58,7 @@ If you wanna help us to provide an even better service, you can contribute on th
 * [Roadmap](https://github.com/AniAPI-Team/AniAPI/projects/4)
 * [Discussions](https://github.com/AniAPI-Team/AniAPI/discussions)
 * [Blog](https://aniapi.com/blog/)
-* [Help us](https://www.paypal.com/pools/c/8Bjc9dtmwM)
+* [Help us](https://opencollective.com/aniapi)
 
 ## Disclaimer
 
