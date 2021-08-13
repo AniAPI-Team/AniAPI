@@ -13,6 +13,7 @@ using MongoService;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Net;
 using System.Net.Http;
 using System.Net.Mail;
@@ -178,6 +179,13 @@ namespace WebAPI.Controllers
                     throw new APIException(HttpStatusCode.BadRequest,
                         "Missing password",
                         "Please provide a valid password");
+                }
+
+                if(!new EmailAddressAttribute().IsValid(model.Email))
+                {
+                    throw new APIException(HttpStatusCode.UnprocessableEntity,
+                        "Email not valid",
+                        "Please provide a valid email");
                 }
 
                 List<User> collisions = new List<User>();

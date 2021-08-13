@@ -21,8 +21,6 @@ namespace SyncService.Models.WebsiteScrapers
 
         protected override Type WebsiteType => typeof(AnimeworldScraper);
 
-        private List<EpisodeMatching> episodesMatchings = new List<EpisodeMatching>();
-
         protected override async Task<AnimeMatching> GetMatching(Page webPage, string animeTitle)
         {
             AnimeMatching matching = null;
@@ -30,7 +28,7 @@ namespace SyncService.Models.WebsiteScrapers
             string url = $"{this.Website.SiteUrl}search?keyword={animeTitle}";
             await ProxyHelper.NavigateAsync(webPage, url);
 
-            episodesMatchings.Clear();
+            EpisodeMatchings.Clear();
 
             await webPage.WaitForSelectorAsync(".film-list", new WaitForSelectorOptions()
             {
@@ -62,7 +60,7 @@ namespace SyncService.Models.WebsiteScrapers
         {
             string url;
 
-            if (episodesMatchings.Count == 0)
+            if (EpisodeMatchings.Count == 0)
             {
                 url = this.Website.SiteUrl.Substring(0, this.Website.SiteUrl.Length - 1);
                 url = $"{url}{matching.Path}";
@@ -94,7 +92,7 @@ namespace SyncService.Models.WebsiteScrapers
                             string path = await info.EvaluateFunctionAsync<string>("e => e.getAttribute('href')");
                             string title = (await info.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
 
-                            episodesMatchings.Add(new EpisodeMatching()
+                            EpisodeMatchings.Add(new EpisodeMatching()
                             {
                                 Path = path,
                                 Title = title
@@ -105,7 +103,7 @@ namespace SyncService.Models.WebsiteScrapers
                 }
             }
 
-            EpisodeMatching episode = episodesMatchings[number - 1];
+            EpisodeMatching episode = EpisodeMatchings[number - 1];
 
             if (episode != null)
             {

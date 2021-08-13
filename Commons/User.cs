@@ -80,6 +80,7 @@ namespace Commons
 
         [JsonPropertyName("has_anilist")]
         [JsonProperty(PropertyName = "has_anilist")]
+        [BsonIgnore]
         public bool? HasAnilist { get; set; } = null;
 
         [BsonElement("mal_id")]
@@ -94,6 +95,7 @@ namespace Commons
 
         [JsonPropertyName("has_mal")]
         [JsonProperty(PropertyName = "has_mal")]
+        [BsonIgnore]
         public bool? HasMyAnimeList { get; set; } = null;
 
         public void CalcDerivedFields()

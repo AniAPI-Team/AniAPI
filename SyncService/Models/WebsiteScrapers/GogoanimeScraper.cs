@@ -24,8 +24,6 @@ namespace SyncService.Models.WebsiteScrapers
 
         protected override Type WebsiteType => typeof(GogoanimeScraper);
 
-        private List<EpisodeMatching> episodesMatchings = new List<EpisodeMatching>();
-
         protected override async Task<AnimeMatching> GetMatching(Page webPage, string animeTitle)
         {
             AnimeMatching matching = null;
@@ -44,7 +42,7 @@ namespace SyncService.Models.WebsiteScrapers
                 new WebsiteCollection().Edit(ref website);
             }
 
-            episodesMatchings.Clear();
+            EpisodeMatchings.Clear();
 
             await webPage.WaitForSelectorAsync(".last_episodes", new WaitForSelectorOptions()
             {
@@ -65,6 +63,13 @@ namespace SyncService.Models.WebsiteScrapers
                     ElementHandle path = await title.QuerySelectorAsync("a");
                     matching.Path = (await path.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
 
+                    matching.Linked = new AnimeMatching()
+                    {
+                        Title = matching.Title,
+                        Path = $"{matching.Path}-dub",
+                        SourceVariant = "_dub"
+                    };
+
                     return matching;
                 }
             }
@@ -76,7 +81,7 @@ namespace SyncService.Models.WebsiteScrapers
         {
             string url;
 
-            if (episodesMatchings.Count == 0)
+            if (EpisodeMatchings.Count == 0)
             {
                 url = this.Website.SiteUrl.Substring(0, this.Website.SiteUrl.Length - 1);
                 url = $"{url}{matching.Path}";
@@ -114,16 +119,16 @@ namespace SyncService.Models.WebsiteScrapers
                     string path = await info.EvaluateFunctionAsync<string>("e => e.getAttribute('href')");
                     string title = (await info.QuerySelectorAsync(".name").EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
 
-                    episodesMatchings.Add(new EpisodeMatching()
+                    EpisodeMatchings.Add(new EpisodeMatching()
                     {
                         Path = path,
                         Title = title
                     });
                 }
-                episodesMatchings.Reverse();
+                EpisodeMatchings.Reverse();
             }
 
-            EpisodeMatching episode = episodesMatchings[number - 1];
+            EpisodeMatching episode = EpisodeMatchings[number - 1];
 
             if (episode != null)
             {
