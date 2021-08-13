@@ -26,7 +26,7 @@ namespace SyncService.Models.WebsiteScrapers
         {
             AnimeMatching matching = null;
 
-            episodesMatchings.Clear();
+            EpisodeMatchings.Clear();
 
             string url = $"{this.Website.SiteUrl}/search/?q={animeTitle}";
             await ProxyHelper.NavigateAsync(webPage, url);
@@ -56,13 +56,11 @@ namespace SyncService.Models.WebsiteScrapers
             return null;
         }
 
-        private List<EpisodeMatching> episodesMatchings = new List<EpisodeMatching>();
-
         protected override async Task<EpisodeMatching> GetEpisode(Page webPage, AnimeMatching matching, int number)
         {
             string url;
 
-            if(episodesMatchings.Count == 0)
+            if(EpisodeMatchings.Count == 0)
             {
                 url = $"{this.Website.SiteUrl}{matching.Path}";
                 await ProxyHelper.NavigateAsync(webPage, url);
@@ -83,7 +81,7 @@ namespace SyncService.Models.WebsiteScrapers
                     string path = await info.EvaluateFunctionAsync<string>("e => e.getAttribute('href')");
                     string title = (await info.EvaluateFunctionAsync<string>("e => e.innerText")).Trim().Split(": ")[1];
 
-                    episodesMatchings.Add(new EpisodeMatching()
+                    EpisodeMatchings.Add(new EpisodeMatching()
                     {
                         Path = path,
                         Title = title
@@ -91,7 +89,7 @@ namespace SyncService.Models.WebsiteScrapers
                 }
             }
 
-            EpisodeMatching episode = episodesMatchings[number - 1];
+            EpisodeMatching episode = EpisodeMatchings[number - 1];
 
             if(episode != null)
             {
