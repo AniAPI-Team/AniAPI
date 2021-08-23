@@ -72,7 +72,7 @@ namespace SyncService.Models.WebsiteScrapers
                 });
 
                 ElementHandle description = await webPage.QuerySelectorAsync("#tramaLong");
-                matching.Description = (await description.EvaluateFunctionAsync<string>("e => e.innerHTML")).Trim();
+                matching.Description = (await description.EvaluateFunctionAsync<string>("e => e.innerHTML") ?? "").Trim();
 
                 foreach(ElementHandle ep in await webPage.QuerySelectorAllAsync("#episodes-list .ep-item"))
                 {

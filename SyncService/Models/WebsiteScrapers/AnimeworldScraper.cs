@@ -74,7 +74,7 @@ namespace SyncService.Models.WebsiteScrapers
 
                 // Description
                 ElementHandle description = await webPage.QuerySelectorAsync(".long");
-                matching.Description = (await description.EvaluateFunctionAsync<string>("e => e.innerHTML")).Trim();
+                matching.Description = (await description.EvaluateFunctionAsync<string>("e => e.innerHTML") ?? "").Trim();
 
                 // Get the Active Server (It will be always the Main server "AnimeWorld")
                 string serverID = await webPage.QuerySelectorAsync(".tab.server-tab.active")
