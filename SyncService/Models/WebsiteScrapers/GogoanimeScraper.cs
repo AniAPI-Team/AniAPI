@@ -103,7 +103,7 @@ namespace SyncService.Models.WebsiteScrapers
 
                 // Custom URL that will use ajax call
                 string ajax_url =
-                    string.Format("https://ajax.gogo-load.com/ajax/load-list-episode?ep_start=0&ep_end=500&id={0}" +
+                    string.Format("https://ajax.gogo-load.com/ajax/load-list-episode?ep_start=0&ep_end=9999&id={0}" +
                     "&default_ep=0", animeID);
 
                 // Get Ajax request Page
@@ -125,6 +125,7 @@ namespace SyncService.Models.WebsiteScrapers
                         Title = title
                     });
                 }
+
                 EpisodeMatchings.Reverse();
             }
 
@@ -148,20 +149,39 @@ namespace SyncService.Models.WebsiteScrapers
 
                     watch.Stop();
 
+                    // 24.08.2021: Needed a further step to avoid token related problems
+                    /*
                     await webPage.WaitForSelectorAsync(".vidcdn", new WaitForSelectorOptions()
                     {
                         Visible = true,
                         Timeout = 2000
                     });
-
+                    
                     ElementHandle tempSource = await webPage.QuerySelectorAsync(".vidcdn a");
                     string videoPageUrl = await tempSource
                         .EvaluateFunctionAsync<string>("e => e.getAttribute('data-video')");
-
+                    
                     if (!videoPageUrl.Contains("https:"))
-                        videoPageUrl = $"https:{ videoPageUrl }";
-
+                        videoPageUrl = $"https:{videoPageUrl}";
+                    
                     episode.Source = BuildAPIProxyURL(videoPageUrl);
+                    */
+
+                    await webPage.WaitForSelectorAsync(".play-video", new WaitForSelectorOptions()
+                    {
+                        Visible = true,
+                        Timeout = 2000
+                    });
+
+                    ElementHandle tempSource = await webPage.QuerySelectorAsync(".play-video iframe");
+                    string streamaniUrl = await tempSource.EvaluateFunctionAsync<string>("e => e.getAttribute('src')");
+
+                    if (!streamaniUrl.Contains("https:"))
+                    {
+                        streamaniUrl = $"https:{streamaniUrl}";
+                    }
+
+                    episode.Source = BuildAPIProxyURL(streamaniUrl);
                 }
 
                 if (!string.IsNullOrEmpty(episode.Source))
