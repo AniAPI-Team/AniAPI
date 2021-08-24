@@ -88,8 +88,23 @@ namespace WebAPI.Controllers
 
                 string res = response.Content.ReadAsStringAsync().Result;
 
-                Regex rgx = new Regex(@"playerInstance\.setup\(\s*[^s]+sources\:\[\{file\: \'([^\']+)\'\,", RegexOptions.None);
+                Regex rgx = new Regex(@"<li  class=""linkserver"" data-status=""1"" data-provider=""serverwithtoken""\s*[^s]+data-video=""([^\""]+)"">", RegexOptions.None);
                 Match match = rgx.Match(res);
+
+                if (!match.Success)
+                {
+                    throw new Exception("URL not found!");
+                }
+
+                string streamaniEmbedUrl = match.Groups[1].Value;
+
+                request = new HttpRequestMessage(HttpMethod.Get, streamaniEmbedUrl);
+                response = client.SendAsync(request).Result;
+
+                res = response.Content.ReadAsStringAsync().Result;
+
+                rgx = new Regex(@"playerInstance\.setup\(\s*[^s]+sources\:\[\{file\: \'([^\']+)\'\,", RegexOptions.None);
+                match = rgx.Match(res);
 
                 if (!match.Success)
                 {

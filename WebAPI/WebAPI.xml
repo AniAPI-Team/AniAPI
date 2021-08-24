@@ -21,6 +21,23 @@
             </summary>
             <param name="filter">The Anime filter</param>
         </member>
+        <member name="T:WebAPI.Controllers.AnimeSongController">
+            <summary>
+            R Controller for AnimeSong resource
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.AnimeSongController.GetOne(System.Int64)">
+            <summary>
+            Retrieves a specific AnimeSong by id
+            </summary>
+            <param name="id">The AnimeSong id</param>
+        </member>
+        <member name="M:WebAPI.Controllers.AnimeSongController.GetMore(Commons.Filters.AnimeSongFilter)">
+            <summary>
+            Retrieves a list of AnimeSong
+            </summary>
+            <param name="filter">The AnimeSong filter</param>
+        </member>
         <member name="T:WebAPI.Controllers.AuthController">
             <summary>
             Controller for authentication requests
