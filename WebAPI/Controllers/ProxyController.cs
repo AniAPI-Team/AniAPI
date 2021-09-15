@@ -35,8 +35,9 @@ namespace WebAPI.Controllers
         [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet("{url}/{websiteName}"), MapToApiVersion("1")]
+        [HttpGet("{url}/{websiteName}/{segment}"), MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public Task GetFormattedEpisodeSourceURL(string url, string websiteName, [FromQuery] Dictionary<string, string> values)
+        public Task GetFormattedEpisodeSourceURL(string url, string websiteName, [FromQuery] Dictionary<string, string> values, string segment = null)
         {
             try
             {
@@ -60,11 +61,32 @@ namespace WebAPI.Controllers
                             .Build();
                         break;
                     case "gogoanime":
-                        url = getGogoanimeURL(url);
-                        return new RedirectResult(url).ExecuteResultAsync(ControllerContext);
+                        values = getGogoanimeURL(url);
+                        url = values["url"];
+
+                        options = HttpProxyOptionsBuilder.Instance
+                            .WithHttpClientName("HttpClientWithSSLUntrusted")
+                            .WithShouldAddForwardedHeaders(false)
+                            .WithBeforeSend((context, request) =>
+                            {
+                                request.Headers.Referrer = new Uri(values["referrer"]);
+
+                                return Task.CompletedTask;
+                            })
+                            .Build();
+                        break;
                 }
 
-                if(options == null)
+                // 15.09.2021: Added support for M3U8 streaming
+                if (!string.IsNullOrEmpty(segment))
+                {
+                    string[] urlParts = url.Split('/');
+                    urlParts[urlParts.Length - 1] = segment;
+
+                    url = String.Join('/', urlParts);
+                }
+
+                if (options == null)
                 {
                     throw new Exception($"Website {websiteName} not supported!");
                 }
@@ -77,7 +99,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        private string getGogoanimeURL(string url)
+        private Dictionary<string, string> getGogoanimeURL(string url)
         {
             try
             {
@@ -110,8 +132,12 @@ namespace WebAPI.Controllers
                 {
                     throw new Exception("URL not found!");
                 }
-                
-                return match.Groups[1].Value;
+
+                return new Dictionary<string, string>
+                {
+                    { "referrer", streamaniEmbedUrl },
+                    { "url", match.Groups[1].Value }
+                };
             }
             catch (Exception ex)
             {
