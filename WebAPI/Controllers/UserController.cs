@@ -355,6 +355,34 @@ namespace WebAPI.Controllers
                             "'anilist_id' field must come with 'anilist_token' field");
                     }
                     user.AnilistToken = model.AnilistToken;
+
+                    if (string.IsNullOrEmpty(user.AvatarTracker))
+                    {
+                        user.AvatarTracker = "anilist";
+                    }
+                }
+
+                if(model.MyAnimeListId != null)
+                {
+                    user.MyAnimeListId = model.MyAnimeListId;
+
+                    if (string.IsNullOrEmpty(model.MyAnimeListToken))
+                    {
+                        throw new APIException(HttpStatusCode.BadRequest,
+                            "Bad request",
+                            "'mal_id' field must come with 'mal_token' field");
+                    }
+                    user.MyAnimeListToken = model.MyAnimeListToken;
+
+                    if (string.IsNullOrEmpty(user.AvatarTracker))
+                    {
+                        user.AvatarTracker = "mal";
+                    }
+                }
+
+                if(model.AvatarTracker != null)
+                {
+                    user.AvatarTracker = model.AvatarTracker;
                 }
 
                 this._userCollection.Edit(ref user);
