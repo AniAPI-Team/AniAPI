@@ -3,6 +3,7 @@ using Commons.Collections;
 using Commons.Filters;
 using Newtonsoft.Json;
 using SyncService.Models;
+using SyncService.Models.Trackers;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -22,7 +23,8 @@ namespace SyncService.Services
         private UserStoryCollection _userStoryCollection = new UserStoryCollection();
         private AnimeCollection _animeCollection = new AnimeCollection();
         private User _user;
-        private HttpClient _anilistClient = new HttpClient() { BaseAddress = new Uri("https://graphql.anilist.co") };
+
+        private List<ITracker> _trackers;
 
         protected override int TimeToWait => 60 * 1000; // 1 Minute
 
@@ -31,6 +33,17 @@ namespace SyncService.Services
         protected override ServicesStatus GetServiceStatus()
         {
             return new ServicesStatus("UserSync");
+        }
+
+        public override Task Start(CancellationToken cancellationToken)
+        {
+            _trackers = new List<ITracker>()
+            {
+                new AnilistTracker(new HttpClient() { BaseAddress = new Uri("https://graphql.anilist.co") }),
+                new MyAnimeListTracker(new HttpClient() { BaseAddress = new Uri("https://api.myanimelist.net/v2/") })
+            };
+
+            return base.Start(cancellationToken);
         }
 
         public override async Task Work()
@@ -61,14 +74,18 @@ namespace SyncService.Services
 
                         List<UserStory> toImport = new List<UserStory>();
 
-                        if (_user.HasAnilist.Value)
+                        foreach(ITracker tracker in _trackers)
                         {
-                            toImport.AddRange(await this.importFromAnilist());
-                        }
+                            tracker.User = _user;
 
-                        if (_user.HasMyAnimeList.Value)
-                        {
-                            toImport.AddRange(await this.importFromMyAnimeList());
+                            if (tracker.NeedWork())
+                            {
+                                do
+                                {
+                                    toImport.AddRange(await tracker.Import());
+                                }
+                                while (tracker.HasDone == false);
+                            }
                         }
 
                         for (int i = 0; i < toImport.Count; i++)
@@ -108,14 +125,19 @@ namespace SyncService.Services
                             {
                                 UserStory s = query.Documents[i];
 
-                                if (_user.HasAnilist.Value)
+                                foreach (ITracker tracker in _trackers)
                                 {
-                                    await this.exportToAnilist(s);
-                                }
+                                    tracker.User = _user;
+                                    tracker.Anime = this._animeCollection.Get(s.AnimeID);
 
-                                if (_user.HasMyAnimeList.Value)
-                                {
-                                    await this.exportToMyAnimeList(s);
+                                    if (tracker.NeedWork())
+                                    {
+                                        do
+                                        {
+                                            await tracker.Export(s);
+                                        }
+                                        while (tracker.HasDone == false);
+                                    }
                                 }
 
                                 s.Synced = true;
@@ -123,11 +145,18 @@ namespace SyncService.Services
                             }
                         }
 
-                        if (_user.HasAnilist.Value)
+                        foreach(ITracker tracker in _trackers)
                         {
-                            await importAvatar();
-
-                            this._userCollection.Edit(ref _user);
+                            if (tracker.Name == _user.AvatarTracker)
+                            {
+                                do
+                                {
+                                    _user.Avatar = await tracker.GetAvatar();
+                                }
+                                while (tracker.HasDone == false);
+                                
+                                this._userCollection.Edit(ref _user);
+                            }
                         }
                     }
                     catch(Exception ex)
@@ -149,240 +178,6 @@ namespace SyncService.Services
             {
                 throw;
             }
-        }
-
-        private async Task importAvatar()
-        {
-            bool done = false;
-
-            GraphQLQuery query = new GraphQLQuery()
-            {
-                Query = @"
-                query($userId: Int) {
-                    User(id: $userId) {
-                        avatar {
-                            large
-                        }
-                    }
-                }
-                ",
-                Variables = new Dictionary<string, object>()
-                {
-                    { "userId", _user.AnilistId }
-                }
-            };
-
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                Content = new StringContent(JsonConvert.SerializeObject(query), Encoding.UTF8, "application/json"),
-            };
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _user.AnilistToken);
-
-            do
-            {
-                using (var response = await _anilistClient.SendAsync(request))
-                {
-                    try
-                    {
-                        response.EnsureSuccessStatusCode();
-                    }
-                    catch (Exception ex)
-                    {
-                        if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
-                        {
-                            Thread.Sleep(60 * 1000);
-                            continue;
-                        }
-
-                        throw;
-                    }
-
-                    done = true;
-
-                    AnilistAvatarResponse anilistResponse = JsonConvert.DeserializeObject<AnilistAvatarResponse>(await response.Content.ReadAsStringAsync());
-
-                    _user.Avatar = anilistResponse.Data.User.Avatar.Large;
-                }
-
-                if (!done)
-                {
-                    Thread.Sleep(10 * 1000);
-                }
-            }
-            while (done == false);
-
-            return;
-        }
-
-        private async Task<List<UserStory>> importFromAnilist()
-        {
-            List<UserStory> imported = new List<UserStory>();
-            bool done = false;
-
-            GraphQLQuery query = new GraphQLQuery()
-            {
-                Query = @"
-                query($userId: Int) {
-                    MediaListCollection(userId: $userId, type: ANIME) {
-                        lists {
-                            isCustomList
-                            entries {
-                                mediaId
-                                status
-                                progress
-                            }
-                        }
-                    }
-                }
-                ",
-                Variables = new Dictionary<string, object>()
-                {
-                    { "userId", _user.AnilistId }
-                }
-            };
-
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                Content = new StringContent(JsonConvert.SerializeObject(query), Encoding.UTF8, "application/json"),
-            };
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _user.AnilistToken);
-
-            do
-            {
-                using (var response = await _anilistClient.SendAsync(request))
-                {
-                    try
-                    {
-                        response.EnsureSuccessStatusCode();
-                    }
-                    catch (Exception ex)
-                    {
-                        if(response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
-                        {
-                            Thread.Sleep(60 * 1000);
-                            continue;
-                        }
-                            
-                        throw;
-                    }
-
-                    done = true;
-
-                    AnilistImportResponse anilistResponse = JsonConvert.DeserializeObject<AnilistImportResponse>(await response.Content.ReadAsStringAsync());
-
-                    foreach(AnilistImportResponse.ResponseMediaList list in anilistResponse.Data.MediaListCollection.Lists)
-                    {
-                        if (list.IsCustomList)
-                        {
-                            continue;
-                        }
-
-                        foreach(AnilistImportResponse.ResponseMedia media in list.Entries)
-                        {
-                            var intQuery = this._animeCollection.GetList(new AnimeFilter()
-                            {
-                                anilist_id = media.MediaId,
-                                page = 1
-                            });
-
-                            if(intQuery.Count > 0)
-                            {
-                                long animeId = intQuery.Documents[0].Id;
-                                
-                                imported.Add(new UserStory()
-                                {
-                                    UserID = _user.Id,
-                                    AnimeID = animeId,
-                                    Status = media.Status,
-                                    CurrentEpisode = media.Progress,
-                                    CurrentEpisodeTicks = 0,
-                                    Synced = true
-                                });
-                            }
-                        }
-                    }
-                }
-
-                if (!done)
-                {
-                    Thread.Sleep(10 * 1000);
-                }
-            }
-            while (done == false);
-
-            return imported;
-        }
-
-        private async Task<List<UserStory>> importFromMyAnimeList()
-        {
-            throw new NotImplementedException();
-        }
-
-        private async Task exportToAnilist(UserStory s)
-        {
-            bool done = false;
-
-            Anime anime = this._animeCollection.Get(s.AnimeID);
-
-            GraphQLQuery query = new GraphQLQuery()
-            {
-                Query = @"
-                mutation($mediaId: Int, $status: MediaListStatus, $progress: Int) {
-                    SaveMediaListEntry(mediaId: $mediaId, status: $status, progress: $progress) {
-                        id
-                    }
-                }
-                ",
-                Variables = new Dictionary<string, object>()
-                {
-                    { "mediaId", anime.AnilistId },
-                    { "status", s.Status.ToString() },
-                    { "progress", s.CurrentEpisode }
-                }
-            };
-
-            var request = new HttpRequestMessage
-            {
-                Method = HttpMethod.Post,
-                Content = new StringContent(JsonConvert.SerializeObject(query), Encoding.UTF8, "application/json"),
-            };
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", _user.AnilistToken);
-
-            do
-            {
-                using (var response = await _anilistClient.SendAsync(request))
-                {
-                    try
-                    {
-                        response.EnsureSuccessStatusCode();
-                    }
-                    catch (Exception ex)
-                    {
-                        if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
-                        {
-                            Thread.Sleep(60 * 1000);
-                            continue;
-                        }
-
-                        throw;
-                    }
-
-                    done = true;
-                }
-
-                if (!done)
-                {
-                    Thread.Sleep(10 * 1000);
-                }
-            }
-            while (done == false);
-        }
-
-        private async Task exportToMyAnimeList(UserStory s)
-        {
-            throw new NotImplementedException();
         }
     }
 }

@@ -38,6 +38,9 @@ namespace Commons
         [BsonElement("smtp")]
         public SmtpConfig Smtp { get; set; }
 
+        [BsonElement("mal")]
+        public MyAnimeListConfig MyAnimeList { get; set; }
+
         public class SmtpConfig
         {
             [BsonElement("host")]
@@ -54,6 +57,15 @@ namespace Commons
 
             [BsonElement("address")]
             public string Address{ get; set; }
+        }
+
+        public class MyAnimeListConfig
+        {
+            [BsonElement("client_id")]
+            public string ClientID { get; set; }
+
+            [BsonElement("client_secret")]
+            public string ClientSecret { get; set; }
         }
     }
 }
