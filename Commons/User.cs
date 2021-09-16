@@ -63,6 +63,11 @@ namespace Commons
         [JsonProperty(PropertyName = "avatar")]
         public string Avatar { get; set; }
 
+        [BsonElement("avatar_tracker")]
+        [JsonPropertyName("avatar_tracker")]
+        [JsonProperty(PropertyName = "avatar_tracker")]
+        public string AvatarTracker { get; set; }
+
         [BsonElement("localization")]
         [JsonPropertyName("localization")]
         [JsonProperty(PropertyName = "localization")]
@@ -119,6 +124,7 @@ namespace Commons
             this.MyAnimeListId = null;
             this.MyAnimeListToken = null;
             this.HasMyAnimeList = null;
+            this.AvatarTracker = null;
         }
     }
 }

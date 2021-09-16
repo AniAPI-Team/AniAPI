@@ -100,7 +100,7 @@ namespace SyncService.Models
 
         protected string BuildAPIProxyURL(string url, Dictionary<string, string> values = null)
         {
-            string apiUrl = $"{_appSettings.APIEndpoint}/proxy/{HttpUtility.UrlEncode(url)}/{this.Website.Name}";
+            string apiUrl = $"{_appSettings.APIEndpoint}/proxy/{HttpUtility.UrlEncode(url)}/{this.Website.Name}/";
 
             if(values != null)
             {
