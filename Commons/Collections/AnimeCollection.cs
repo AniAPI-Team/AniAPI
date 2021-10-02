@@ -112,6 +112,11 @@ namespace Commons.Collections
                 queryFilter &= builder.AnyIn("genres", animeFilter.genres);
             }
 
+            if(animeFilter.nsfw == true)
+            {
+                queryFilter &= builder.Not(builder.In("genres", "Hentai"));
+            }
+
             if (!string.IsNullOrEmpty(animeFilter.locale))
             {
                 queryFilter &= builder.Exists($"titles.{animeFilter.locale}");
