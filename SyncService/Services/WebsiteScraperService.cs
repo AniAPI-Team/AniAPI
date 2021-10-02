@@ -52,8 +52,11 @@ namespace SyncService.Services
 
                 while (true)
                 {
-                    Thread.Sleep(1000 * 60);
-                
+                    Thread.Sleep(1000 * 5);
+
+                    double avg = this._workers.Sum(x => x.Progress) / this._workers.Count;
+                    this.Log($"Done {avg.ToString("F2")}%", true);
+
                     int working = this._workers.Count(x => x.Working == true);
                     
                     if(working == 0)
