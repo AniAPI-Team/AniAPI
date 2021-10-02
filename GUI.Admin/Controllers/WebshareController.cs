@@ -50,7 +50,7 @@ namespace GUI.Admin.Controllers
                     Method = HttpMethod.Get
                 };
 
-                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Token", _configuration.GetValue<string>("Webshare:Token"));
+                request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Token", _token);
 
                 using(HttpClient client = new HttpClient() { BaseAddress = new Uri("https://proxy.webshare.io/api/proxy/stats/") })
                 {

@@ -11,7 +11,7 @@
     <title>AniAPI Administration Panel</title>
     <link rel='shortcut icon' type='image/x-icon' href='/img/favicon.ico' />
 
-    <link href="~/pkg/bundle.min.css" rel="stylesheet">
+    <link href="~/pkg/bundle.min.css" type="text/css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
     <style>
         #pictures {
@@ -66,7 +66,7 @@
     </style>
 </head>
 <body>
-    <div class="min-vw-100 min-vh-100">
+    <div class="min-vw-100 min-vh-100" id="root">
         <div id="pictures" class="min-vw-100 min-vh-100"></div>
         <a href="./">
             <img src="~/img/aniapi_icon_dark.png" class="brand position-absolute top-0 start-0 mt-4 ms-4" />
@@ -130,17 +130,20 @@
         const loadQuote = async () => {
             let res;
 
-            do {
-                const req = await fetch('https://animechan.vercel.app/api/random');
-                res = await req.json();
+            try {
+                do {
+                    const req = await fetch('https://animechan.vercel.app/api/random');
+                    res = await req.json();
+                }
+                while (res.quote.length > 60);
+
+                document.getElementById('quote-quote').innerText = res.quote;
+                document.getElementById('quote-quote').title = res.quote;
+                document.getElementById('quote-anime').innerHTML = `${res.character} in <cite title="Source Title">${res.anime}</cite>`;
+
+                document.getElementById('quote').classList.add('visible');
             }
-            while (res.quote.length > 60);
-
-            document.getElementById('quote-quote').innerText = res.quote;
-            document.getElementById('quote-quote').title = res.quote;
-            document.getElementById('quote-anime').innerHTML = `${res.character} in <cite title="Source Title">${res.anime}</cite>`;
-
-            document.getElementById('quote').classList.add('visible');
+            catch {}
         }
 
         const changePicture = async () => {

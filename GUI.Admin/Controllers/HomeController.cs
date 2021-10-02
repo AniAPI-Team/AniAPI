@@ -7,6 +7,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using MongoDB.Bson;
+using MongoDB.Driver;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -70,20 +72,14 @@ namespace GUI.Admin.Controllers
 
             try
             {
-                long max = this._animeCollection.Last().Id;
+                List<Anime> anime = _animeCollection.Collection.AsQueryable()
+                    .Where(x => !string.IsNullOrEmpty(x.CoverImage) && !x.Genres.Contains("Hentai"))
+                    .AsEnumerable()
+                    .OrderBy(x => Guid.NewGuid())
+                    .Take(count)
+                    .ToList();
 
-                for (int i = 0; i < count; i++)
-                {
-                    Anime anime = null;
-                    do
-                    {
-                        long id = _random.Next(1, (int)max) + 1;
-                        anime = this._animeCollection.Get(id);
-                    }
-                    while (anime.NSFW == true || !anime.HasCoverImage);
-
-                    pictures.Add(new string[2] { anime.CoverColor, anime.CoverImage });
-                }
+                pictures.AddRange(anime.Select(x => new string[2] { x.CoverColor, x.CoverImage }));
             }
             catch(Exception ex)
             {
