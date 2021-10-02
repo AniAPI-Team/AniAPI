@@ -1,0 +1,172 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>AniAPI Administration Panel</title>
+    <link rel='shortcut icon' type='image/x-icon' href='/img/favicon.ico' />
+
+    <link href="~/pkg/bundle.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css">
+
+    <style>
+        .sidebar .nav-pills .nav-link svg {
+            margin-right: 4px;
+            height: 20px;
+            vertical-align: middle;
+        }
+    </style>
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    <div class="min-vw-100 min-vh-100" id="root">
+        <div class="d-flex flex-column flex-shrink-0 bg-white sidebar">
+            <a href="/" class="d-flex align-items-center justify-content-center text-decoration-none head">
+                <img src="~/img/aniapi_icon_dark.png" class="logo" />
+                <h5 class="brand text-major">Administration</h5>
+            </a>
+            <ul class="nav nav-pills flex-column mb-auto">
+                <li>
+                    <a href="@Url.Action("Dashboard", "Page")" class="nav-link @Html.IsSidebarItemActive("Page", "Dashboard")">
+                        <i class="bi-speedometer2 me-2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="nav-link">
+                        <i class="bi-archive me-2"></i>
+                        <span>Data</span>
+                        <i class="bi bi-chevron-right float-end align-middle submenu-icon"></i>
+                    </a>
+                    <ul class="submenu collapse">
+                        <li>
+                            <a href="@Url.Action("Anime", "Page")" class="nav-link @Html.IsSidebarItemActive("Page", "Anime")">
+                                <span>Anime</span>
+                            </a>
+                        </li>
+                        <li>
+                            <a href="@Url.Action("Website", "Page")" class="nav-link @Html.IsSidebarItemActive("Page", "Website")">
+                                <span>Website</span>
+                            </a>
+                        </li>
+                    </ul>
+                </li>
+                @if(((ClaimsIdentity)User.Identity).GetSpecificClaim(ClaimTypes.Role) == UserRoleEnum.ADMINISTRATOR.ToString())
+                {
+                    <li>
+                        <a href="#" class="nav-link">
+                            <i class="bi-bar-chart me-2"></i>
+                            <span>Statistics</span>
+                            <i class="bi bi-chevron-right float-end align-middle submenu-icon"></i>
+                        </a>
+                        <ul class="submenu collapse">
+                            <li>
+                                <a href="@Url.Action("Digitalocean", "Page")" class="nav-link @Html.IsSidebarItemActive("Page", "Digitalocean")">
+                                    <svg role="img" viewBox="0 0 24 24" fill="#0080FF" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M12.04 0C5.408-.02.005 5.37.005 11.992h4.638c0-4.923 4.882-8.731 10.064-6.855a6.95 6.95 0 014.147 4.148c1.889 5.177-1.924 10.055-6.84 10.064v-4.61H7.391v4.623h4.61V24c7.86 0 13.967-7.588 11.397-15.83-1.115-3.59-3.985-6.446-7.575-7.575A12.8 12.8 0 0012.039 0zM7.39 19.362H3.828v3.564H7.39zm-3.563 0v-2.978H.85v2.978z" />
+                                    </svg>
+                                    <span>DigitalOcean</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("Cloudflare", "Page")" class="nav-link @Html.IsSidebarItemActive("Page", "Cloudflare")">
+                                    <svg role="img" viewBox="0 0 24 24" fill="#F38020" xmlns="http://www.w3.org/2000/svg">
+                                        <path d="M16.5088 16.8447c.1475-.5068.0908-.9707-.1553-1.3154-.2246-.3164-.6045-.499-1.0615-.5205l-8.6592-.1123a.1559.1559 0 0 1-.1333-.0713c-.0283-.042-.0351-.0986-.021-.1553.0278-.084.1123-.1484.2036-.1562l8.7359-.1123c1.0351-.0489 2.1601-.8868 2.5537-1.9136l.499-1.3013c.0215-.0561.0293-.1128.0147-.168-.5625-2.5463-2.835-4.4453-5.5499-4.4453-2.5039 0-4.6284 1.6177-5.3876 3.8614-.4927-.3658-1.1187-.5625-1.794-.499-1.2026.119-2.1665 1.083-2.2861 2.2856-.0283.31-.0069.6128.0635.894C1.5683 13.171 0 14.7754 0 16.752c0 .1748.0142.3515.0352.5273.0141.083.0844.1475.1689.1475h15.9814c.0909 0 .1758-.0645.2032-.1553l.12-.4268zm2.7568-5.5634c-.0771 0-.1611 0-.2383.0112-.0566 0-.1054.0415-.127.0976l-.3378 1.1744c-.1475.5068-.0918.9707.1543 1.3164.2256.3164.6055.498 1.0625.5195l1.8437.1133c.0557 0 .1055.0263.1329.0703.0283.043.0351.1074.0214.1562-.0283.084-.1132.1485-.204.1553l-1.921.1123c-1.041.0488-2.1582.8867-2.5527 1.914l-.1406.3585c-.0283.0713.0215.1416.0986.1416h6.5977c.0771 0 .1474-.0489.169-.126.1122-.4082.1757-.837.1757-1.2803 0-2.6025-2.125-4.727-4.7344-4.727" />
+                                    </svg>
+                                    <span>Cloudflare</span>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="@Url.Action("Webshare", "Page")" class="nav-link @Html.IsSidebarItemActive("Page", "Webshare")">
+                                    <svg role="img" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 24 24">
+                                        <image id="Livello_1" data-name="Livello 1" x="2" y="4" width="20" height="16" xlink:href="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAQCAYAAAAWGF8bAAADLklEQVQ4jdWTS0hUURjHv3PuOfc1d0YdNcfR8lFNiRAEpWVU0JMQehGubBM9FhFtgoiiFi2KnrSJiCCIjJRqEYRR9NhEExhNpWVp2WiTTjrjdca5c+fOfcQZ7e2uVd/ZHL7v/H/n8P2/g9oHP8CL0a9we7Dn4JCeqtrgn33jQM2iuxgQFAkytIS7yo91P92fdWy6rXLemeaK2ve6bYGa1eHeUB/qHVfX5hFeXVFSEQy4CoDwmIMOdehkSI3uEzkCV8OdTY2lM5ctLvSHesdHyeVPr1s/ptQGgji41v9m0brS6iV+yZ0aNXLAlq7EyEYOoTEP5fcvyPdd4Yqa1+9sHXh7TCYUXIRCVEsKPSl16YppledPvAvuvRXu3F4i5wG7rFeN+gwAYXnxjHvnejrO3ux7ucPFy3TMzCjB+JdN+VTsxk9jkZUUcyBgArbjgCKIoFtmJQYHkqYRQIQHZ3Ipkguexb9UPY6GIaRGGyVRAYoxFAsyiJjAhY+hzVghVOMQyklYMKjEkbSAOSAIawgh+B6srwThcTN3hmrf80yTO49xGgNMkn4PZ8okgyIE7AEIwP6zRhC28RS6f4r/A4imKjCTbMf5q4YAHGZC1rZ59IuU7TUry+OMbeGpiDwmzADuV88mRKbjpjx4eB7StpHLMaNUU4cy0W1ghfCJjG39uIvJOYStjMVyKMZegydHx7BNKKCiON3lgU3+wFHHtCCSTsLnZAz8opI8VLP4DF5Q4GtjFN2agEqYQF9K9Wq2CVsrai9NgKwckA1vzNDXRfWUVJtX1Lp7bv2qZcXT2xrLay7sm1NfXS67O7mLx0/1I4S4B5F3y3kqsIGFrxmNezU2vHC9f9a1UsntaQ931fG8CArJ1cQnI5HtfSmVzHUXtu2qnn99jsd7R7dMjf0a7vCRIzDb7X0UyehifzrRkLZMxL5iVE8FwtrY8y1lgdOUCkXdyVgda43EERjQEkrcSM/aUBZor/P6hh8Ph3O9nCbKQGKGDmo2A6t9lQfKZff9AS3RIBNq1nvLHnbEB0PBeASaZtTsKRTl9uBIZK1hW9KakqpnPlFpyaeCrlnmz0EBgG+9HVvYVMclIAAAAABJRU5ErkJggg==" />
+                                    </svg>
+                                    <span>Webshare</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                }
+            </ul>
+            <div class="text-center">
+                <small>v1.0.0</small>
+            </div>
+        </div>
+        <div class="flex-grow-1 d-flex flex-column content">
+            <nav class="navbar navbar-light bg-white">
+                <div class="container-fluid">
+                    <div class="w-100 d-flex justify-content-between align-items-center">
+                        <i class="bi bi-list hamburger" onclick="toggleCollapse()"></i>
+                        <div class="dropdown">
+                            <a class="d-flex align-items-center text-decoration-none" href="#" role="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="avatar rounded-circle" style="background-image:url(@(((ClaimsIdentity)User.Identity).GetSpecificClaim("Avatar")))"></div>
+                                <span class="text-minor">@(((ClaimsIdentity)User.Identity).GetSpecificClaim(ClaimTypes.Name))</span>
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end" id="user-menu" aria-labelledby="userMenuDropdown">
+                                <li>
+                                    <h6 class="dropdown-header">User menu</h6>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item" href="#">
+                                        <i class="bi bi-person-circle"></i>
+                                        <span>Profile</span>
+                                    </a>
+                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item" href="@Url.Action("Logout", "Home")">
+                                        <i class="bi bi-power"></i>
+                                        <span>Logout</span>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <div class="container-fluid flex-grow-1 main p-4">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+
+    <div class="min-vw-100 min-vh-100 d-flex align-items-center justify-content-center bg-white" id="page-loader">
+        <div class="spinner-grow" style="width:3rem;height:3rem;" role="status"></div>
+    </div>
+
+    <script src="~/pkg/bundle.min.js"></script>
+
+    <script>
+        var _imageObserver;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if ('IntersectionObserver' in window) {
+                const lazyImages = document.querySelectorAll('.lazy');
+
+                _imageObserver = new IntersectionObserver((entries, observer) => {
+                    entries.forEach((entry) => {
+                        if (entry.isIntersecting) {
+                            const image = entry.target;
+
+                            image.classList.remove('lazy');
+                            _imageObserver.unobserve(image);
+                        }
+                    });
+                });
+
+                lazyImages.forEach((image) => {
+                    _imageObserver.observe(image);
+                })
+            }
+        });
+
+        const observeImage = (image) => {
+            _imageObserver.observe(image);
+        }
+    </script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

@@ -1,0 +1,9 @@
+{
+    "version": "1.0.0",
+    "name": "asp.net",
+    "private": true,
+    "devDependencies": {
+        "bootstrap": "5.1.1",
+        "@popperjs/core": "2.9.3"
+    }
+}

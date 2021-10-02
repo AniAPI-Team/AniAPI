@@ -1,0 +1,23 @@
+[
+    {
+        "outputFileName": "wwwroot/bundles/bundle.min.css",
+        "inputFiles": [
+            "node_modules/bootstrap/dist/css/bootstrap.css",
+            "wwwroot/css/site.css"
+        ],
+        "minify": {
+            "enabled": true
+        }
+    },
+    {
+        "outputFileName": "wwwroot/bundles/bundle.min.js",
+        "inputFiles": [
+            "node_modules/@popperjs/core/dist/umd/popper.min.js",
+            "node_modules/bootstrap/dist/js/bootstrap.min.js",
+            "wwwroot/js/site.js"
+        ],
+        "minify": {
+            "enabled": false
+        }
+    }
+]

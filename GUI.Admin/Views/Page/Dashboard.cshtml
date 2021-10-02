@@ -1,0 +1,284 @@
+﻿@section Styles {
+    <style>
+        .metrics {
+            padding: 2px 15px;
+            border-radius: 10em;
+            font-weight: 500;
+        }
+
+        #service-status-timer {
+            font-size: 12px;
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-md-3">
+        <div class="box p-3">
+            <h6>Anime</h6>
+            <div class="d-flex justify-content-between align-items-center">
+                <span id="anime-count"></span>
+                <span class="metrics bg-primary bg-opacity-25 text-primary" id="anime-variation"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="box p-3">
+            <h6>Episodes</h6>
+            <div class="d-flex justify-content-between align-items-center">
+                <span id="episode-count"></span>
+                <span class="metrics bg-primary bg-opacity-25 text-primary" id="episode-variation"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="box p-3">
+            <h6>Songs</h6>
+            <div class="d-flex justify-content-between align-items-center">
+                <span id="song-count"></span>
+                <span class="metrics bg-primary bg-opacity-25 text-primary" id="song-variation"></span>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="box p-3">
+            <h6>Users</h6>
+            <div class="d-flex justify-content-between align-items-center">
+                <span id="user-count"></span>
+                <span class="metrics bg-primary bg-opacity-25 text-primary" id="user-variation"></span>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <div class="box p-3">
+            <h6>Services status</h6>
+            <div class="position-relative" style="height:300px;width:100%;margin-bottom:1rem">
+                <canvas id="service-status"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Dreamsub</h6>
+            <div class="position-relative" style="height:150px;width:100%;margin-bottom:1rem">
+                <canvas id="dreamsub-matchings"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Animeworld</h6>
+            <div class="position-relative" style="height:150px;width:100%;margin-bottom:1rem">
+                <canvas id="animeworld-matchings"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Gogoanime</h6>
+            <div class="position-relative" style="height:150px;width:100%;margin-bottom:1rem">
+                <canvas id="gogoanime-matchings"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const _serviceStatusColors = [
+            '#2196F3',
+            '#FFC107',
+            '#E91E63',
+            '#009688'
+        ];
+
+        var _serviceStatusChart;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadMetrics();
+            await loadServicesStatus();
+            await loadMatchedAnimeCount();
+
+            pageLoaded();
+
+            setInterval(loadServicesStatus, 1000 * 10);
+        });
+
+        window.addEventListener('resize', () => {
+            resizeChart();
+        });
+
+        const onToggleCollapse = (size) => {
+            resizeChart(size);
+        }
+
+        const resizeChart = (size) => {
+            if (!size) {
+                size = document.querySelector('#root .sidebar').clientWidth;
+            }
+
+            const w = window.innerWidth - size - 42 * 2;
+            _serviceStatusChart.canvas.parentNode.style.width = `${w}px`;
+        }
+
+        const loadMetrics = async () => {
+            const req = await fetch('@Url.Action("GetResourcesMetrics", "Dashboard")');
+            const res = await req.json();
+
+            for (const metric in res) {
+                document.getElementById(`${metric}-count`).innerText = formatNumber(res[metric][0]);
+                document.getElementById(`${metric}-variation`).innerText = `+${formatNumber(res[metric][1])}`;
+                document.getElementById(`${metric}-variation`).title = `${formatNumber(res[metric][1])} added since last month`;
+
+                if (res[metric][1] <= 0) {
+                    document.getElementById(`${metric}-variation`).style.opacity = 0;
+                }
+            }
+        }
+
+        const loadServicesStatus = async () => {
+            const req = await fetch('@Url.Action("GetServicesStatus", "Dashboard")');
+            const res = await req.json();
+
+            const time = getCurrentTime();
+
+            if (!_serviceStatusChart) {
+                let datasets = [];
+
+                let i = 0;
+                for (let service in res) {
+                    const color = _serviceStatusColors[i];
+
+                    datasets.push({
+                        label: service,
+                        backgroundColor: color,
+                        borderColor: color,
+                        tension: 0.3,
+                        data: [Math.ceil(res[service])]
+                    });;
+
+                    i++;
+                }
+
+                const data = {
+                    labels: [time],
+                    datasets: datasets
+                };
+
+                const config = {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        hover: {
+                            mode: 'nearest',
+                            intersect: true
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    stepSize: 1,
+                                    min: 0,
+                                    max: 10,
+                                    maxTicksLimit: 11,
+                                    maxRotation: 0,
+                                    minRotation: 0
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: (ctx) => {
+                                        return `${ctx.dataset.label}: ${ctx.parsed.y}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                _serviceStatusChart = new Chart(document.getElementById('service-status'), config);
+            }
+            else {
+                _serviceStatusChart.data.labels.push(time);
+
+                const sorted = Object.fromEntries(
+                    Object.entries(res).sort(([,a], [,b]) => a - b)
+                );
+
+                let i = 0;
+                for (let service in sorted) {
+                    _serviceStatusChart.data.datasets.find(x => x.label === service).order = i;
+                    _serviceStatusChart.data.datasets.find(x => x.label === service).data.push(Math.ceil(res[service]));
+
+                    i++;
+                }
+
+                _serviceStatusChart.update();
+            }
+        }
+
+        const loadMatchedAnimeCount = async () => {
+            const req = await fetch('@Url.Action("GetAnimeMatchedCount", "Dashboard")');
+            const res = await req.json();
+
+            for (let website in res) {
+                const data = {
+                    labels: [
+                        'Anime matched',
+                        'Anime possible matching',
+                        'Anime not matched'
+                    ],
+                    datasets: [{
+                        data: [
+                            res[website][0],
+                            res[website][1],
+                            res[website][2],
+                        ],
+                        backgroundColor: [
+                            '#4CAF50',
+                            '#FFC107',
+                            '#F44336'
+                        ],
+                        hoverOffset: 4
+                    }]
+                };
+
+                const config = {
+                    type: 'doughnut',
+                    data: data,
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        return `${ctx.label}: ${ctx.parsed}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                new Chart(document.getElementById(`${website}-matchings`), config);
+            }
+        }
+    </script>
+}

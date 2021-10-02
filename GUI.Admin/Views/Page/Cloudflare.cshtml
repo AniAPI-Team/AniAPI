@@ -1,0 +1,415 @@
+﻿@section Styles {
+    <style>
+        .display-6 {
+            margin-bottom: 1.5rem;
+        }
+    </style>
+}
+
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="display-6">Requests</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Total requests</h6>
+            <span id="total-requests"></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Cached requests</h6>
+            <span id="cached-requests"></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Non-cached requests</h6>
+            <span id="not-cached-requests"></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Requests type</h6>
+            <div class="position-relative" style="height:150px;width:100%;margin-bottom:1rem">
+                <canvas id="pie-requests"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="box p-3">
+            <div class="position-relative" style="height:300px;width:100%;margin-bottom:1rem">
+                <canvas id="chart-requests"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-12">
+        <h1 class="display-6">Bandwidth</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Total bandwidth</h6>
+            <span id="total-bandwidth"></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Cached bandwidth</h6>
+            <span id="cached-bandwidth"></span>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Non-cached bandwidth</h6>
+            <span id="not-cached-bandwidth"></span>
+        </div>
+    </div>
+</div>
+<div class="row">
+    <div class="col-md-4">
+        <div class="box p-3">
+            <h6>Bandwidth type</h6>
+            <div class="position-relative" style="height:150px;width:100%;margin-bottom:1rem">
+                <canvas id="pie-bandwidth"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-8">
+        <div class="box p-3">
+            <div class="position-relative" style="height:300px;width:100%;margin-bottom:1rem">
+                <canvas id="chart-bandwidth"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script>
+        const _token = 'ep3JlwzLMK0ZsWglWKJVKhRuaaeNtJczBx0nuNCo';
+
+        var _requestsChart;
+        var _bandwidthChart;
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadRequestsMetrics();
+            await loadRequestsChart();
+            await loadBandwidthMetrics();
+            await loadBandwidthChart();
+
+            pageLoaded();
+        });
+
+        window.addEventListener('resize', () => {
+            resizeChart();
+        });
+
+        const onToggleCollapse = (size) => {
+            resizeChart(size);
+        }
+
+        const resizeChart = (size) => {
+            if (!size) {
+                size = document.querySelector('#root .sidebar').clientWidth;
+            }
+
+            const w = window.innerWidth - size - 42 * 2;
+            const _80p = ((w - 12 * 2) * 80) / 120;
+
+            _requestsChart.canvas.parentNode.style.width = `${_80p}px`;
+            _bandwidthChart.canvas.parentNode.style.width = `${_80p}px`;
+        }
+
+        const loadRequestsMetrics = async () => {
+            const req = await fetch('@Url.Action("GetRequestMetrics", "Cloudflare")');
+            const res = await req.json();
+
+            if (res.data) {
+                const metrics = res.data.viewer.zones[0].httpRequests1hGroups[0].sum;
+
+                const uncached = metrics.requests - metrics.cachedRequests;
+
+                document.getElementById('total-requests').innerText = formatNumber(metrics.requests);
+                document.getElementById('cached-requests').innerText = formatNumber(metrics.cachedRequests);
+                document.getElementById('not-cached-requests').innerText = formatNumber(uncached);
+
+                const cached = parseInt((metrics.cachedRequests * 100) / metrics.requests);
+
+                const data = {
+                    labels: [
+                        'Cached requests',
+                        'Uncached requests'
+                    ],
+                    datasets: [{
+                        data: [
+                            cached,
+                            100 - cached,
+                        ],
+                        backgroundColor: [
+                            '#FFA726',
+                            '#FFCC80'
+                        ],
+                        hoverOffset: 4
+                    }]
+                };
+
+                const config = {
+                    type: 'doughnut',
+                    data: data,
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        return `${ctx.label}: ${ctx.parsed}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                new Chart(document.getElementById('pie-requests'), config);
+            }
+        }
+
+        const loadRequestsChart = async () => {
+            const req = await fetch('@Url.Action("GetRequestChart", "Cloudflare")');
+            const res = await req.json();
+
+            if (res.data) {
+                const array = res.data.viewer.zones[0].httpRequests1dGroups;
+
+                let labels = [];
+                let datasets = [
+                    {
+                        label: 'Cached',
+                        backgroundColor: '#FFA726',
+                        borderColor: '#FFA726',
+                        pointRadius: 0,
+                        fill: true,
+                        data: []
+                    },
+                    {
+                        label: 'Uncached',
+                        backgroundColor: '#FFCC80',
+                        borderColor: '#FFCC80',
+                        pointRadius: 0,
+                        fill: true,
+                        data: []
+                    }
+                ];
+
+                for (let i = 0; i < array.length; i++) {
+                    labels.push(array[i].dimensions.date);
+
+                    datasets[0].data.push(array[i].sum.cachedRequests);
+
+                    const uncached = array[i].sum.requests - array[i].sum.cachedRequests;
+                    datasets[1].data.push(uncached);
+                }
+
+                const data = {
+                    labels: labels,
+                    datasets: datasets
+                };
+
+                const config = {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        hover: {
+                            mode: 'nearest',
+                            intersect: true
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    stepSize: 1,
+                                    maxRotation: 0,
+                                    minRotation: 0,
+                                    callback: function (value, index, values) {
+                                        return index % 2 === 1 ? '' : this.getLabelForValue(value).replace(`${new Date().getFullYear()}-`, '');
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: (ctx) => {
+                                        return `${ctx.dataset.label}: ${formatNumber(ctx.parsed.y)} requests`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                _requestsChart = new Chart(document.getElementById('chart-requests'), config);
+            }
+        }
+
+        const loadBandwidthMetrics = async () => {
+            const req = await fetch('@Url.Action("GetBandwidthMetrics", "Cloudflare")');
+            const res = await req.json();
+
+            if (res.data) {
+                const metrics = res.data.viewer.zones[0].httpRequests1hGroups[0].sum;
+
+                const uncached = metrics.bytes - metrics.cachedBytes;
+
+                document.getElementById('total-bandwidth').innerText = formatNumber(byteConverter(metrics.bytes));
+                document.getElementById('cached-bandwidth').innerText = formatNumber(byteConverter(metrics.cachedBytes));
+                document.getElementById('not-cached-bandwidth').innerText = formatNumber(byteConverter(uncached));
+
+                const cached = parseInt((metrics.cachedBytes * 100) / metrics.bytes);
+
+                const data = {
+                    labels: [
+                        'Cached bytes',
+                        'Uncached bytes'
+                    ],
+                    datasets: [{
+                        data: [
+                            cached,
+                            100 - cached,
+                        ],
+                        backgroundColor: [
+                            '#42A5F5',
+                            '#90CAF9'
+                        ],
+                        hoverOffset: 4
+                    }]
+                };
+
+                const config = {
+                    type: 'doughnut',
+                    data: data,
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: (ctx) => {
+                                        return `${ctx.label}: ${ctx.parsed}%`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                new Chart(document.getElementById('pie-bandwidth'), config);
+            }
+        }
+
+        const loadBandwidthChart = async () => {
+            const req = await fetch('@Url.Action("GetBandwidthChart", "Cloudflare")');
+            const res = await req.json();
+
+            if (res.data) {
+                const array = res.data.viewer.zones[0].httpRequests1dGroups;
+
+                let labels = [];
+                let datasets = [
+                    {
+                        label: 'Cached',
+                        backgroundColor: '#42A5F5',
+                        borderColor: '#42A5F5',
+                        pointRadius: 0,
+                        fill: true,
+                        data: []
+                    },
+                    {
+                        label: 'Uncached',
+                        backgroundColor: '#90CAF9',
+                        borderColor: '#90CAF9',
+                        pointRadius: 0,
+                        fill: true,
+                        data: []
+                    }
+                ];
+
+                for (let i = 0; i < array.length; i++) {
+                    labels.push(array[i].dimensions.date);
+
+                    datasets[0].data.push(byteConverter(array[i].sum.cachedBytes, false));
+
+                    const uncached = byteConverter(array[i].sum.bytes - array[i].sum.cachedBytes, false);
+                    datasets[1].data.push(uncached);
+                }
+
+                const data = {
+                    labels: labels,
+                    datasets: datasets
+                };
+
+                const config = {
+                    type: 'line',
+                    data: data,
+                    options: {
+                        maintainAspectRatio: false,
+                        responsive: true,
+                        hover: {
+                            mode: 'nearest',
+                            intersect: true
+                        },
+                        scales: {
+                            x: {
+                                ticks: {
+                                    stepSize: 1,
+                                    maxRotation: 0,
+                                    minRotation: 0,
+                                    callback: function (value, index, values) {
+                                        return index % 2 === 1 ? '' : this.getLabelForValue(value).replace(`${new Date().getFullYear()}-`, '');
+                                    }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: {
+                                display: false
+                            },
+                            tooltip: {
+                                mode: 'index',
+                                intersect: false,
+                                callbacks: {
+                                    label: (ctx) => {
+                                        return `${ctx.dataset.label}: ${formatNumber(ctx.parsed.y)} MB`;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
+
+                _bandwidthChart = new Chart(document.getElementById('chart-bandwidth'), config);
+            }
+        }
+    </script>
+}
