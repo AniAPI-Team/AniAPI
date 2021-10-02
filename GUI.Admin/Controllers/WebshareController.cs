@@ -1,4 +1,6 @@
-﻿using Commons.Enums;
+﻿using Commons;
+using Commons.Collections;
+using Commons.Enums;
 using GUI.Admin.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -18,10 +20,15 @@ namespace GUI.Admin.Controllers
         private readonly ILogger<WebshareController> _logger;
         private readonly IConfiguration _configuration;
 
+        private string _token;
+
         public WebshareController(ILogger<WebshareController> logger, IConfiguration configuration)
         {
             _logger = logger;
             _configuration = configuration;
+
+            AppSettings settings = new AppSettingsCollection().Get(0);
+            _token = settings.Webshare.Token;
         }
 
         [Authorize]
