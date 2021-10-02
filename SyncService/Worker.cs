@@ -38,14 +38,14 @@ namespace SyncService
         {
             if (!stoppingToken.IsCancellationRequested)
             {
-                Task.Run(async () => await _animeScraper.StartAsync(stoppingToken));
+                //Task.Run(async () => await _animeScraper.StartAsync(stoppingToken));
 
                 Task.Run(async () => await _userSync.StartAsync(stoppingToken));
 
-                Task.Run(async () => await _websiteScraper.StartAsync(stoppingToken));
-                Thread.Sleep(10 * 1000);
+                //Task.Run(async () => await _websiteScraper.StartAsync(stoppingToken));
+                //Thread.Sleep(10 * 1000);
 
-                Task.Run(async () => await _songScraper.StartAsync(stoppingToken));
+                //Task.Run(async () => await _songScraper.StartAsync(stoppingToken));
             }
 
             return Task.CompletedTask;
