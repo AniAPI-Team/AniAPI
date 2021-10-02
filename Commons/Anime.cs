@@ -230,6 +230,9 @@ namespace Commons
         [JsonProperty(PropertyName = "score")]
         public int Score { get; set; }
 
+        public bool NSFW => Genres.Contains("Hentai");
+        public bool HasCoverImage => CoverImage != "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/default.jpg";
+
         public override string ToString()
         {
             return this.Titles[LocalizationEnum.English];
