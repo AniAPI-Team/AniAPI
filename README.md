@@ -50,6 +50,8 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 
 ## Contributions
 
+[Getting started as a contributor](https://github.com/AniAPI-Team/AniAPI/tree/main/GETTING_STARTED.md)
+
 If you wanna help us to provide an even better service, you can contribute on things like:
 * Fixing untracked bugs
 * [Adding a new website for episodes' scraping](https://github.com/AniAPI-Team/AniAPI/tree/main/SyncService/Models/WebsiteScrapers)
