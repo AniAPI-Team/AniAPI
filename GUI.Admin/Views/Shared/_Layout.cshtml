@@ -22,7 +22,7 @@
 </head>
 <body>
     <div class="min-vw-100 min-vh-100" id="root">
-        <div class="d-flex flex-column flex-shrink-0 bg-white sidebar">
+        <div class="d-flex flex-column flex-shrink-0 bg-white sidebar h-100">
             <a href="/" class="d-flex align-items-center justify-content-center text-decoration-none head">
                 <img src="~/img/aniapi_icon_dark.png" class="logo" />
                 <h5 class="brand text-major">Administration</h5>
@@ -126,7 +126,7 @@
                     </div>
                 </div>
             </nav>
-            <div class="container-fluid flex-grow-1 main p-4">
+            <div class="container-fluid flex-grow-1 main p-4 position-relative" id="main">
                 @RenderBody()
             </div>
         </div>
@@ -159,6 +159,15 @@
                 lazyImages.forEach((image) => {
                     _imageObserver.observe(image);
                 })
+            }
+        });
+
+        document.getElementById('main').addEventListener('scroll', (e) => {
+            const scrollSize = e.target.clientHeight;
+            const scrollPosition = e.target.scrollHeight - e.target.scrollTop;
+
+            if (typeof (OnScrollChanged) === typeof (Function)) {
+                OnScrollChanged(scrollPosition, scrollSize);
             }
         });
 

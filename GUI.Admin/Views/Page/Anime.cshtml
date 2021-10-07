@@ -4,6 +4,11 @@
             display: none !important;
         }
 
+        .anime-card .card {
+            border-radius: 0;
+            border-color: rgba(0, 0, 0, 0.0625);
+        }
+
         .anime-card .anime-cover .cover {
             height: 100%;
             width: 100%;
@@ -81,7 +86,7 @@
             </div>
             <div class="col-md-8">
                 <div class="card-body">
-                    <a href="#">
+                    <a href="#" class="anime-link">
                         <h6 class="card-title anime-title"></h6>
                     </a>
                     <p class="card-text anime-description"></p>
@@ -95,6 +100,9 @@
 @section Scripts {
     <script>
         var _searchTimer;
+        var _page = 1;
+        var _lastPage = 1;
+        var _loading = false;
 
         document.addEventListener('DOMContentLoaded', async () => {
             document.getElementById('search-text').addEventListener('keyup', onSearchKeyUp);
@@ -111,23 +119,35 @@
 
             _searchTimer = setTimeout(() => {
                 document.getElementById('anime-cards').innerHTML = '';
+                _page = 1;
                 loadAnime();
             }, 1000);
         }
 
+        const OnScrollChanged = async (scrollPosition, scrollSize) => {
+            const toll = (10 * scrollSize) / 100;
+
+            if (scrollPosition <= scrollSize + toll) {
+                if (!_loading && _page < _lastPage) {
+                    _page++;
+                    await loadAnime();
+                }
+            }
+        }
+
         const loadAnime = async () => {
+            _loading = true;
             document.getElementById('loader').style.visibility = 'visible';
 
             const title = document.getElementById('search-text').value;
 
-            const url = 'https://api.aniapi.com/v1/anime?sort_fields=score&sort_directions=-1' + (title === '' ? '' : '&title=' + encodeURIComponent(title));
+            const url = 'https://api.aniapi.com/v1/anime?page=' + _page + '&sort_fields=score&sort_directions=-1' + (title === '' ? '' : '&title=' + encodeURIComponent(title));
             const req = await fetch(url);
             const res = await req.json();
 
-            console.log(res);
-
             if (res.data) {
                 const docs = res.data.documents;
+                _lastPage = res.data.last_page;
 
                 for (let i = 0; i < docs.length; i++) {
                     const template = document.getElementById('anime-template').cloneNode(true);
@@ -150,6 +170,8 @@
                         }
                     });
 
+                    template.querySelector('.anime-link').setAttribute('href', `/Data/Anime/${docs[i].id}`);
+
                     const cover = template.querySelector('.anime-cover');
                     const img = cover.querySelector('.cover');
 
@@ -168,7 +190,7 @@
                         const genre = docs[i].genres[t];
 
                         const badge = document.createElement('span');
-                        badge.className = 'badge rounded-pill bg-primary';
+                        badge.className = 'my-badge bg-opacity-25 text-primary bg-primary';
                         badge.innerText = genre;
 
                         template.querySelector('.anime-tags').appendChild(badge);
@@ -179,6 +201,7 @@
             }
 
             document.getElementById('loader').style.visibility = 'hidden';
+            _loading = false;
         }
     </script>
 }

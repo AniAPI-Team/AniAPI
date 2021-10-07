@@ -1,0 +1,262 @@
+﻿@model long
+@section Styles {
+    <style>
+        #anime-banner {
+            min-height: 350px;
+            height: 350px;
+            max-height: 350px;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+        }
+
+        #anime-banner::after {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            right: 0;
+            content: '';
+            background-color: rgba(0, 0, 0, .12);
+        }
+
+        #anime-container {
+            top: 300px;
+            display: flex;
+        }
+
+        #anime-cover {
+            min-width: 250px;
+            width: 250px;
+            max-width: 250px;
+            min-height: 325px;
+            height: 325px;
+            max-height: 325px;
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: cover;
+        }
+
+        #anime-info .anime-description {
+            border-width: 1px 1px 1px 1px;
+            border-style: solid;
+            border-color: rgba(0, 0, 0, 0.0625);
+        }
+
+        .anime-title {
+            height: 50px;
+            color: var(--bs-primary);
+        }
+
+        #anime-genres {
+            display: flex;
+            flex-wrap: wrap;
+        }
+
+        #anime-genres span {
+            margin-right: .5rem;
+            margin-bottom: .5rem;
+        }
+
+        #anime-rating {
+            color: #FF9529;
+            font-size: 18px;
+        }
+
+        #anime-score {
+            color: #424242;
+            font-weight: bold;
+        }
+
+        #trailer-modal-frame {
+            width: 100%;
+            height: calc(100% - 6px);
+        }
+
+        .mobile #anime-container {
+            top: 150px;
+            flex-direction: column;
+        }
+
+        .mobile #anime-side {
+            margin-right: 0 !important;
+            margin-bottom: 20px !important;
+        }
+
+        .mobile .anime-title {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+    </style>
+}
+
+<div class="position-absolute top-0 start-0 w-100" id="anime-banner"></div>
+
+<div class="position-absolute start-50 translate-middle-x container" id="anime-container">
+    <div class="me-4 d-block d-sm-flex d-md-flex d-lg-flex d-xl-block justify-content-between align-items-end" id="anime-side">
+        <div class="rounded" id="anime-cover"></div>
+        <div class="mt-4">
+            <div class="d-grid gap-2">
+                <button class="btn btn-primary" id="anime-trailer" type="button" data-bs-toggle="modal" data-bs-target="#trailer-modal">Watch trailer</button>
+            </div>
+            <div class="mt-2 d-flex justify-content-between align-items-end">
+                <div class="d-flex flex-grow-1 justify-content-between" id="anime-rating"></div>
+                <h3 class="mb-0 ms-3" id="anime-score"></h3>
+            </div>
+        </div>
+    </div>
+    <div class="flex-grow-1" id="anime-info">
+        <div class="d-inline-block pt-2 px-4 bg-light rounded-top anime-title">
+            <h2 id="anime-title"></h2>
+        </div>
+        <div class="p-3 bg-white my-4 anime-description">
+            <h6>Description</h6>
+            <p class="mb-0" id="anime-description"></p>
+        </div>
+        <div class="row my-4">
+            <div class="col-md-12 col-lg-2 mb-2 mb-lg-0">
+                <div class="box p-3 mb-4 mb-md-0">
+                    <h6>Format</h6>
+                    <span id="anime-format"></span>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-2 mb-2 mb-lg-0">
+                <div class="box p-3 mb-4 mb-md-0">
+                    <h6>Status</h6>
+                    <span id="anime-status"></span>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-2 mb-2 mb-lg-0">
+                <div class="box p-3 mb-4 mb-md-0">
+                    <h6>Year</h6>
+                    <span id="anime-year"></span>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-2 mb-2 mb-lg-0">
+                <div class="box p-3 mb-4 mb-md-0">
+                    <h6>Season</h6>
+                    <span id="anime-season"></span>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-2 mb-2 mb-lg-0">
+                <div class="box p-3 mb-4 mb-md-0">
+                    <h6>Episodes</h6>
+                    <span id="anime-episodes"></span>
+                </div>
+            </div>
+            <div class="col-md-12 col-lg-2">
+                <div class="box p-3 mb-4 mb-md-0">
+                    <h6>Duration</h6>
+                    <span id="anime-duration"></span>
+                </div>
+            </div>
+        </div>
+        <div class="my-4" id="anime-genres"></div>
+    </div>
+</div>
+
+<div class="modal modal-sheet fade" tabindex="-1" role="dialog" id="trailer-modal" aria-hidden="true">
+    <div class="modal-dialog modal-fullscreen" role="document">
+        <div class="modal-content">
+            <div class="modal-header border-bottom-0">
+                <h5 class="modal-title" id="trailer-modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <iframe id="trailer-modal-frame"></iframe>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadAnime();
+
+            pageLoaded();
+        });
+
+        const loadAnime = async () => {
+            const req = await fetch('https://api.aniapi.com/v1/anime/@Model');
+            const res = await req.json();
+
+            console.log(res);
+
+            if (res.data) {
+                document.getElementById('anime-banner').style.backgroundColor = res.data.cover_color;
+                document.getElementById('anime-banner').style.backgroundImage = `url(${res.data.banner_image})`;
+                document.getElementById('anime-cover').style.backgroundImage = `url(${res.data.cover_image})`;
+
+                document.getElementById('anime-title').innerText = res.data.titles.en;
+
+                document.getElementById('anime-description').innerHTML = res.data.descriptions.en;
+                if (!res.data.descriptions.en) {
+                    document.getElementById('anime-description').parentNode.remove();
+                }
+
+                document.getElementById('anime-format').innerText = APIConverters.format(res.data.format);
+                document.getElementById('anime-status').innerText = APIConverters.status(res.data.status);
+                document.getElementById('anime-year').innerText = res.data.season_year ? res.data.season_year : 'Unknown';
+                document.getElementById('anime-season').innerText = APIConverters.season(res.data.season_period);
+                document.getElementById('anime-episodes').innerText = res.data.episodes_count;
+                document.getElementById('anime-duration').innerText = res.data.episode_duration ? `${res.data.episode_duration} min` : 'Unknown';
+
+                document.getElementById('anime-trailer').setAttribute('href', res.data.trailer_url);
+                if (!res.data.trailer_url) {
+                    document.getElementById('anime-trailer').parentNode.remove();
+                }
+
+                if (res.data.score > 0) {
+                    const score = parseFloat(res.data.score / 10);
+                    const decimal = score % 1;
+
+                    let normalized = 0;
+                    let half = false;
+
+                    if (decimal > 0.75) {
+                        normalized = Math.ceil(score);
+                    }
+                    else {
+                        normalized = Math.floor(score);
+                    }
+
+                    if (decimal > 0.25 && decimal <= 0.75) {
+                        half = true;
+                    }
+
+                    for (let i = 1; i <= 10; i++) {
+                        const star = document.createElement('i');
+
+                        const filled = normalized >= i;
+
+                        if (filled) {
+                            star.className = 'bi-star-fill';
+                        }
+                        else if (normalized + 1 === i && half) {
+                            star.className = 'bi-star-half';
+                        }
+                        else {
+                            star.className = 'bi-star';
+                        }
+
+                        document.getElementById('anime-rating').appendChild(star);
+                    }
+
+                    document.getElementById('anime-score').innerText = (normalized + (half ? 0.5 : 0));
+                }
+
+                for (let i = 0; i < res.data.genres.length; i++) {
+                    const badge = document.createElement('span');
+                    badge.className = 'my-badge bg-opacity-25 text-primary bg-primary';
+                    badge.innerText = res.data.genres[i];
+
+                    document.getElementById('anime-genres').appendChild(badge);
+                }
+
+                document.getElementById('trailer-modal-title').innerText = `${res.data.titles.en} trailer`;
+                document.getElementById('trailer-modal-frame').setAttribute('src', res.data.trailer_url);
+            }
+        }
+    </script>
+}

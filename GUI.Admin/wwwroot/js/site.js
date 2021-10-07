@@ -47,7 +47,7 @@ const toggleCollapse = () => {
 
     const size = root.classList.contains('collapsed') ? 70 : 280;
 
-    if (onToggleCollapse) {
+    if (typeof (onToggleCollapse) === typeof (Function)) {
         onToggleCollapse(size);
     }
 }
@@ -134,6 +134,37 @@ const byteConverter = (bytes, size = true, decimals = 2) => {
     const i = Math.floor(Math.log(bytes) / Math.log(k));
 
     return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + (size ? (' ' + sizes[i]) : '');
+}
+
+const APIConverters = {
+    format: (f) => {
+        switch (f) {
+            case 0: return 'TV';
+            case 1: return 'TV Short';
+            case 2: return 'Movie';
+            case 3: return 'Special';
+            case 4: return 'OVA';
+            case 5: return 'ONA';
+            case 6: return 'Music';
+        }
+    },
+    status: (s) => {
+        switch (s) {
+            case 0: return 'Completed';
+            case 1: return 'Releasing';
+            case 2: return 'Coming soon';
+            case 3: return 'Cancelled';
+        }
+    },
+    season: (s) => {
+        switch (s) {
+            case 0: return 'Winter';
+            case 1: return 'Spring';
+            case 2: return 'Summer';
+            case 3: return 'Fall';
+            case 4: return 'Unknown';
+        }
+    }
 }
 
 String.prototype.toHex = function () {

@@ -35,6 +35,13 @@ namespace GUI.Admin.Controllers
         }
 
         [Authorize]
+        [Route("/Data/Anime/{animeID}")]
+        public IActionResult Detail(long animeID)
+        {
+            return View(animeID);
+        }
+
+        [Authorize]
         [Route("/Stats/Digitalocean")]
         public IActionResult Digitalocean()
         {
