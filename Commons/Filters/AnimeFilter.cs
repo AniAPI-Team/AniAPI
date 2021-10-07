@@ -20,5 +20,7 @@ namespace Commons.Filters
 
         [CommaSeparated]
         public List<string> genres { get; set; } = new List<string>();
+
+        public bool nsfw { get; set; } = true;
     }
 }

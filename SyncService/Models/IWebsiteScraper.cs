@@ -31,6 +31,7 @@ namespace SyncService.Models
         protected WebsiteScraperService Service { get; set; }
         protected Thread Thread { get; private set; }
         public bool Working { get; private set; } = false;
+        public double Progress { get; private set; } = 0;
 
         protected List<EpisodeMatching> EpisodeMatchings = new List<EpisodeMatching>();
 
@@ -100,7 +101,7 @@ namespace SyncService.Models
 
         protected string BuildAPIProxyURL(string url, Dictionary<string, string> values = null)
         {
-            string apiUrl = $"{_appSettings.APIEndpoint}/proxy/{HttpUtility.UrlEncode(url)}/{this.Website.Name}";
+            string apiUrl = $"{_appSettings.APIEndpoint}/proxy/{HttpUtility.UrlEncode(url)}/{this.Website.Name}/";
 
             if(values != null)
             {
@@ -215,7 +216,7 @@ namespace SyncService.Models
                     }
                     finally
                     {
-                        this.Service.Log($"Website {this.Website.Name} done {this.Service.GetProgressD(animeID, lastID)}% ({_anime.Titles[LocalizationEnum.English]})", true);
+                        this.Progress = Convert.ToDouble(this.Service.GetProgressD(animeID, lastID));
                     }
 
                     if (this.Service._cancellationToken.IsCancellationRequested)
@@ -236,6 +237,7 @@ namespace SyncService.Models
             finally
             {
                 this.Working = false;
+                this.Progress = 100;
             }
         }
 
