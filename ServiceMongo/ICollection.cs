@@ -77,6 +77,7 @@ namespace MongoService
         /// <param name="filter">The filter object</param>
         /// <returns></returns>
         public abstract Paging<TDocument> GetList<TFilter>(IFilter<TFilter> filter);
+        
         protected long CalcNewId()
         {
             if (this.Count() == 0)
