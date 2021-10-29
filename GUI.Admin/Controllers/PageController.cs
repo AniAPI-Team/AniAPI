@@ -45,7 +45,7 @@ namespace GUI.Admin.Controllers
         [Route("/Stats/Digitalocean")]
         public IActionResult Digitalocean()
         {
-            if(((ClaimsIdentity)User.Identity).GetSpecificClaim(ClaimTypes.Role) == UserRoleEnum.BASIC.ToString())
+            if(((ClaimsIdentity)User.Identity).GetSpecificClaim(ClaimTypes.Role) != UserRoleEnum.ADMINISTRATOR.ToString())
             {
                 return Forbid();
             }
@@ -57,7 +57,7 @@ namespace GUI.Admin.Controllers
         [Route("/Stats/Cloudflare")]
         public IActionResult Cloudflare()
         {
-            if (((ClaimsIdentity)User.Identity).GetSpecificClaim(ClaimTypes.Role) == UserRoleEnum.BASIC.ToString())
+            if (((ClaimsIdentity)User.Identity).GetSpecificClaim(ClaimTypes.Role) != UserRoleEnum.ADMINISTRATOR.ToString())
             {
                 return Forbid();
             }
@@ -69,7 +69,7 @@ namespace GUI.Admin.Controllers
         [Route("/Stats/Webshare")]
         public IActionResult Webshare()
         {
-            if (((ClaimsIdentity)User.Identity).GetSpecificClaim(ClaimTypes.Role) == UserRoleEnum.BASIC.ToString())
+            if (((ClaimsIdentity)User.Identity).GetSpecificClaim(ClaimTypes.Role) != UserRoleEnum.ADMINISTRATOR.ToString())
             {
                 return Forbid();
             }
