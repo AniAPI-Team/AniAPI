@@ -43,12 +43,11 @@ namespace SyncService.Models.WebsiteScrapers
                 ElementHandle title = await element.QuerySelectorAsync(".inner .name");
                 matching.Title = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
 
+                ElementHandle path = await element.QuerySelectorAsync(".inner .name");
+                matching.Path = (await path.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
+
                 if (this.AnalyzeMatching(matching, animeTitle))
                 {
-                    // Setting Up URL
-                    ElementHandle path = await element.QuerySelectorAsync(".inner .name");
-                    matching.Path = (await path.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
-                    
                     return matching;
                 }
             }
