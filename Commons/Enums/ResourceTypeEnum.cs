@@ -9,6 +9,7 @@ namespace Commons.Enums
     public enum ResourceTypeEnum
     {
         GENRES,
-        LOCALIZATIONS
+        LOCALIZATIONS,
+        SOURCES
     }
 }

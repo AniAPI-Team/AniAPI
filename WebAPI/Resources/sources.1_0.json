@@ -1,0 +1,20 @@
+{
+    "sources": [
+        {
+            "name": "dreamsub",
+            "i18n": "it"
+        },
+        {
+            "name": "animeworld",
+            "i18n": "it"
+        },
+        {
+            "name": "gogoanime",
+            "i18n": "en"
+        },
+        {
+            "name": "gogoanime_dub",
+            "i18n": "en"
+        }
+    ]
+}
