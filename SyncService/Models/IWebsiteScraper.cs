@@ -88,7 +88,7 @@ namespace SyncService.Models
                         Title = matching.Title,
                         Source = this.Website.Name,
                         Score = matching.Score,
-                        Path = $"{this.Website.SiteUrl}{matching.Path}",
+                        Path = $"{(this.Website.SiteUrl.Last() == '/' ? this.Website.SiteUrl.Substring(0, this.Website.SiteUrl.Length - 1) : this.Website.SiteUrl)}{matching.Path}",
                         Status = AnimeSuggestionStatusEnum.NONE
                     };
 
