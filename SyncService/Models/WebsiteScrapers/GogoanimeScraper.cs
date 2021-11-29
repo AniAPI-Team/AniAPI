@@ -166,21 +166,26 @@ namespace SyncService.Models.WebsiteScrapers
                     episode.Source = BuildAPIProxyURL(videoPageUrl);
                     */
 
-                    await webPage.WaitForSelectorAsync(".play-video", new WaitForSelectorOptions()
+                    await webPage.WaitForSelectorAsync(".dowloads", new WaitForSelectorOptions()
                     {
                         Visible = true,
                         Timeout = 2000
                     });
 
-                    ElementHandle tempSource = await webPage.QuerySelectorAsync(".play-video iframe");
-                    string streamaniUrl = await tempSource.EvaluateFunctionAsync<string>("e => e.getAttribute('src')");
+                    ElementHandle tempSource = await webPage.QuerySelectorAsync(".dowloads a:first-child");
+                    string vidStreamUrl = await tempSource.EvaluateFunctionAsync<string>("e => e.getAttribute('href')");
 
-                    if (!streamaniUrl.Contains("https:"))
+                    if (!vidStreamUrl.Contains("https:"))
                     {
-                        streamaniUrl = $"https:{streamaniUrl}";
+                        vidStreamUrl = $"https:{vidStreamUrl}";
                     }
 
-                    episode.Source = BuildAPIProxyURL(streamaniUrl);
+                    Uri vidStreamUri = new Uri(vidStreamUrl);
+
+                    episode.Source = BuildAPIProxyURL(vidStreamUrl, new Dictionary<string, string>()
+                    {
+                        { "referrer", $"{vidStreamUri.Scheme}://{vidStreamUri.Host}" }
+                    });
                 }
 
                 if (!string.IsNullOrEmpty(episode.Source))

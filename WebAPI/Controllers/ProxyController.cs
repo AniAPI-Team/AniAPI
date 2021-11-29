@@ -61,8 +61,7 @@ namespace WebAPI.Controllers
                             .Build();
                         break;
                     case "gogoanime":
-                        values = getGogoanimeURL(url);
-                        url = values["url"];
+                        url = getGogoanimeURL(url);
 
                         options = HttpProxyOptionsBuilder.Instance
                             .WithHttpClientName("HttpClientWithSSLUntrusted")
@@ -99,7 +98,7 @@ namespace WebAPI.Controllers
             }
         }
 
-        private Dictionary<string, string> getGogoanimeURL(string url)
+        private string getGogoanimeURL(string url)
         {
             try
             {
@@ -110,34 +109,28 @@ namespace WebAPI.Controllers
 
                 string res = response.Content.ReadAsStringAsync().Result;
 
-                Regex rgx = new Regex(@"<li  class=""linkserver"" data-status=""1"" data-provider=""serverwithtoken""\s*[^s]+data-video=""([^\""]+)"">", RegexOptions.None);
-                Match match = rgx.Match(res);
+                Regex rgx = new Regex(@"<div class=""dowload""><a\s*href=""https://gogo-cdn.com(.*).*"".*\s*[(](\d*)P.*</div>", RegexOptions.None);
+                MatchCollection matches = rgx.Matches(res);
 
-                if (!match.Success)
+                if (!matches.Any())
                 {
-                    throw new Exception("URL not found!");
+                    throw new Exception("Video URLs not found!");
                 }
 
-                string streamaniEmbedUrl = match.Groups[1].Value;
-
-                request = new HttpRequestMessage(HttpMethod.Get, streamaniEmbedUrl);
-                response = client.SendAsync(request).Result;
-
-                res = response.Content.ReadAsStringAsync().Result;
-
-                rgx = new Regex(@"playerInstance\.setup\(\s*[^s]+sources\:\[\{file\: \'([^\']+)\'\,", RegexOptions.None);
-                match = rgx.Match(res);
-
-                if (!match.Success)
+                int maxQ = 0;
+                string dUrl = string.Empty;
+                foreach(Match match in matches)
                 {
-                    throw new Exception("URL not found!");
+                    int q = Convert.ToInt32(match.Groups[2].Value);
+                    
+                    if (q > maxQ)
+                    {
+                        dUrl = $"https://gogo-cdn.com{match.Groups[1].Value}";
+                        maxQ = q;
+                    }
                 }
 
-                return new Dictionary<string, string>
-                {
-                    { "referrer", streamaniEmbedUrl },
-                    { "url", match.Groups[1].Value }
-                };
+                return dUrl;
             }
             catch (Exception ex)
             {
