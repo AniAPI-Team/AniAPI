@@ -116,6 +116,21 @@
             <param name="redirect_uri">The OAuthClient redirect_uri</param>
             <returns></returns>
         </member>
+        <member name="T:WebAPI.Controllers.RandomController">
+            <summary>
+            R Controller for random resources
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.RandomController.RandomAnime(System.Int32,System.Boolean)">
+            <summary>
+            Retrieves a list of random Anime
+            </summary>
+        </member>
+        <member name="M:WebAPI.Controllers.RandomController.RandomSong(System.Int32)">
+            <summary>
+            Retrieves a list of random Song
+            </summary>
+        </member>
         <member name="T:WebAPI.Controllers.ResourcesController">
             <summary>
             Controller for internal resources

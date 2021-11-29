@@ -20,5 +20,8 @@ namespace Commons.Resources
 
         [JsonPropertyName("i18n")]
         public string i18n { get; set; }
+
+        [JsonPropertyName("format")]
+        public string Format { get; set; }
     }
 }
