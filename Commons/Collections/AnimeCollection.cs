@@ -114,7 +114,7 @@ namespace Commons.Collections
 
             if(animeFilter.nsfw == true)
             {
-                queryFilter &= builder.Nin("genres", new System.Collections.Generic.List<string> { "Hentai" });
+                queryFilter &= builder.Nin("genres", new System.Collections.Generic.List<string> { "Hentai", "Nudity", "Ecchi" });
             }
 
             if (!string.IsNullOrEmpty(animeFilter.locale))

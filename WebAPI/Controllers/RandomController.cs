@@ -39,13 +39,27 @@ namespace WebAPI.Controllers
         [EnableCors("CorsEveryone")]
         [HttpGet("anime"), MapToApiVersion("1")]
         [HttpGet("anime/{count}"), MapToApiVersion("1")]
-        public APIResponse RandomAnime(int count = 1)
+        [HttpGet("anime/{count}/{nsfw}"), MapToApiVersion("1")]
+        public APIResponse RandomAnime(int count = 1, bool nsfw = false)
         {
             try
             {
+                Func<Anime, bool> filter = null;
+
+                if (!nsfw)
+                {
+                    filter = x => !x.Genres.Contains("Hentai") &&
+                        !x.Genres.Contains("Nudity") &&
+                        !x.Genres.Contains("Ecchi");
+                }
+                else
+                {
+                    filter = x => true;
+                }
+
                 List<Anime> anime = this._animeCollection.Collection
                     .AsQueryable()
-                    .Where(x => !x.Genres.Contains("Hentai"))
+                    .Where(filter)
                     .ToList()
                     .OrderBy(x => Guid.NewGuid())
                     .Take(count > 50 ? 50 : count)
