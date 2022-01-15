@@ -61,14 +61,15 @@ namespace WebAPI.Controllers
                             .Build();
                         break;
                     case "gogoanime":
-                        url = getGogoanimeURL(url);
-
                         options = HttpProxyOptionsBuilder.Instance
                             .WithHttpClientName("HttpClientWithSSLUntrusted")
                             .WithShouldAddForwardedHeaders(false)
                             .WithBeforeSend((context, request) =>
                             {
-                                request.Headers.Referrer = new Uri(values["referrer"]);
+                                if (values.Keys.Contains("referrer"))
+                                {
+                                    request.Headers.Referrer = new Uri(values["referrer"]);
+                                }
 
                                 return Task.CompletedTask;
                             })
@@ -76,7 +77,7 @@ namespace WebAPI.Controllers
                         break;
                 }
 
-                // 15.09.2021: Added support for M3U8 streaming
+                // 15.09.2021: Added support for HLS streaming
                 if (!string.IsNullOrEmpty(segment))
                 {
                     string[] urlParts = url.Split('/');
@@ -93,46 +94,6 @@ namespace WebAPI.Controllers
                 return this.HttpProxyAsync(url, options);
             }
             catch(Exception ex)
-            {
-                throw;
-            }
-        }
-
-        private string getGogoanimeURL(string url)
-        {
-            try
-            {
-                HttpClient client = new HttpClient();
-
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
-                HttpResponseMessage response = client.SendAsync(request).Result;
-
-                string res = response.Content.ReadAsStringAsync().Result;
-
-                Regex rgx = new Regex(@"<div class=""dowload""><a\s*href=""https://gogo-cdn.com(.*).*"".*\s*[(](\d*)P.*</div>", RegexOptions.None);
-                MatchCollection matches = rgx.Matches(res);
-
-                if (!matches.Any())
-                {
-                    throw new Exception("Video URLs not found!");
-                }
-
-                int maxQ = 0;
-                string dUrl = string.Empty;
-                foreach(Match match in matches)
-                {
-                    int q = Convert.ToInt32(match.Groups[2].Value);
-                    
-                    if (q > maxQ)
-                    {
-                        dUrl = $"https://gogo-cdn.com{match.Groups[1].Value}";
-                        maxQ = q;
-                    }
-                }
-
-                return dUrl;
-            }
-            catch (Exception ex)
             {
                 throw;
             }
