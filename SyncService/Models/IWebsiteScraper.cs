@@ -31,6 +31,7 @@ namespace SyncService.Models
         protected WebsiteScraperService Service { get; set; }
         protected Thread Thread { get; private set; }
         public bool Working { get; private set; } = false;
+        public double Progress { get; private set; } = 0;
 
         protected List<EpisodeMatching> EpisodeMatchings = new List<EpisodeMatching>();
 
@@ -87,7 +88,7 @@ namespace SyncService.Models
                         Title = matching.Title,
                         Source = this.Website.Name,
                         Score = matching.Score,
-                        Path = $"{this.Website.SiteUrl}{matching.Path}",
+                        Path = $"{(this.Website.SiteUrl.Last() == '/' ? this.Website.SiteUrl.Substring(0, this.Website.SiteUrl.Length - 1) : this.Website.SiteUrl)}{matching.Path}",
                         Status = AnimeSuggestionStatusEnum.NONE
                     };
 
@@ -215,7 +216,7 @@ namespace SyncService.Models
                     }
                     finally
                     {
-                        this.Service.Log($"Website {this.Website.Name} done {this.Service.GetProgressD(animeID, lastID)}% ({_anime.Titles[LocalizationEnum.English]})", true);
+                        this.Progress = Convert.ToDouble(this.Service.GetProgressD(animeID, lastID));
                     }
 
                     if (this.Service._cancellationToken.IsCancellationRequested)
@@ -236,6 +237,7 @@ namespace SyncService.Models
             finally
             {
                 this.Working = false;
+                this.Progress = 100;
             }
         }
 

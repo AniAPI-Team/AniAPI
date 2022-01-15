@@ -1,6 +1,6 @@
 # AniAPI
 
-[![Version badge](https://img.shields.io/badge/version-1.0-green)](#)
+[![Version badge](https://img.shields.io/badge/version-1.0.10-green)](#)
 [![Discord badge](https://img.shields.io/badge/discord-join%20us-blue)](https://discord.gg/xQjZx5aWkR)
 
 This is the core behind AniAPI HTTP Rest APIs.
@@ -49,6 +49,8 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 **[Add your wrapper here](https://github.com/AniAPI-Team/AniAPI/edit/main/README.md)**
 
 ## Contributions
+
+[Getting started as a contributor](https://github.com/AniAPI-Team/AniAPI/tree/main/GETTING_STARTED.md)
 
 If you wanna help us to provide an even better service, you can contribute on things like:
 * Fixing untracked bugs

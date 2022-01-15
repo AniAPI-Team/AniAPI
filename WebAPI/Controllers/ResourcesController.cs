@@ -92,6 +92,9 @@ namespace WebAPI.Controllers
                     case ResourceTypeEnum.LOCALIZATIONS:
                         resourceName = "localizations";
                         break;
+                    case ResourceTypeEnum.SOURCES:
+                        resourceName = "sources";
+                        break;
                 }
 
                 EmbeddedFileProvider provider = new EmbeddedFileProvider(this._assembly);
@@ -116,6 +119,9 @@ namespace WebAPI.Controllers
                             break;
                         case ResourceTypeEnum.LOCALIZATIONS:
                             resourceContent = JsonConvert.DeserializeObject<LocalizationResource>(reader.ReadToEnd());
+                            break;
+                        case ResourceTypeEnum.SOURCES:
+                            resourceContent = JsonConvert.DeserializeObject<SourcesResource>(reader.ReadToEnd());
                             break;
                     }
                 }

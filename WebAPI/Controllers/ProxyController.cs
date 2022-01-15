@@ -35,8 +35,9 @@ namespace WebAPI.Controllers
         [AllowAnonymous]
         [EnableCors("CorsEveryone")]
         [HttpGet("{url}/{websiteName}"), MapToApiVersion("1")]
+        [HttpGet("{url}/{websiteName}/{segment}"), MapToApiVersion("1")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public Task GetFormattedEpisodeSourceURL(string url, string websiteName, [FromQuery] Dictionary<string, string> values)
+        public Task GetFormattedEpisodeSourceURL(string url, string websiteName, [FromQuery] Dictionary<string, string> values, string segment = null)
         {
             try
             {
@@ -61,10 +62,30 @@ namespace WebAPI.Controllers
                         break;
                     case "gogoanime":
                         url = getGogoanimeURL(url);
-                        return new RedirectResult(url).ExecuteResultAsync(ControllerContext);
+
+                        options = HttpProxyOptionsBuilder.Instance
+                            .WithHttpClientName("HttpClientWithSSLUntrusted")
+                            .WithShouldAddForwardedHeaders(false)
+                            .WithBeforeSend((context, request) =>
+                            {
+                                request.Headers.Referrer = new Uri(values["referrer"]);
+
+                                return Task.CompletedTask;
+                            })
+                            .Build();
+                        break;
                 }
 
-                if(options == null)
+                // 15.09.2021: Added support for M3U8 streaming
+                if (!string.IsNullOrEmpty(segment))
+                {
+                    string[] urlParts = url.Split('/');
+                    urlParts[urlParts.Length - 1] = segment;
+
+                    url = String.Join('/', urlParts);
+                }
+
+                if (options == null)
                 {
                     throw new Exception($"Website {websiteName} not supported!");
                 }
@@ -88,30 +109,28 @@ namespace WebAPI.Controllers
 
                 string res = response.Content.ReadAsStringAsync().Result;
 
-                Regex rgx = new Regex(@"<li  class=""linkserver"" data-status=""1"" data-provider=""serverwithtoken""\s*[^s]+data-video=""([^\""]+)"">", RegexOptions.None);
-                Match match = rgx.Match(res);
+                Regex rgx = new Regex(@"<div class=""dowload""><a\s*href=""https://gogo-cdn.com(.*).*"".*\s*[(](\d*)P.*</div>", RegexOptions.None);
+                MatchCollection matches = rgx.Matches(res);
 
-                if (!match.Success)
+                if (!matches.Any())
                 {
-                    throw new Exception("URL not found!");
+                    throw new Exception("Video URLs not found!");
                 }
 
-                string streamaniEmbedUrl = match.Groups[1].Value;
-
-                request = new HttpRequestMessage(HttpMethod.Get, streamaniEmbedUrl);
-                response = client.SendAsync(request).Result;
-
-                res = response.Content.ReadAsStringAsync().Result;
-
-                rgx = new Regex(@"playerInstance\.setup\(\s*[^s]+sources\:\[\{file\: \'([^\']+)\'\,", RegexOptions.None);
-                match = rgx.Match(res);
-
-                if (!match.Success)
+                int maxQ = 0;
+                string dUrl = string.Empty;
+                foreach(Match match in matches)
                 {
-                    throw new Exception("URL not found!");
+                    int q = Convert.ToInt32(match.Groups[2].Value);
+                    
+                    if (q > maxQ)
+                    {
+                        dUrl = $"https://gogo-cdn.com{match.Groups[1].Value}";
+                        maxQ = q;
+                    }
                 }
-                
-                return match.Groups[1].Value;
+
+                return dUrl;
             }
             catch (Exception ex)
             {

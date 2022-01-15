@@ -42,10 +42,11 @@ namespace WebAPI.Controllers
             try
             {
                 Episode episode = this._episodeCollection.Get(id);
+
                 if (episode == null)
                 {
                     throw new APIException(HttpStatusCode.NotFound,
-                        "Epsiode not found",
+                        "Episode not found",
                         $"Episode with id {id} does not exists");
                 }
 
