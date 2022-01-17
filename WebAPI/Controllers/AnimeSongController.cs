@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
                 {
                     throw new APIException(HttpStatusCode.NotFound,
                         "Zero songs found",
-                        "");
+                        new List<AnimeSong>());
                 }
 
                 if (filter.page > result.LastPage)

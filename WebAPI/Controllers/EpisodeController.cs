@@ -80,7 +80,7 @@ namespace WebAPI.Controllers
                 {
                     throw new APIException(HttpStatusCode.NotFound,
                         "Zero episode found",
-                        "");
+                        new List<Episode>());
                 }
 
                 if(filter.page > result.LastPage)
