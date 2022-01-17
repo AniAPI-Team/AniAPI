@@ -40,7 +40,7 @@ namespace WebAPI.Controllers
         [HttpGet("anime"), MapToApiVersion("1")]
         [HttpGet("anime/{count}"), MapToApiVersion("1")]
         [HttpGet("anime/{count}/{nsfw}"), MapToApiVersion("1")]
-        public APIResponse RandomAnime(int count = 1, bool nsfw = false)
+        public APIResponse RandomAnime(int count = 1, bool nsfw = false, AnimeFormatEnum? format = null)
         {
             try
             {
@@ -57,9 +57,16 @@ namespace WebAPI.Controllers
                     filter = x => true;
                 }
 
-                List<Anime> anime = this._animeCollection.Collection
+                var query = this._animeCollection.Collection
                     .AsQueryable()
-                    .Where(filter)
+                    .Where(filter);
+
+                if (format.HasValue)
+                {
+                    query = query.Where(x => x.Format == format.Value);
+                }
+
+                List<Anime> anime = query
                     .ToList()
                     .OrderBy(x => Guid.NewGuid())
                     .Take(count > 50 ? 50 : count)
@@ -69,7 +76,7 @@ namespace WebAPI.Controllers
                 {
                     throw new APIException(HttpStatusCode.NotFound,
                         "Zero anime found",
-                        "");
+                        new List<Anime>());
                 }
 
                 return APIManager.SuccessResponse($"{anime.Count} random anime found", anime);
@@ -107,7 +114,7 @@ namespace WebAPI.Controllers
                 {
                     throw new APIException(HttpStatusCode.NotFound,
                         "Zero songs found",
-                        "");
+                        new List<AnimeSong>());
                 }
 
                 return APIManager.SuccessResponse($"{animeSongs.Count} random songs found", animeSongs);

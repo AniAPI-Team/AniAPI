@@ -121,7 +121,7 @@
             R Controller for random resources
             </summary>
         </member>
-        <member name="M:WebAPI.Controllers.RandomController.RandomAnime(System.Int32,System.Boolean)">
+        <member name="M:WebAPI.Controllers.RandomController.RandomAnime(System.Int32,System.Boolean,System.Nullable{Commons.Enums.AnimeFormatEnum})">
             <summary>
             Retrieves a list of random Anime
             </summary>
