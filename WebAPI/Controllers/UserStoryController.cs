@@ -94,7 +94,7 @@ namespace WebAPI.Controllers
                 {
                     throw new APIException(HttpStatusCode.NotFound,
                         "Zero stories found",
-                        "");
+                        new List<UserStory>());
                 }
 
                 if (filter.page > result.LastPage)
