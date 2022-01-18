@@ -112,7 +112,7 @@ namespace Commons.Collections
                 queryFilter &= builder.AnyIn("genres", animeFilter.genres);
             }
 
-            if(animeFilter.nsfw == true)
+            if(animeFilter.nsfw == false)
             {
                 queryFilter &= builder.Nin("genres", new System.Collections.Generic.List<string> { "Hentai", "Nudity", "Ecchi" });
             }
