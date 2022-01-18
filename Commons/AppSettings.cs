@@ -41,6 +41,9 @@ namespace Commons
         [BsonElement("mal")]
         public MyAnimeListConfig MyAnimeList { get; set; }
 
+        [BsonElement("apilytics_key")]
+        public string ApilyticsKey { get; set; }
+
         public class SmtpConfig
         {
             [BsonElement("host")]
