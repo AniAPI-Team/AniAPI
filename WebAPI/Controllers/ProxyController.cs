@@ -73,6 +73,37 @@ namespace WebAPI.Controllers
 
                                 return Task.CompletedTask;
                             })
+                            .WithAfterReceive(async (context, response) =>
+                            {
+                                if (Url.IsLocalUrl(context.Connection.RemoteIpAddress.ToString()))
+                                {
+                                    return;
+                                }
+
+                                if (response.RequestMessage.RequestUri.PathAndQuery.Contains(".m3u8"))
+                                {
+                                    string body = await response.Content.ReadAsStringAsync();
+                                    List<string> parsedBody = new List<string>();
+                            
+                                    foreach (string l in body.Split('\n').ToArray())
+                                    {
+                                        string parsedLine = l;
+                            
+                                        if (l.StartsWith("http"))
+                                        {
+                                            parsedLine = $"/v1/proxy/{HttpUtility.UrlEncode(l)}/gogoanime?referrer={HttpUtility.UrlEncode(values["referrer"])}";
+                                        }
+                                        else if (l.EndsWith(".m3u8"))
+                                        {
+                                            parsedLine = $"{l}?referrer={HttpUtility.UrlEncode(values["referrer"])}";
+                                        }
+                            
+                                        parsedBody.Add(parsedLine);
+                                    }
+                            
+                                    response.Content = new StringContent(string.Join('\n', parsedBody));
+                                }
+                            })
                             .Build();
                         break;
                 }

@@ -1,6 +1,6 @@
 # AniAPI
 
-[![Version badge](https://img.shields.io/badge/version-1.0.10-green)](#)
+[![Version badge](https://img.shields.io/badge/version-1.0.4-green)](#)
 [![Discord badge](https://img.shields.io/badge/discord-join%20us-blue)](https://discord.gg/xQjZx5aWkR)
 
 This is the core behind AniAPI HTTP Rest APIs.
