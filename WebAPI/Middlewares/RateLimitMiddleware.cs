@@ -40,6 +40,11 @@ namespace WebAPI.Middlewares
                     return;
                 }
             }
+            else if (httpContext.Request.Path.Value.StartsWith("/v1/proxy"))
+            {
+                await _next(httpContext);
+                return;
+            }
 
             APIRequestIP requestIP = _rateLimitDependency.CanRequest(httpContext.Connection.RemoteIpAddress.ToString());
 
