@@ -1,6 +1,8 @@
 ﻿using Commons;
+using Commons.Collections;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Http;
+using MongoDB.Driver;
 using System;
 using System.Net;
 using System.Threading.Tasks;
@@ -10,6 +12,7 @@ namespace WebAPI.Middlewares
 {
     public class RateLimitMiddleware
     {
+        private OAuthClientCollection _authClientCollection = new OAuthClientCollection();
         private readonly RequestDelegate _next;
         private readonly IRateLimitDependency _rateLimitDependency;
 
@@ -21,6 +24,28 @@ namespace WebAPI.Middlewares
 
         public async Task Invoke(HttpContext httpContext)
         {
+            if (httpContext.Request.Headers.ContainsKey("X-Client-Id"))
+            {
+                string clientId = httpContext.Request.Headers["X-Client-Id"].ToString();
+
+                OAuthClient client = _authClientCollection.Collection.Find(x => x.ClientID == Guid.Parse(clientId) && x.IsUnlimited).FirstOrDefault();
+
+                if(client != null)
+                {
+                    httpContext.Response.Headers.Add("X-RateLimit-Limit", "90");
+                    httpContext.Response.Headers.Add("X-RateLimit-Remaining", "90");
+                    httpContext.Response.Headers.Add("X-RateLimit-Reset", "0");
+
+                    await _next(httpContext);
+                    return;
+                }
+            }
+            else if (httpContext.Request.Path.Value.StartsWith("/v1/proxy"))
+            {
+                await _next(httpContext);
+                return;
+            }
+
             APIRequestIP requestIP = _rateLimitDependency.CanRequest(httpContext.Connection.RemoteIpAddress.ToString());
 
             httpContext.Response.Headers.Add("X-RateLimit-Limit", "90");

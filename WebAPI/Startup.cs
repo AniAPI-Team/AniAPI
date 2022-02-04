@@ -172,6 +172,7 @@ namespace WebAPI
 
             app.UseLoggingMiddleware();
             app.UseRateLimitMiddleware();
+            app.UseApyliticsMiddleware();
 
             app.UseHttpsRedirection();
 

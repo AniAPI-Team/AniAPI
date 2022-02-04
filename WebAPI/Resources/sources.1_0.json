@@ -2,19 +2,23 @@
     "sources": [
         {
             "name": "dreamsub",
-            "i18n": "it"
+            "i18n": "it",
+            "format": "mp4"
         },
         {
             "name": "animeworld",
-            "i18n": "it"
+            "i18n": "it",
+            "format": "mp4"
         },
         {
             "name": "gogoanime",
-            "i18n": "en"
+            "i18n": "en",
+            "format": "m3u8"
         },
         {
             "name": "gogoanime_dub",
-            "i18n": "en"
+            "i18n": "en",
+            "format": "mp4"
         }
     ]
 }

@@ -61,23 +61,54 @@ namespace WebAPI.Controllers
                             .Build();
                         break;
                     case "gogoanime":
-                        values = getGogoanimeURL(url);
-                        url = values["url"];
-
                         options = HttpProxyOptionsBuilder.Instance
                             .WithHttpClientName("HttpClientWithSSLUntrusted")
                             .WithShouldAddForwardedHeaders(false)
                             .WithBeforeSend((context, request) =>
                             {
-                                request.Headers.Referrer = new Uri(values["referrer"]);
+                                if (values.Keys.Contains("referrer"))
+                                {
+                                    request.Headers.Referrer = new Uri(values["referrer"]);
+                                }
 
                                 return Task.CompletedTask;
+                            })
+                            .WithAfterReceive(async (context, response) =>
+                            {
+                                if (Url.IsLocalUrl(context.Connection.RemoteIpAddress.ToString()))
+                                {
+                                    return;
+                                }
+
+                                if (response.RequestMessage.RequestUri.PathAndQuery.Contains(".m3u8"))
+                                {
+                                    string body = await response.Content.ReadAsStringAsync();
+                                    List<string> parsedBody = new List<string>();
+                            
+                                    foreach (string l in body.Split('\n').ToArray())
+                                    {
+                                        string parsedLine = l;
+                            
+                                        if (l.StartsWith("http"))
+                                        {
+                                            parsedLine = $"/v1/proxy/{HttpUtility.UrlEncode(l)}/gogoanime?referrer={HttpUtility.UrlEncode(values["referrer"])}";
+                                        }
+                                        else if (l.EndsWith(".m3u8"))
+                                        {
+                                            parsedLine = $"{l}?referrer={HttpUtility.UrlEncode(values["referrer"])}";
+                                        }
+                            
+                                        parsedBody.Add(parsedLine);
+                                    }
+                            
+                                    response.Content = new StringContent(string.Join('\n', parsedBody));
+                                }
                             })
                             .Build();
                         break;
                 }
 
-                // 15.09.2021: Added support for M3U8 streaming
+                // 15.09.2021: Added support for HLS streaming
                 if (!string.IsNullOrEmpty(segment))
                 {
                     string[] urlParts = url.Split('/');
@@ -94,52 +125,6 @@ namespace WebAPI.Controllers
                 return this.HttpProxyAsync(url, options);
             }
             catch(Exception ex)
-            {
-                throw;
-            }
-        }
-
-        private Dictionary<string, string> getGogoanimeURL(string url)
-        {
-            try
-            {
-                HttpClient client = new HttpClient();
-
-                HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
-                HttpResponseMessage response = client.SendAsync(request).Result;
-
-                string res = response.Content.ReadAsStringAsync().Result;
-
-                Regex rgx = new Regex(@"<li  class=""linkserver"" data-status=""1"" data-provider=""serverwithtoken""\s*[^s]+data-video=""([^\""]+)"">", RegexOptions.None);
-                Match match = rgx.Match(res);
-
-                if (!match.Success)
-                {
-                    throw new Exception("URL not found!");
-                }
-
-                string streamaniEmbedUrl = match.Groups[1].Value;
-
-                request = new HttpRequestMessage(HttpMethod.Get, streamaniEmbedUrl);
-                response = client.SendAsync(request).Result;
-
-                res = response.Content.ReadAsStringAsync().Result;
-
-                rgx = new Regex(@"playerInstance\.setup\(\s*[^s]+sources\:\[\{file\: \'([^\']+)\'\,", RegexOptions.None);
-                match = rgx.Match(res);
-
-                if (!match.Success)
-                {
-                    throw new Exception("URL not found!");
-                }
-
-                return new Dictionary<string, string>
-                {
-                    { "referrer", streamaniEmbedUrl },
-                    { "url", match.Groups[1].Value }
-                };
-            }
-            catch (Exception ex)
             {
                 throw;
             }

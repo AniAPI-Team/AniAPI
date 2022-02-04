@@ -49,7 +49,7 @@ namespace SyncService.Helpers
 
                 await page.GoToAsync(url, timeout, waitUntil);
             }
-            catch
+            catch(Exception ex)
             {
                 throw;
             }
@@ -164,14 +164,17 @@ namespace SyncService.Helpers
                     Password = this._appSettings.ProxyPassword
                 });
 
-                await webPage.Client.SendAsync("Network.setBlockedURLs", new Dictionary<string, object>
+                if (canBlockRequests)
                 {
-                    ["urls"] = new string[]
+                    await webPage.Client.SendAsync("Network.setBlockedURLs", new Dictionary<string, object>
                     {
+                        ["urls"] = new string[]
+                                        {
                         "*.jpg", "*.png", "*.gif", "*.svg",
                         "*.mp4", "*.avi", "*.flv", "*.mov", "*.wmv",
-                    }
-                }).ConfigureAwait(false);
+                                        }
+                    }).ConfigureAwait(false);
+                }
 
                 webPage.Response += WebPage_Response;
 

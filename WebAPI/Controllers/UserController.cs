@@ -99,7 +99,7 @@ namespace WebAPI.Controllers
                 {
                     throw new APIException(HttpStatusCode.NotFound,
                         "Zero users found",
-                        "");
+                        new List<User>());
                 }
 
                 if (filter.page > result.LastPage)
