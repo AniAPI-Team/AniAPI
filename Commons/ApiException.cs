@@ -10,10 +10,10 @@ namespace Commons
     {
         public HttpStatusCode StatusCode { get; set; }
         public string Message { get; set; }
-        public string Description { get; set; }
+        public object Description { get; set; }
         public string Version { get; set; }
 
-        public APIException(HttpStatusCode statusCode, string message, string description, string version = "1")
+        public APIException(HttpStatusCode statusCode, string message, object description, string version = "1")
         {
             this.StatusCode = statusCode;
             this.Message = message;

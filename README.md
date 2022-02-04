@@ -1,6 +1,6 @@
 # AniAPI
 
-[![Version badge](https://img.shields.io/badge/version-1.0-green)](#)
+[![Version badge](https://img.shields.io/badge/version-1.0.4-green)](#)
 [![Discord badge](https://img.shields.io/badge/discord-join%20us-blue)](https://discord.gg/xQjZx5aWkR)
 
 This is the core behind AniAPI HTTP Rest APIs.
@@ -61,7 +61,7 @@ If you wanna help us to provide an even better service, you can contribute on th
 * [Roadmap](https://github.com/AniAPI-Team/AniAPI/projects/4)
 * [Discussions](https://github.com/AniAPI-Team/AniAPI/discussions)
 * [Blog](https://aniapi.com/blog/)
-* [Help us](https://opencollective.com/aniapi)
+* [Help us](https://patreon.com/aniapi)
 
 ## Disclaimer
 

@@ -41,8 +41,8 @@ namespace Commons
         [BsonElement("mal")]
         public MyAnimeListConfig MyAnimeList { get; set; }
 
-        [BsonElement("webshare")]
-        public WebshareConfig Webshare { get; set; }
+        [BsonElement("apilytics_key")]
+        public string ApilyticsKey { get; set; }
 
         public class SmtpConfig
         {
@@ -69,12 +69,6 @@ namespace Commons
 
             [BsonElement("client_secret")]
             public string ClientSecret { get; set; }
-        }
-
-        public class WebshareConfig
-        {
-            [BsonElement("token")]
-            public string Token { get; set; }
         }
     }
 }

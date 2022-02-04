@@ -36,5 +36,8 @@ namespace Commons
         [JsonPropertyName("redirect_uri")]
         [JsonProperty(PropertyName = "redirect_uri")]
         public string RedirectURI { get; set; }
+
+        [BsonElement("is_unlimited")]
+        public bool IsUnlimited { get; set; }
     }
 }

@@ -44,28 +44,33 @@ namespace SyncService.Models.WebsiteScrapers
 
             EpisodeMatchings.Clear();
 
-            await webPage.WaitForSelectorAsync(".last_episodes", new WaitForSelectorOptions()
+            await webPage.WaitForSelectorAsync("ul.listing.items", new WaitForSelectorOptions()
             {
                 Visible = true,
                 Timeout = 2000
             });
 
-            foreach (ElementHandle element in await webPage.QuerySelectorAllAsync(".items li"))
+            foreach (ElementHandle element in await webPage.QuerySelectorAllAsync("ul.listing.items li.video-block"))
             {
                 matching = new AnimeMatching();
 
-                ElementHandle title = await element.QuerySelectorAsync(".name");
-                matching.Title = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
+                ElementHandle image = await element.QuerySelectorAsync(".img .picture img");
+                matching.Title = (await image.EvaluateFunctionAsync<string>("e => e.getAttribute('alt')")).Trim();
 
-                ElementHandle path = await title.QuerySelectorAsync("a");
+                //ElementHandle title = await element.QuerySelectorAsync(".name");
+                //matching.Title = (await title.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
+
+                ElementHandle path = await element.QuerySelectorAsync("a");
                 matching.Path = (await path.EvaluateFunctionAsync<string>("e => e.getAttribute('href')")).Trim();
 
                 if (this.AnalyzeMatching(matching, animeTitle))
                 {
+                    string[] pathParts = matching.Path.Split("-episode-");
+
                     matching.Linked = new AnimeMatching()
                     {
                         Title = matching.Title,
-                        Path = $"{matching.Path}-dub",
+                        Path = $"{pathParts[0]}-dub-episode-{pathParts[1]}",
                         SourceVariant = "_dub"
                     };
 
@@ -87,45 +92,28 @@ namespace SyncService.Models.WebsiteScrapers
 
                 await ProxyHelper.NavigateAsync(webPage, url);
 
-                await webPage.WaitForSelectorAsync(".anime_info_episodes_next", new WaitForSelectorOptions()
+                await webPage.WaitForSelectorAsync(".video-details", new WaitForSelectorOptions()
                 {
                     Visible = true,
                     Timeout = 2000
                 });
 
-                // Anime ID per la chiamata AJAX
-                ElementHandle animeIDElement = await webPage.QuerySelectorAsync(".anime_info_episodes_next .movie_id");
-                string animeID = await animeIDElement.EvaluateFunctionAsync<string>("e => e.getAttribute('value')");
-
-                // TODO: Verificare che i titoli per la richiesta siano effettivamente uguali a quelli visualizzati
-                //string ajaxTitle = matching.Title.Replace(" ", "-").ToLower();
-
-                // Custom URL that will use ajax call
-                string ajax_url =
-                    string.Format("https://ajax.gogo-load.com/ajax/load-list-episode?ep_start=0&ep_end=9999&id={0}" +
-                    "&default_ep=0", animeID);
-
-                // Get Ajax request Page
-                await ProxyHelper.NavigateAsync(webPage, ajax_url);
-
-                // Description
-                matching.Description = ""; // TODO: Aggiungere descrizione
-
-                foreach (ElementHandle ep in await webPage.QuerySelectorAllAsync("#episode_related li"))
+                if (string.IsNullOrEmpty(matching.SourceVariant))
                 {
-                    ElementHandle info = await ep.QuerySelectorAsync("a");
-
-                    string path = await info.EvaluateFunctionAsync<string>("e => e.getAttribute('href')");
-                    string title = (await info.QuerySelectorAsync(".name").EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
-
-                    EpisodeMatchings.Add(new EpisodeMatching()
-                    {
-                        Path = path,
-                        Title = title
-                    });
+                    ElementHandle detail = await webPage.QuerySelectorAsync(".video-details #rmjs-1 p:first-child");
+                    matching.Description = (await detail.EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
                 }
 
-                EpisodeMatchings.Reverse();
+                int lastNumber = Convert.ToInt32(matching.Path.Split('-').Last());
+
+                for(int i = 1; i <= lastNumber; i++)
+                {
+                    EpisodeMatchings.Add(new EpisodeMatching
+                    {
+                        Path = matching.Path.Replace(lastNumber.ToString(), i.ToString()),
+                        Title = $"Episode {i}"
+                    });
+                }
             }
 
             EpisodeMatching episode = EpisodeMatchings[number - 1];
@@ -137,50 +125,37 @@ namespace SyncService.Models.WebsiteScrapers
                 if (!string.IsNullOrEmpty(episode.Path))
                 {
                     episode.Path = episode.Path.Trim();
-                    episode.Title = "";
-
-                    var watch = Stopwatch.StartNew();
 
                     url = this.Website.SiteUrl.Substring(0, this.Website.SiteUrl.Length - 1);
                     url = $"{url}{episode.Path}";
 
                     await ProxyHelper.NavigateAsync(webPage, url);
 
-                    watch.Stop();
-
-                    // 24.08.2021: Needed a further step to avoid token related problems
-                    /*
-                    await webPage.WaitForSelectorAsync(".vidcdn", new WaitForSelectorOptions()
-                    {
-                        Visible = true,
-                        Timeout = 2000
-                    });
-                    
-                    ElementHandle tempSource = await webPage.QuerySelectorAsync(".vidcdn a");
-                    string videoPageUrl = await tempSource
-                        .EvaluateFunctionAsync<string>("e => e.getAttribute('data-video')");
-                    
-                    if (!videoPageUrl.Contains("https:"))
-                        videoPageUrl = $"https:{videoPageUrl}";
-                    
-                    episode.Source = BuildAPIProxyURL(videoPageUrl);
-                    */
-
-                    await webPage.WaitForSelectorAsync(".play-video", new WaitForSelectorOptions()
+                    await webPage.WaitForSelectorAsync(".play-video iframe", new WaitForSelectorOptions()
                     {
                         Visible = true,
                         Timeout = 2000
                     });
 
-                    ElementHandle tempSource = await webPage.QuerySelectorAsync(".play-video iframe");
-                    string streamaniUrl = await tempSource.EvaluateFunctionAsync<string>("e => e.getAttribute('src')");
+                    ElementHandle frame = await webPage.QuerySelectorAsync(".play-video iframe");
+                    string src = (await frame.EvaluateFunctionAsync<string>("e => e.getAttribute('src')")).Trim();
+                    
+                    Regex rgx = new Regex(@"id=(.*?)&t", RegexOptions.None);
+                    string id = rgx.Match(src).Groups[1].Value;
+                    
+                    url = $"https://gogoplay.link/api.php?id={id}";
+                    
+                    await ProxyHelper.NavigateAsync(webPage, url);
 
-                    if (!streamaniUrl.Contains("https:"))
+                    string text = (await webPage.QuerySelectorAsync("body pre").EvaluateFunctionAsync<string>("e => e.innerText")).Trim();
+                    rgx = new Regex(@"m3u8.:.(.*?).}", RegexOptions.None);
+
+                    string m3u8 = rgx.Match(text).Groups[1].Value.Replace("\\", string.Empty);
+
+                    episode.Source = BuildAPIProxyURL(m3u8, new Dictionary<string, string>()
                     {
-                        streamaniUrl = $"https:{streamaniUrl}";
-                    }
-
-                    episode.Source = BuildAPIProxyURL(streamaniUrl);
+                        { "referrer", Website.SiteUrl }
+                    });
                 }
 
                 if (!string.IsNullOrEmpty(episode.Source))
