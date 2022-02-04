@@ -11,10 +11,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServiceMongo", "ServiceMong
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Commons", "Commons\Commons.csproj", "{10C35AD1-692E-420D-A57C-A56BC07F3011}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GUI.Desktop", "GUI.Desktop\GUI.Desktop.csproj", "{0FBEA2E4-FC99-489A-ABDE-BB164C93F25B}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GUI.Admin", "GUI.Admin\GUI.Admin.csproj", "{CE1436A4-A88D-48C8-98B1-CADB65B4756B}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -37,14 +33,6 @@ Global
 		{10C35AD1-692E-420D-A57C-A56BC07F3011}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{10C35AD1-692E-420D-A57C-A56BC07F3011}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{10C35AD1-692E-420D-A57C-A56BC07F3011}.Release|Any CPU.Build.0 = Release|Any CPU
-		{0FBEA2E4-FC99-489A-ABDE-BB164C93F25B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{0FBEA2E4-FC99-489A-ABDE-BB164C93F25B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{0FBEA2E4-FC99-489A-ABDE-BB164C93F25B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{0FBEA2E4-FC99-489A-ABDE-BB164C93F25B}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CE1436A4-A88D-48C8-98B1-CADB65B4756B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CE1436A4-A88D-48C8-98B1-CADB65B4756B}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CE1436A4-A88D-48C8-98B1-CADB65B4756B}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CE1436A4-A88D-48C8-98B1-CADB65B4756B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
