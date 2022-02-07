@@ -9,24 +9,24 @@ from interfaces.resource import ScraperResource
 from models.episode import Episode
 from models.matching import Matching
 
-class DreamsubResource(ScraperResource):
+class AnimeworldResource(ScraperResource):
 
     def __init__(self, app: falcon.App) -> None:
-        super().__init__(app, "dreamsub")
+        super().__init__(app, "animeworld")
 
     async def get_possible_matchings(self, res: falcon.Response, title: str) -> List[Matching]:
         matchings = []
 
-        url = f"{self.base_url}/search/?q={uri.encode(title)}"
+        url = f"{self.base_url}/search?keyword={uri.encode(title)}"
 
         try:
             page = await execute_proxied_request(self, url)
 
-            show_elements = page.find(id="main-content").find_all(class_="tvBlock")
+            show_elements = page.find(class_="film-list").find_all(class_="item")
             
             for show_element in show_elements:
-                title_element = show_element.find(class_="tvTitle").find(class_="title")
-                path_element = show_element.find(class_="showStreaming").find("a")
+                title_element = show_element.find(class_="inner").find(class_="name")
+                path_element = show_element.find(class_="inner").find(class_="name")
 
                 matchings.append(Matching(title_element.text.strip(), path_element["href"]))
         except Exception as e:
@@ -38,20 +38,19 @@ class DreamsubResource(ScraperResource):
     async def get_episode(self, res: falcon.Response, path: str, number: int) -> List[Episode]:
         episodes = []
 
-        url = f"{self.base_url}{path}/{str(number)}"
+        url = f"{self.base_url}{path}"
 
         try:
             page = await execute_proxied_request(self, url)
 
-            title_element = page.find(id="main-content",class_="video").find(id="current_episode_name")
-            source_elements = page.find(id="main-content",class_="onlyDesktop").find(class_="goblock-content").find_all(class_="dwButton")
+            server = page.select(".server.active")[0]
+            url = self.base_url + server.find_all("li", class_="episode")[number - 1].find("a")["href"]
 
-            for source_element in source_elements:
-                q = int(source_element.text[0:-1])
-                url = source_element["href"]
+            page = await execute_proxied_request(self, url)
 
-                if not any(x.quality == q for x in episodes) and url:
-                    episodes.append(Episode(title_element.text.strip(), url, url, q, "mp4"))
+            source = page.find(id="download").find(id="alternativeDownloadLink")["href"]
+
+            episodes.append(Episode(f"Episodio {number}", url, source, None, "mp4"))
 
         except Exception as e:
             print(str(e))

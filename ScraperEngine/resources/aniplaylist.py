@@ -1,7 +1,7 @@
 import falcon
 from models.song import Song
 
-from utils.session import get_proxied_response_json
+from utils.session import get_proxied_response_json_post
 
 class AniplaylistResource:
 
@@ -29,7 +29,7 @@ class AniplaylistResource:
         }
 
         try:
-            json = await get_proxied_response_json("aniplaylist", url, headers, payload)
+            json = await get_proxied_response_json_post("aniplaylist", url, headers, payload)
             json_songs = json["results"][0]["hits"]
 
             for song in json_songs:
