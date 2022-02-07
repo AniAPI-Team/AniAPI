@@ -3,6 +3,7 @@
 In case you want to add your favourite website to AniAPI's core, you can find here some useful infos.
 
 [Be sure to setup your environment correctly](https://github.com/AniAPI-Team/AniAPI/tree/main/GETTING_STARTED.md)
+
 [How to add a website to our scraper engine](https://github.com/AniAPI-Team/AniAPI/blob/main/ScraperEngine)
 
 ## IWebsiteScraper
@@ -42,15 +43,6 @@ public class GogoanimeWebsite : IWebsite {
   }
 }
 ```
-
-### WebsiteID
-
-This is the internal reference used by **MongoDB** to fetch the website's informations, must be unique.
-Give it a progressive numeric value (check already implemented websites to know which value you have to give).
-
-### WebsiteType
-
-Just give it your website's class type.
 
 ### AnalyzeMatching
 
