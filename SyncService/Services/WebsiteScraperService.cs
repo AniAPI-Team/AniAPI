@@ -261,10 +261,9 @@ namespace SyncService.Services
 
                     for(int i = 1; i <= _anime.EpisodesCount; i++)
                     {
-                        Episode dbEpisode = dbEpisodes.FirstOrDefault(x => x.Number == i);
                         bool isBroken = false;
 
-                        if(dbEpisode != null)
+                        foreach(Episode dbEpisode in dbEpisodes.Where(x => x.Number == i))
                         {
 #if DEBUG
                             watcher.Restart();
@@ -309,7 +308,7 @@ namespace SyncService.Services
                             checkClient.Dispose();
                         }
 
-                        if(dbEpisode == null || isBroken)
+                        if(dbEpisodes.Count == 0 || isBroken)
                         {
 #if DEBUG
                             BenchmarkHelper.BenchmarkData benchmarkEpisode = new BenchmarkHelper.BenchmarkData
@@ -353,7 +352,7 @@ namespace SyncService.Services
                                 await BenchmarkHelper.Track(website.Name, benchmarkEpisode);
 #endif
 
-                                episodeQualities.Data.ForEach(async epQuality =>
+                                episodeQualities.Data.ForEach(epQuality =>
                                 {
                                     matching.EpisodePath = epQuality.Path;
 
@@ -376,7 +375,6 @@ namespace SyncService.Services
                                     else
                                     {
                                         this._episodeCollection.TryInsertWithRetry(ref ep);
-                                        //this._episodeCollection.Add(ref ep);
                                     }
                                 });
 

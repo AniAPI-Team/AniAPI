@@ -52,11 +52,13 @@ namespace Commons.Collections
             int number = document.Number;
             bool isDub = document.IsDub;
             string locale = document.Locale;
+            string quality = document.Quality;
 
             Episode reference = this.Collection.Find(x => x.AnimeID == animeId &&
                 x.Number == number &&
                 x.Locale == locale &&
-                x.IsDub == isDub).FirstOrDefault();
+                x.IsDub == isDub &&
+                x.Quality == quality).FirstOrDefault();
 
             if (reference != null)
             {
