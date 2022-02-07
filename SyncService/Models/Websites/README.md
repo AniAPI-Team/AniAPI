@@ -3,9 +3,10 @@
 In case you want to add your favourite website to AniAPI's core, you can find here some useful infos.
 
 [Be sure to setup your environment correctly](https://github.com/AniAPI-Team/AniAPI/tree/main/GETTING_STARTED.md)
+
 [How to add a website to our scraper engine](https://github.com/AniAPI-Team/AniAPI/blob/main/ScraperEngine)
 
-## IWebsiteScraper
+## IWebsite
 
 Create a class with the following naming convention:
 
@@ -43,15 +44,6 @@ public class GogoanimeWebsite : IWebsite {
 }
 ```
 
-### WebsiteID
-
-This is the internal reference used by **MongoDB** to fetch the website's informations, must be unique.
-Give it a progressive numeric value (check already implemented websites to know which value you have to give).
-
-### WebsiteType
-
-Just give it your website's class type.
-
 ### AnalyzeMatching
 
 This is the method called by the engine everytime an **Anime** is analyzed across the website.
@@ -61,6 +53,28 @@ This is the method called by the engine everytime an **Anime** is analyzed acros
 This method is used to build an internal url, in order to use AniAPI's proxy.
 
 If you need to understand better how thing works, you can watch the websites already implemented, like [this one](https://github.com/AniAPI-Team/AniAPI/blob/main/SyncService/Models/Websites/GogoanimeWebsite.cs).
+
+## WebsiteScraperService
+
+Open `WebsiteScraperService.cs` under `Services` folder.
+
+Add your website inside the `switch` at line 72, like the example below:
+```csharp
+//...
+
+switch (website.Name)
+{
+    //...
+
+    case "your_website_name": // Use the MongoDB's website collection name here!
+        iWeb = new YourWebsiteName(website);
+        break;
+
+    //...
+}
+
+//...
+```
 
 ## Pull request
 
