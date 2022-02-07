@@ -88,7 +88,7 @@ namespace SyncService.Services
         private int _totalPages = 1;
         private List<string> _formatsFilter = new List<string>() { "TV", "TV_SHORT", "MOVIE", "SPECIAL", "OVA", "ONA", "MUSIC" };
         private int _rateLimitRemaining;
-        private long _rateLimitReset;
+        private long? _rateLimitReset;
 
         protected override int TimeToWait => 60 * 1000 * 60 * 12; // 12 Hours
 
@@ -139,7 +139,14 @@ namespace SyncService.Services
                                 {
                                     if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
                                     {
-                                        this._rateLimitReset = Convert.ToInt64(((string[])response.Headers.GetValues("X-RateLimit-Reset"))[0]);
+                                        if (response.Headers.Contains("X-RateLimit-Reset"))
+                                        {
+                                            this._rateLimitReset = Convert.ToInt64(((string[])response.Headers.GetValues("X-RateLimit-Reset"))[0]);
+                                        }
+                                        else
+                                        {
+                                            this._rateLimitReset = null;
+                                        }
                                     }
 
                                     throw new HttpRequestException("RateLimit superato", ex);
@@ -176,7 +183,15 @@ namespace SyncService.Services
                             currentPage--;
 
                             DateTime timeOfReset = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                            timeOfReset = timeOfReset.AddSeconds(this._rateLimitReset).ToLocalTime();
+
+                            if (this._rateLimitReset.HasValue)
+                            {
+                                timeOfReset = timeOfReset.AddSeconds(this._rateLimitReset.Value).ToLocalTime();
+                            }
+                            else
+                            {
+                                timeOfReset = DateTime.Now.AddSeconds(120);
+                            }
 
                             TimeSpan timeToWait = timeOfReset - DateTime.Now;
 

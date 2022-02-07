@@ -1,6 +1,6 @@
 # AniAPI
 
-[![Version badge](https://img.shields.io/badge/version-1.0.4-green)](#)
+[![Version badge](https://img.shields.io/badge/version-1.1.0-green)](#)
 [![Discord badge](https://img.shields.io/badge/discord-join%20us-blue)](https://discord.gg/xQjZx5aWkR)
 
 This is the core behind AniAPI HTTP Rest APIs.
@@ -14,7 +14,7 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 ## Resources
 
 ### Anime
-`1.0`
+`1.1.0`
 * Main information
 * Episode details
 * Images
@@ -22,19 +22,21 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 * Localization
 
 ### Episode
-`1.0`
+`1.1.0`
 * Main information
 * Video source
 * Localization
+* Video codec format
+* Video quality
 
 ### Song
-`1.0`
+`1.1.0`
 * Main information
 * Preview url
 * Listen url
 
 ### User
-`1.0`
+`1.1.0`
 * Main information
 * Avatar from external trackers
 * Synchronization with external trackers
@@ -44,7 +46,7 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 | Language    | Wrappers                                                |
 | ---         | ---                                                     |
 | C#          | [AniApi.NET](https://github.com/AniAPI-Team/AniAPI.NET) |
-| JS          | [AniAPI.js](https://github.com/MattPlays/AniAPI.js) |
+| JS          | [AniAPI.js](https://github.com/MattPlays/AniAPI.js) 	|
 
 **[Add your wrapper here](https://github.com/AniAPI-Team/AniAPI/edit/main/README.md)**
 
@@ -54,7 +56,7 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 
 If you wanna help us to provide an even better service, you can contribute on things like:
 * Fixing untracked bugs
-* [Adding a new website for episodes' scraping](https://github.com/AniAPI-Team/AniAPI/tree/main/SyncService/Models/WebsiteScrapers)
+* [Adding a new website for episodes' scraping](https://github.com/AniAPI-Team/AniAPI/tree/main/SyncService/Models/Websites)
 
 ## Links
 
