@@ -267,7 +267,7 @@ namespace WebAPI.Controllers
         /// </summary>
         /// <param name="id">The UserStory id</param>
         [Authorize]
-        [EnableCors("CorsInternal")]
+        [EnableCors("CorsEveryone")]
         [HttpDelete("{id}"), MapToApiVersion("1")]
         public APIResponse Delete(long id)
         {

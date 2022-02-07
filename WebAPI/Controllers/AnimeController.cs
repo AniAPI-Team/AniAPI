@@ -102,5 +102,47 @@ namespace WebAPI.Controllers
                 return APIManager.ErrorResponse();
             }
         }
+
+        [Authorize]
+        [EnableCors("CorsEveryone")]
+        [HttpPost, MapToApiVersion("1")]
+        public APIResponse Update([FromBody] Anime model)
+        {
+            try
+            {
+                User authenticatedUser = (User)HttpContext.Items["user"];
+
+                if (authenticatedUser.Role == Commons.Enums.UserRoleEnum.BASIC)
+                {
+                    throw new APIException(HttpStatusCode.Forbidden,
+                        "Forbidden",
+                        "You have no access rights to edit this anime");
+                }
+
+                if (!this._animeCollection.Exists(ref model, false))
+                {
+                    throw new APIException(HttpStatusCode.NotFound,
+                        "Not found",
+                        $"Anime with id {model.Id} does not exists");
+                }
+
+                Anime anime = this._animeCollection.Get(model.Id);
+
+                // TODO: Logic to update anime document
+
+                this._animeCollection.Edit(ref anime);
+
+                return APIManager.SuccessResponse("Anime updated", anime);
+            }
+            catch (APIException ex)
+            {
+                return APIManager.ErrorResponse(ex);
+            }
+            catch (Exception ex)
+            {
+                this._logger.LogError(ex.Message);
+                return APIManager.ErrorResponse();
+            }
+        }
     }
 }

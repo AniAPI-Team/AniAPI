@@ -1,9 +1,13 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using MongoService.Helpers;
+using Polly;
+using ServiceMongo;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace MongoService
 {
@@ -98,6 +102,46 @@ namespace MongoService
         public TDocument Last()
         {
             return this.Collection.Find(Builders<TDocument>.Filter.Empty).SortByDescending(x => (x as IModel).Id).Limit(1).FirstOrDefault();
+        }
+
+        public void TryInsertWithRetry(ref TDocument document, int retryTimes = 3, int retryDelay = 2)
+        {
+            bool hasInserted = false;
+            int times = 1;
+
+            do
+            {
+                try
+                {
+                    this.Add(ref document);
+                    hasInserted = true;
+                }
+                catch
+                {
+                    hasInserted = false;
+                    times++;
+
+                    Thread.Sleep(retryDelay * 1000);
+                }
+            }
+            while (!hasInserted || times > retryTimes);
+            //TimeSpan[] retries = new TimeSpan[retryTimes];
+
+            //for(int i = 0; i < retryTimes; i++)
+            //{
+            //    int s = 1 + (i == 0 ? 0 : (int)Math.Pow(retryDelay, i));
+            //    retries[i] = TimeSpan.FromSeconds(s);
+            //}
+            //
+            //var policy = Policy.Handle<ConcurrencyException>()
+            //    .WaitAndRetryAsync(retries);
+            //
+            //return await policy.ExecuteAsync(() =>
+            //{
+            //    this.Add(ref document);
+            //
+            //    return Task.FromResult(document);
+            //});
         }
     }
 }

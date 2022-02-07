@@ -12,7 +12,6 @@
   <ItemGroup>
     <Content Remove="Resources\genres.1_0.json" />
     <Content Remove="Resources\localizations.1_0.json" />
-    <Content Remove="Resources\sources.1_0.json" />
   </ItemGroup>
 
   <ItemGroup>
@@ -20,7 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Resources\sources.1_0.json" />
     <EmbeddedResource Include="Resources\genres.1_0.json" />
     <EmbeddedResource Include="Resources\localizations.1_0.json" />
   </ItemGroup>

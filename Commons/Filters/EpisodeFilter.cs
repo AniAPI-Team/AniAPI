@@ -6,6 +6,6 @@ namespace Commons.Filters
     {
         public long? anime_id { get; set; }
         public int? number { get; set; }
-        public string source { get; set; }
+        public bool? is_dub { get; set; }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Commons;
 using Commons.Collections;
 using Commons.Enums;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -12,6 +13,7 @@ namespace SyncService
     public abstract class IService
     {
         #region Members
+
 
         public CancellationToken _cancellationToken;
         protected ServicesStatusCollection _serviceStatusCollection = new ServicesStatusCollection();
