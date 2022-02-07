@@ -2,44 +2,44 @@
 
 In case you want to add your favourite website to AniAPI's core, you can find here some useful infos.
 
+[Be sure to setup your environment correctly](https://github.com/AniAPI-Team/AniAPI/tree/main/GETTING_STARTED.md)
+[How to add a website to our scraper engine](https://github.com/AniAPI-Team/AniAPI/blob/main/ScraperEngine)
+
 ## IWebsiteScraper
 
 Create a class with the following naming convention:
 
-`{WebsiteName}Scraper`
+`{WebsiteName}Website`
 
-Let's say for example `GogoanimeScraper`.
+Let's say for example `GogoanimeWebsite`.
 
-Now, declare it `public` and let it inherits `IWebsiteScraper`, like below:
+Now, declare it `public` and let it inherits `IWebsite`, like below:
 
 ```csharp
-public class GogoanimeScraper : IWebsiteScraper {
+public class GogoanimeWebsite : IWebsite {
 
-  public GogoanimeScraper(WebsiteScraperService service) : base(service)
+  public GogoanimeWebsite(Website website) : base(website)
   {
   }
 
-  protected override long WebsiteID => 3;
+  public override bool AnalyzeMatching(Anime anime, AnimeMatching matching, string sourceTitle)
+  {
+    // Insert here your custom logic
+    // in order to customize anime matchings
 
-  protected override Type WebsiteType => typeof(GogoanimeScraper);
-  
-  protected override async Task<AnimeMatching> GetMatching(Page webPage, string animeTitle)
-  {
-    // Go to the page to scrape
-    // Navigate throught HTML to get data
-    // Calls AnalyzeMatching
-    // If true, returns the matching
-    // Else, return null
-  }
-  
-  protected override async Task<EpisodeMatching> GetEpisode(Page webPage, AnimeMatching matching, int number)
-  {
-    // Handle a list of episodes in order to avoid useless requests (if possible)
-    // Go to the page to scrape
-    // Navigate throught HTML to get data
-    // Returns the episode
+    // Be sure to call super method!
+    return base.AnalyzeMatching(anime, matching, sourceTitle);
   }
 
+  public override string BuildAPIProxyURL(AppSettings settings, AnimeMatching matching, string url, Dictionary<string, string> values = null)
+  {
+    // Insert here your custom logic
+    // in order to customize the values
+    // used while building the proxy url
+
+    // Be sure to call super method!
+    return base.BuildAPIProxyURL(settings, matching, url, values);
+  }
 }
 ```
 
@@ -52,29 +52,15 @@ Give it a progressive numeric value (check already implemented websites to know 
 
 Just give it your website's class type.
 
-### GetMatching
+### AnalyzeMatching
 
 This is the method called by the engine everytime an **Anime** is analyzed across the website.
-It should scrape the website's anime index page, in order to find a matching title and start analyzing it.
-It returns an `AnimeMatching` object:
 
-* `Title`, the website's anime title
-* `Description`, the website's anime description
-* `Path`, the website's anime relative path
+### BuildAPIProxyURL
 
-### GetEpisode
+This method is used to build an internal url, in order to use AniAPI's proxy.
 
-This method is used to fetch all the episodes when a full (`100%`) match has been found on an **Anime**.
-It is called foreach episode, so if the anime has 25 episodes, it will be called 25 times.
-It should scrape the website's anime detail page, in order to find all the episodes and save them.
-It returns an `EpisodeMatching` object:
-
-* `Title`, the website's anime's episode title
-* `Number`, the website's anime's episode progressive number
-* `Path`, the website's anime's episode relative path
-* `Source`, the website's anime's episode video url
-
-If you need to understand better how thing works, you can watch the websites already implemented, like [this one](https://github.com/AniAPI-Team/AniAPI/blob/main/SyncService/Models/WebsiteScrapers/DreamsubScraper.cs).
+If you need to understand better how thing works, you can watch the websites already implemented, like [this one](https://github.com/AniAPI-Team/AniAPI/blob/main/SyncService/Models/Websites/GogoanimeWebsite.cs).
 
 ## Pull request
 
@@ -83,8 +69,7 @@ When your implementation is done, you need to make a pull request to let us revi
 **Inside the PR comment, please give us the following informations:**
 
 ```
-site_url: (this is the base url of the website, for example "https://gogoanime.pe/" for gogoanime)
-can_block_requests: (this means that the website can block useless requests like css/adblockers/ads/etc without going in error)
+site_url: (this is the base url of the website, for example "https://gogoanime.lol" for gogoanime)
 localization: (the i18n code representing the website locale)
 ```
 
