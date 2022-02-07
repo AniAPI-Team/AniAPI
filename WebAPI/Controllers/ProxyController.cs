@@ -8,8 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Linq;
 using System.Net.Http;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
@@ -34,100 +37,122 @@ namespace WebAPI.Controllers
 
         [AllowAnonymous]
         [EnableCors("CorsEveryone")]
-        [HttpGet("{url}/{websiteName}"), MapToApiVersion("1")]
-        [HttpGet("{url}/{websiteName}/{segment}"), MapToApiVersion("1")]
+        [HttpGet("{url}")]
         [ApiExplorerSettings(IgnoreApi = true)]
-        public Task GetFormattedEpisodeSourceURL(string url, string websiteName, [FromQuery] Dictionary<string, string> values, string segment = null)
+        public Task ReverseProxy([FromRoute] string url, [FromQuery] Dictionary<string, string> values)
         {
             try
             {
-                HttpProxyOptions options = null;
-                
-                url = HttpUtility.UrlDecode(url);
+                url = HttpUtility.UrlDecode(url).Replace(" ", "+");
 
-                switch (websiteName)
-                {
-                    case "dreamsub":
-                        options = HttpProxyOptionsBuilder.Instance
-                            .WithHttpClientName("HttpClientWithSSLUntrusted")
-                            .WithShouldAddForwardedHeaders(false)
-                            .WithBeforeSend((context, request) =>
+                HttpProxyOptions options = HttpProxyOptionsBuilder.Instance
+                    .WithHttpClientName("HttpClientWithSSLUntrusted")
+                    .WithShouldAddForwardedHeaders(false)
+                    .WithBeforeSend((context, request) =>
+                    {
+                        request.Headers.IfModifiedSince = null;
+
+                        foreach (var h in request.Headers)
+                        {
+                            Console.WriteLine($"{h.Key}: {string.Join(',', h.Value?.Select(x => x))}");
+                        }
+
+                        if(values != null)
+                        {
+                            foreach (string k in values.Keys)
                             {
-                                request.Headers.Host = values["host"];
-                                request.Headers.Referrer = new Uri(values["referrer"]);
+                                request.Headers.Remove(k);
+                                request.Headers.Add(k, values[k]);
+                            }
+                        }
 
-                                return Task.CompletedTask;
-                            })
-                            .Build();
-                        break;
-                    case "gogoanime":
-                        options = HttpProxyOptionsBuilder.Instance
-                            .WithHttpClientName("HttpClientWithSSLUntrusted")
-                            .WithShouldAddForwardedHeaders(false)
-                            .WithBeforeSend((context, request) =>
+                        return Task.CompletedTask;
+                    })
+                    .WithAfterReceive(async (context, response) =>
+                    {
+                        if (response.RequestMessage.RequestUri.PathAndQuery.Contains(".m3u8"))
+                        {
+                            string body = null;
+
+                            using (var stream = await response.Content.ReadAsStreamAsync())
                             {
-                                if (values.Keys.Contains("referrer"))
+                                using(var decompressed = new GZipStream(stream, CompressionMode.Decompress))
                                 {
-                                    request.Headers.Referrer = new Uri(values["referrer"]);
-                                }
-
-                                return Task.CompletedTask;
-                            })
-                            .WithAfterReceive(async (context, response) =>
-                            {
-                                if (Url.IsLocalUrl(context.Connection.RemoteIpAddress.ToString()))
-                                {
-                                    return;
-                                }
-
-                                if (response.RequestMessage.RequestUri.PathAndQuery.Contains(".m3u8"))
-                                {
-                                    string body = await response.Content.ReadAsStringAsync();
-                                    List<string> parsedBody = new List<string>();
-                            
-                                    foreach (string l in body.Split('\n').ToArray())
+                                    using(var reader = new StreamReader(decompressed, Encoding.UTF8))
                                     {
-                                        string parsedLine = l;
-                            
-                                        if (l.StartsWith("http"))
-                                        {
-                                            parsedLine = $"/v1/proxy/{HttpUtility.UrlEncode(l)}/gogoanime?referrer={HttpUtility.UrlEncode(values["referrer"])}";
-                                        }
-                                        else if (l.EndsWith(".m3u8"))
-                                        {
-                                            parsedLine = $"{l}?referrer={HttpUtility.UrlEncode(values["referrer"])}";
-                                        }
-                            
-                                        parsedBody.Add(parsedLine);
+                                        body = await reader.ReadToEndAsync();
                                     }
-                            
-                                    response.Content = new StringContent(string.Join('\n', parsedBody));
                                 }
-                            })
-                            .Build();
-                        break;
-                }
+                            }
 
-                // 15.09.2021: Added support for HLS streaming
-                if (!string.IsNullOrEmpty(segment))
-                {
-                    string[] urlParts = url.Split('/');
-                    urlParts[urlParts.Length - 1] = segment;
+                            if (string.IsNullOrEmpty(body))
+                            {
+                                return;
+                            }
 
-                    url = String.Join('/', urlParts);
-                }
+                            string requestUrl = response.RequestMessage.RequestUri.AbsoluteUri;
 
-                if (options == null)
-                {
-                    throw new Exception($"Website {websiteName} not supported!");
-                }
-             
+                            if (requestUrl.EndsWith(".m3u8"))
+                            {
+                                var urlParts = requestUrl.Split('/');
+                                requestUrl = string.Join('/', urlParts[0..(urlParts.Length - 1)]) + "/";
+                            }
+
+                            string proxiedBody = analyzeHLSBody(requestUrl, body, values);
+
+                            response.Content = new StringContent(proxiedBody);
+                        }
+                    })
+                    .Build();
+
                 return this.HttpProxyAsync(url, options);
             }
-            catch(Exception ex)
+            catch
             {
                 throw;
             }
+        }
+
+        private string analyzeHLSBody(string requestUrl, string body, Dictionary<string, string> values = null)
+        {
+            string[] lines = body.Split('\n');
+
+            for(int i = 0; i < lines.Length; i++)
+            {
+                if (lines[i].StartsWith("#"))
+                {
+                    continue;
+                }
+
+                if (!lines[i].StartsWith("http"))
+                {
+                    lines[i] = requestUrl + lines[i];
+                }
+
+                lines[i] = buildReversedProxyUrl(lines[i], values);
+            }
+
+            return string.Join('\n', lines);
+        }
+
+        private string buildReversedProxyUrl(string url, Dictionary<string, string> values)
+        {
+            url = $"/v1/proxy/{HttpUtility.UrlEncode(url)}/";
+
+            if (values != null)
+            {
+                url += "?";
+                List<string> queryParams = new List<string>();
+
+                foreach (string k in values.Keys)
+                {
+                    queryParams.Add($"{k}={HttpUtility.UrlEncode(values[k])}");
+                }
+
+                url += string.Join('&', queryParams);
+            }
+
+            return url;
         }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Commons.Filters;
 using MongoDB.Driver;
 using MongoService;
+using ServiceMongo;
 using System;
 using System.Collections;
 using System.Linq;
@@ -15,9 +16,16 @@ namespace Commons.Collections
 
         public override void Add(ref Episode document)
         {
-            base.Add(ref document);
+            try
+            {
+                base.Add(ref document);
 
-            this.Collection.InsertOne(document);
+                this.Collection.InsertOne(document);
+            }
+            catch (MongoException)
+            {
+                throw new ConcurrencyException();
+            }
         }
 
         public override long Count()
@@ -42,9 +50,13 @@ namespace Commons.Collections
         {
             long animeId = document.AnimeID;
             int number = document.Number;
-            string source = document.Source;
+            bool isDub = document.IsDub;
+            string locale = document.Locale;
 
-            Episode reference = this.Collection.Find(x => x.AnimeID == animeId && x.Number == number && x.Source == source).FirstOrDefault();
+            Episode reference = this.Collection.Find(x => x.AnimeID == animeId &&
+                x.Number == number &&
+                x.Locale == locale &&
+                x.IsDub == isDub).FirstOrDefault();
 
             if (reference != null)
             {
@@ -84,9 +96,9 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("number", episodeFilter.number);
             }
 
-            if (!string.IsNullOrEmpty(episodeFilter.source))
+            if(episodeFilter.is_dub != null)
             {
-                queryFilter &= builder.Eq("source", episodeFilter.source);
+                queryFilter &= builder.Eq("is_dub", episodeFilter.is_dub);
             }
 
             if (!string.IsNullOrEmpty(episodeFilter.locale))

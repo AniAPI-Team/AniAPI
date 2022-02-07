@@ -12,8 +12,9 @@ namespace SyncService.Models
         public string Description { get; set; }
         public int Score { get; set; }
         public string Path { get; set; }
-        public List<EpisodeMatching> Episodes { get; set; } = new List<EpisodeMatching>();
-        public string SourceVariant { get; set; }
-        public AnimeMatching Linked { get; set; }
+        public string EpisodePath { get; set; }
+
+        public bool IsDub { get; set; } = false;
+        public AnimeMatching Linked { get; set; } = null;
     }
 }

@@ -32,14 +32,24 @@ namespace Commons
         [JsonProperty(PropertyName = "video")]
         public string Video { get; set; }
 
-        [BsonElement("source")]
-        [JsonPropertyName("source")]
-        [JsonProperty(PropertyName = "source")]
-        public string Source { get; set; }
+        [BsonElement("quality")]
+        [JsonPropertyName("quality")]
+        [JsonProperty(PropertyName = "quality")]
+        public string Quality { get; set; }
+
+        [BsonElement("format")]
+        [JsonPropertyName("format")]
+        [JsonProperty(PropertyName = "format")]
+        public string Format { get; set; }
 
         [BsonElement("locale")]
         [JsonPropertyName("locale")]
         [JsonProperty(PropertyName = "locale")]
         public string Locale { get; set; }
+
+        [BsonElement("is_dub")]
+        [JsonPropertyName("is_dub")]
+        [JsonProperty(PropertyName = "is_dub")]
+        public bool IsDub { get; set; }
     }
 }

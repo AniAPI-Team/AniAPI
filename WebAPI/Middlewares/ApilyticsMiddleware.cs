@@ -24,6 +24,12 @@ namespace WebAPI.Middlewares
 
         public async Task Invoke(HttpContext httpContext)
         {
+            if (httpContext.Request.Path.Value.StartsWith("/v1/proxy"))
+            {
+                await _next(httpContext);
+                return;
+            }
+
             DateTime executionStartTime = DateTime.Now;
 
             await _next(httpContext);

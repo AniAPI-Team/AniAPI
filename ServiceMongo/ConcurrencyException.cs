@@ -4,11 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Commons.Enums
+namespace ServiceMongo
 {
-    public enum ResourceTypeEnum
+    public class ConcurrencyException : Exception
     {
-        GENRES,
-        LOCALIZATIONS
     }
 }
