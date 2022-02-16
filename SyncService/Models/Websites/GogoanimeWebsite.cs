@@ -24,14 +24,12 @@ namespace SyncService.Models.Websites
             return base.AnalyzeMatching(anime, matching, sourceTitle);
         }
 
-        public override string BuildAPIProxyURL(AppSettings settings, AnimeMatching matching, string url, Dictionary<string, string> values = null)
+        public override Dictionary<string, string> GetVideoProxyHeaders(AnimeMatching matching, Dictionary<string, string> values = null)
         {
-            values = new Dictionary<string, string>()
+            return new Dictionary<string, string>
             {
                 { "referer", matching.EpisodePath }
             };
-
-            return base.BuildAPIProxyURL(settings, matching, url, values);
         }
     }
 }

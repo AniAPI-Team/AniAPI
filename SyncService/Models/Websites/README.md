@@ -48,9 +48,9 @@ public class GogoanimeWebsite : IWebsite {
 
 This is the method called by the engine everytime an **Anime** is analyzed across the website.
 
-### BuildAPIProxyURL
+### GetVideoProxyHeaders
 
-This method is used to build an internal url, in order to use AniAPI's proxy.
+This method is used to get needed HTTP headers, in order to navigate throught original streaming video's url.
 
 If you need to understand better how thing works, you can watch the websites already implemented, like [this one](https://github.com/AniAPI-Team/AniAPI/blob/main/SyncService/Models/Websites/GogoanimeWebsite.cs).
 

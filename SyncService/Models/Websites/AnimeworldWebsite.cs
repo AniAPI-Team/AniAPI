@@ -24,9 +24,9 @@ namespace SyncService.Models.Websites
             return base.AnalyzeMatching(anime, matching, sourceTitle);
         }
 
-        public override string BuildAPIProxyURL(AppSettings settings, AnimeMatching matching, string url, Dictionary<string, string> values = null)
+        public override Dictionary<string, string> GetVideoProxyHeaders(AnimeMatching matching, Dictionary<string, string> values = null)
         {
-            return url;
+            return null;
         }
     }
 }

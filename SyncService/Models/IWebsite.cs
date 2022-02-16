@@ -23,7 +23,6 @@ namespace SyncService.Models
             Active = website.Active;
             Official = website.Official;
             SiteUrl = website.SiteUrl;
-            CanBlockRequests = website.CanBlockRequests;
             Localization = website.Localization;
         }
 
@@ -76,28 +75,30 @@ namespace SyncService.Models
             return false;
         }
 
-        public virtual string BuildAPIProxyURL(AppSettings settings, AnimeMatching matching, string url, Dictionary<string, string> values = null)
-        {
-            string apiUrl = $"{settings.APIEndpoint}/proxy/{HttpUtility.UrlEncode(url)}/";
+        public abstract Dictionary<string, string> GetVideoProxyHeaders(AnimeMatching matching, Dictionary<string, string> values = null);
 
-            if (values != null)
-            {
-                apiUrl += "?";
-            }
+        //public virtual string BuildAPIProxyURL(AppSettings settings, AnimeMatching matching, string url, Dictionary<string, string> values = null)
+        //{
+        //    string apiUrl = $"{settings.APIEndpoint}/proxy/{HttpUtility.UrlEncode(url)}/";
 
-            for (int i = 0; i < values?.Keys.Count; i++)
-            {
-                string key = values.Keys.ElementAt(i);
+        //    if (values != null)
+        //    {
+        //        apiUrl += "?";
+        //    }
 
-                apiUrl += $"{key}={HttpUtility.UrlEncode(values[key])}";
+        //    for (int i = 0; i < values?.Keys.Count; i++)
+        //    {
+        //        string key = values.Keys.ElementAt(i);
 
-                if ((i + 1) < values.Keys.Count)
-                {
-                    apiUrl += "&";
-                }
-            }
+        //        apiUrl += $"{key}={HttpUtility.UrlEncode(values[key])}";
 
-            return apiUrl;
-        }
+        //        if ((i + 1) < values.Keys.Count)
+        //        {
+        //            apiUrl += "&";
+        //        }
+        //    }
+
+        //    return apiUrl;
+        //}
     }
 }

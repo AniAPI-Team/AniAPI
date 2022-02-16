@@ -1,6 +1,6 @@
 # AniAPI
 
-[![Version badge](https://img.shields.io/badge/version-1.1.0-green)](#)
+[![Version badge](https://img.shields.io/badge/version-1.1.1-green)](#)
 [![Discord badge](https://img.shields.io/badge/discord-join%20us-blue)](https://discord.gg/xQjZx5aWkR)
 
 This is the core behind AniAPI HTTP Rest APIs.
@@ -14,7 +14,7 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 ## Resources
 
 ### Anime
-`1.1.0`
+`1.1.1`
 * Main information
 * Episode details
 * Images
@@ -22,7 +22,7 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 * Localization
 
 ### Episode
-`1.1.0`
+`1.1.1`
 * Main information
 * Video source
 * Localization
@@ -30,13 +30,13 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 * Video quality
 
 ### Song
-`1.1.0`
+`1.1.1`
 * Main information
 * Preview url
 * Listen url
 
 ### User
-`1.1.0`
+`1.1.1`
 * Main information
 * Avatar from external trackers
 * Synchronization with external trackers

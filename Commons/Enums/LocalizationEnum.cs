@@ -11,7 +11,8 @@ namespace Commons.Enums
             EN,
             IT,
             FR,
-            JP
+            JP,
+            RJ
         }
 
         private Locale _locale;
@@ -29,6 +30,7 @@ namespace Commons.Enums
                 case Locale.EN: return "en";
                 case Locale.FR: return "fr";
                 case Locale.JP: return "jp";
+                case Locale.RJ: return "rj";
             }
 
             return "en";
@@ -38,5 +40,30 @@ namespace Commons.Enums
         public static string English => new LocalizationEnum(Locale.EN).ToString();
         public static string French => new LocalizationEnum(Locale.FR).ToString();
         public static string Japanese => new LocalizationEnum(Locale.JP).ToString();
+        public static string Romaji => new LocalizationEnum(Locale.RJ).ToString();
+
+        public static string FormatIsoToLocale(string iso)
+        {
+            if(iso == "ja")
+            {
+                return LocalizationEnum.Japanese;
+            }
+
+            return iso;
+        }
+
+        public static bool IsLocaleSupported(string locale)
+        {
+            List<string> supported = new List<string>
+            {
+                Italian,
+                English,
+                French,
+                Japanese,
+                Romaji
+            };
+
+            return supported.Contains(locale);
+        }
     }
 }

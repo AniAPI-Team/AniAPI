@@ -13,15 +13,13 @@ namespace SyncService.Models.Websites
         {
         }
 
-        public override string BuildAPIProxyURL(AppSettings settings, AnimeMatching matching, string url, Dictionary<string, string> values = null)
+        public override Dictionary<string, string> GetVideoProxyHeaders(AnimeMatching matching, Dictionary<string, string> values = null)
         {
-            values = new Dictionary<string, string>
+            return new Dictionary<string, string>
             {
                 { "host", "cdn.dreamsub.cc" },
                 { "referer", matching.EpisodePath }
             };
-
-            return base.BuildAPIProxyURL(settings, matching, url, values);
         }
     }
 }

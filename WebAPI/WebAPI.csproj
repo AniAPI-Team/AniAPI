@@ -10,6 +10,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controllers\ProxyController.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Resources\genres.1_0.json" />
     <Content Remove="Resources\localizations.1_0.json" />
   </ItemGroup>
