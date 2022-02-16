@@ -17,7 +17,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Security;
 using System.Net.Sockets;
+using System.Security.Cryptography.X509Certificates;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +39,8 @@ namespace SyncService.Services
         private Dictionary<string, List<IWebsite>> _websites = new Dictionary<string, List<IWebsite>>();
         private Anime _anime;
         private HttpClient _scraperClient;
+
+        private int _proxyCounter = 0;
 
         protected override int TimeToWait => 1000 * 60 * 10; // 10 Minutes
 
@@ -139,7 +143,7 @@ namespace SyncService.Services
                     }
                     finally
                     {
-                        this.Log($"Done {GetProgressD(animeID, lastId)}% ({_anime})", true);
+                        this.Log($"Done {GetProgressD(animeID, lastId)}% [{_anime}({_anime.Id})]", true);
                     }
 
                     if (_cancellationToken.IsCancellationRequested)
@@ -177,7 +181,7 @@ namespace SyncService.Services
                 AnimeMatching matching = null;
 
                 string animeTitle = _anime.Titles.ContainsKey(website.Localization) ?
-                    _anime.Titles[website.Localization] : _anime.Titles[LocalizationEnum.English];
+                    _anime.Titles[website.Localization] : _anime.Titles[LocalizationEnum.Romaji];
 
 #if DEBUG
                 var watcher = Stopwatch.StartNew();
@@ -245,13 +249,21 @@ namespace SyncService.Services
 
                 if (website.Official)
                 {
-                    _anime.Titles[website.Localization] = matching.Title;
-                    _anime.Descriptions[website.Localization] = matching.Description;
+                    if (string.IsNullOrEmpty(_anime.Titles[website.Localization]))
+                    {
+                        _anime.Titles[website.Localization] = matching.Title;
+                    }
 
-                    _animeCollection.Edit(ref _anime);
+                    if (string.IsNullOrEmpty(_anime.Descriptions[website.Localization]))
+                    {
+                        _anime.Descriptions[website.Localization] = matching.Description;
+                    }
                 }
 
-                while(matching != null)
+                _anime.HasEpisodes = true;
+                _animeCollection.Edit(ref _anime);
+
+                while (matching != null)
                 {
                     List<Episode> dbEpisodes = this._episodeCollection.Collection
                         .Find(x => x.AnimeID == _anime.Id && 
@@ -268,18 +280,52 @@ namespace SyncService.Services
 #if DEBUG
                             watcher.Restart();
 #endif
+                            _proxyCounter = (_proxyCounter + 1) > _appSettings.ProxyCount ? 0 : _proxyCounter + 1;
 
-                            HttpClient checkClient = new HttpClient()
+                            var proxy = new WebProxy
+                            {
+                                Address = new Uri($"http://{_appSettings.ProxyHost}:{_appSettings.ProxyPort}"),
+                                BypassProxyOnLocal = false,
+                                UseDefaultCredentials = false,
+                                Credentials = new NetworkCredential($"{_appSettings.ProxyUsername}{_proxyCounter}", _appSettings.ProxyPassword)
+                            };
+
+                            HttpClientHandler handler = new HttpClientHandler()
+                            {
+                                ClientCertificateOptions = ClientCertificateOption.Manual,
+                                Proxy = proxy,
+                                ServerCertificateCustomValidationCallback = (request, certificate, chain, errors) =>
+                                {
+                                    return true;
+                                }
+                            };
+
+                            HttpClient checkClient = new HttpClient(handler)
                             {
                                 MaxResponseContentBufferSize = 1024
                             };
 
                             try
                             {
-                                var request = new HttpRequestMessage(HttpMethod.Get, dbEpisode.Video);
+                                var request = new HttpRequestMessage(HttpMethod.Head, dbEpisode.Video);
+
+                                request.Headers.IfModifiedSince = null;
+
+                                if (dbEpisode.VideoHeaders != null)
+                                {
+                                    foreach(string k in dbEpisode.VideoHeaders.Keys)
+                                    {
+                                        request.Headers.Add(k, dbEpisode.VideoHeaders[k]);
+                                    }
+                                }
+
                                 using(var response = await checkClient.SendAsync(request))
                                 {
                                     response.EnsureSuccessStatusCode();
+
+#if DEBUG
+                                    this.Log($"[{website.Name}] checked episode {i} [{_anime}({anime.Id})]");
+#endif
                                 }
                             }
                             catch(Exception ex)
@@ -308,7 +354,7 @@ namespace SyncService.Services
                             checkClient.Dispose();
                         }
 
-                        if(dbEpisodes.Count == 0 || isBroken)
+                        if(dbEpisodes.Where(x => x.Number == i).Count() == 0 || isBroken)
                         {
 #if DEBUG
                             BenchmarkHelper.BenchmarkData benchmarkEpisode = new BenchmarkHelper.BenchmarkData
@@ -361,7 +407,9 @@ namespace SyncService.Services
                                         AnimeID = _anime.Id,
                                         Number = i,
                                         Title = epQuality.Title,
-                                        Video = website.BuildAPIProxyURL(_appSettings, matching, epQuality.Video, null),
+                                        Video = epQuality.Video,
+                                        VideoHeaders = website.GetVideoProxyHeaders(matching, null),
+                                        //Video = website.BuildAPIProxyURL(_appSettings, matching, epQuality.Video, null),
                                         Quality = epQuality.Quality,
                                         Format = epQuality.Format,
                                         IsDub = matching.IsDub,

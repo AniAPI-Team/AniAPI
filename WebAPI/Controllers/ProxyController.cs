@@ -19,140 +19,140 @@ using System.Web;
 
 namespace WebAPI.Controllers
 {
-    [ApiVersion("1")]
-    [Route("proxy")]
-    [ApiController]
-    /// <summary>
-    /// Controller for Episode's video requests
-    /// </summary>
-    public class ProxyController : Controller
-    {
-        private readonly ILogger<ProxyController> _logger;
-        private WebsiteCollection _websiteCollection = new WebsiteCollection();
+    // Disabled on 16-02-2022
+    // Actual VPS power is not enough in order to grant a great proxy service
 
-        public ProxyController(ILogger<ProxyController> logger)
-        {
-            _logger = logger;
-        }
+    //[ApiVersion("1")]
+    //[Route("proxy")]
+    //[ApiController]
+    //public class ProxyController : Controller
+    //{
+    //    private readonly ILogger<ProxyController> _logger;
+    //    private WebsiteCollection _websiteCollection = new WebsiteCollection();
 
-        [AllowAnonymous]
-        [EnableCors("CorsEveryone")]
-        [HttpGet("{url}")]
-        [ApiExplorerSettings(IgnoreApi = true)]
-        public Task ReverseProxy([FromRoute] string url, [FromQuery] Dictionary<string, string> values)
-        {
-            try
-            {
-                url = HttpUtility.UrlDecode(url).Replace(" ", "+");
+    //    public ProxyController(ILogger<ProxyController> logger)
+    //    {
+    //        _logger = logger;
+    //    }
 
-                HttpProxyOptions options = HttpProxyOptionsBuilder.Instance
-                    .WithHttpClientName("HttpClientWithSSLUntrusted")
-                    .WithShouldAddForwardedHeaders(false)
-                    .WithBeforeSend((context, request) =>
-                    {
-                        request.Headers.IfModifiedSince = null;
+    //    [AllowAnonymous]
+    //    [EnableCors("CorsEveryone")]
+    //    [HttpGet("{url}")]
+    //    [ApiExplorerSettings(IgnoreApi = true)]
+    //    public Task ReverseProxy([FromRoute] string url, [FromQuery] Dictionary<string, string> values)
+    //    {
+    //        try
+    //        {
+    //            url = HttpUtility.UrlDecode(url).Replace(" ", "+");
 
-                        foreach (var h in request.Headers)
-                        {
-                            Console.WriteLine($"{h.Key}: {string.Join(',', h.Value?.Select(x => x))}");
-                        }
+    //            HttpProxyOptions options = HttpProxyOptionsBuilder.Instance
+    //                .WithHttpClientName("HttpClientWithSSLUntrusted")
+    //                .WithShouldAddForwardedHeaders(false)
+    //                .WithBeforeSend((context, request) =>
+    //                {
+    //                    request.Headers.IfModifiedSince = null;
 
-                        if(values != null)
-                        {
-                            foreach (string k in values.Keys)
-                            {
-                                request.Headers.Remove(k);
-                                request.Headers.Add(k, values[k]);
-                            }
-                        }
+    //                    foreach (var h in request.Headers)
+    //                    {
+    //                        Console.WriteLine($"{h.Key}: {string.Join(',', h.Value?.Select(x => x))}");
+    //                    }
 
-                        return Task.CompletedTask;
-                    })
-                    .WithAfterReceive(async (context, response) =>
-                    {
-                        if (response.RequestMessage.RequestUri.PathAndQuery.Contains(".m3u8"))
-                        {
-                            string body = null;
+    //                    if(values != null)
+    //                    {
+    //                        foreach (string k in values.Keys)
+    //                        {
+    //                            request.Headers.Remove(k);
+    //                            request.Headers.Add(k, values[k]);
+    //                        }
+    //                    }
 
-                            using (var stream = await response.Content.ReadAsStreamAsync())
-                            {
-                                using(var decompressed = new GZipStream(stream, CompressionMode.Decompress))
-                                {
-                                    using(var reader = new StreamReader(decompressed, Encoding.UTF8))
-                                    {
-                                        body = await reader.ReadToEndAsync();
-                                    }
-                                }
-                            }
+    //                    return Task.CompletedTask;
+    //                })
+    //                .WithAfterReceive(async (context, response) =>
+    //                {
+    //                    if (response.RequestMessage.RequestUri.PathAndQuery.Contains(".m3u8"))
+    //                    {
+    //                        string body = null;
 
-                            if (string.IsNullOrEmpty(body))
-                            {
-                                return;
-                            }
+    //                        using (var stream = await response.Content.ReadAsStreamAsync())
+    //                        {
+    //                            using(var decompressed = new GZipStream(stream, CompressionMode.Decompress))
+    //                            {
+    //                                using(var reader = new StreamReader(decompressed, Encoding.UTF8))
+    //                                {
+    //                                    body = await reader.ReadToEndAsync();
+    //                                }
+    //                            }
+    //                        }
 
-                            string requestUrl = response.RequestMessage.RequestUri.AbsoluteUri;
+    //                        if (string.IsNullOrEmpty(body))
+    //                        {
+    //                            return;
+    //                        }
 
-                            if (requestUrl.EndsWith(".m3u8"))
-                            {
-                                var urlParts = requestUrl.Split('/');
-                                requestUrl = string.Join('/', urlParts[0..(urlParts.Length - 1)]) + "/";
-                            }
+    //                        string requestUrl = response.RequestMessage.RequestUri.AbsoluteUri;
 
-                            string proxiedBody = analyzeHLSBody(requestUrl, body, values);
+    //                        if (requestUrl.EndsWith(".m3u8"))
+    //                        {
+    //                            var urlParts = requestUrl.Split('/');
+    //                            requestUrl = string.Join('/', urlParts[0..(urlParts.Length - 1)]) + "/";
+    //                        }
 
-                            response.Content = new StringContent(proxiedBody);
-                        }
-                    })
-                    .Build();
+    //                        string proxiedBody = analyzeHLSBody(requestUrl, body, values);
 
-                return this.HttpProxyAsync(url, options);
-            }
-            catch
-            {
-                throw;
-            }
-        }
+    //                        response.Content = new StringContent(proxiedBody);
+    //                    }
+    //                })
+    //                .Build();
 
-        private string analyzeHLSBody(string requestUrl, string body, Dictionary<string, string> values = null)
-        {
-            string[] lines = body.Split('\n');
+    //            return this.HttpProxyAsync(url, options);
+    //        }
+    //        catch
+    //        {
+    //            throw;
+    //        }
+    //    }
 
-            for(int i = 0; i < lines.Length; i++)
-            {
-                if (lines[i].StartsWith("#"))
-                {
-                    continue;
-                }
+    //    private string analyzeHLSBody(string requestUrl, string body, Dictionary<string, string> values = null)
+    //    {
+    //        string[] lines = body.Split('\n');
 
-                if (!lines[i].StartsWith("http"))
-                {
-                    lines[i] = requestUrl + lines[i];
-                }
+    //        for(int i = 0; i < lines.Length; i++)
+    //        {
+    //            if (lines[i].StartsWith("#"))
+    //            {
+    //                continue;
+    //            }
 
-                lines[i] = buildReversedProxyUrl(lines[i], values);
-            }
+    //            if (!lines[i].StartsWith("http"))
+    //            {
+    //                lines[i] = requestUrl + lines[i];
+    //            }
 
-            return string.Join('\n', lines);
-        }
+    //            lines[i] = buildReversedProxyUrl(lines[i], values);
+    //        }
 
-        private string buildReversedProxyUrl(string url, Dictionary<string, string> values)
-        {
-            url = $"/v1/proxy/{HttpUtility.UrlEncode(url)}/";
+    //        return string.Join('\n', lines);
+    //    }
 
-            if (values != null)
-            {
-                url += "?";
-                List<string> queryParams = new List<string>();
+    //    private string buildReversedProxyUrl(string url, Dictionary<string, string> values)
+    //    {
+    //        url = $"/v1/proxy/{HttpUtility.UrlEncode(url)}/";
 
-                foreach (string k in values.Keys)
-                {
-                    queryParams.Add($"{k}={HttpUtility.UrlEncode(values[k])}");
-                }
+    //        if (values != null)
+    //        {
+    //            url += "?";
+    //            List<string> queryParams = new List<string>();
 
-                url += string.Join('&', queryParams);
-            }
+    //            foreach (string k in values.Keys)
+    //            {
+    //                queryParams.Add($"{k}={HttpUtility.UrlEncode(values[k])}");
+    //            }
 
-            return url;
-        }
-    }
+    //            url += string.Join('&', queryParams);
+    //        }
+
+    //        return url;
+    //    }
+    //}
 }

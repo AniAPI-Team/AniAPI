@@ -19,7 +19,8 @@ namespace Commons
         public Anime(AnilistResponse.ResponseMedia media)
         {
             this.Titles = new Dictionary<string, string>();
-            this.Titles[LocalizationEnum.English] = media.Title.Romaji;
+            this.Titles[LocalizationEnum.Romaji] = media.Title.Romaji;
+            this.Titles[LocalizationEnum.English] = media.Title.English;
             this.Titles[LocalizationEnum.Japanese] = media.Title.Native;
 
             this.Descriptions = new Dictionary<string, string>();
@@ -140,6 +141,11 @@ namespace Commons
         [JsonProperty(PropertyName = "mal_id")]
         public int? MyAnimeListId { get; set; }
 
+        [BsonElement("tmdb_id")]
+        [JsonPropertyName("tmdb_id")]
+        [JsonProperty(PropertyName = "tmdb_id")]
+        public long? TmdbId { get; set; }
+
         [BsonElement("format")]
         [JsonPropertyName("format")]
         [JsonProperty(PropertyName = "format")]
@@ -169,6 +175,11 @@ namespace Commons
         [JsonPropertyName("end_date")]
         [JsonProperty(PropertyName = "end_date")]
         public DateTime? EndDate { get; set; }
+
+        [BsonElement("weekly_airing_day")]
+        [JsonPropertyName("weekly_airing_day")]
+        [JsonProperty(PropertyName = "weekly_airing_day")]
+        public DayOfWeek? WeeklyAiringDay { get; set; }
 
         [BsonElement("season_period")]
         [JsonPropertyName("season_period")]
@@ -215,6 +226,11 @@ namespace Commons
         [JsonProperty(PropertyName = "genres")]
         public List<string> Genres { get; set; }
 
+        [BsonElement("sagas")]
+        [JsonPropertyName("sagas")]
+        [JsonProperty(PropertyName = "sagas")]
+        public List<Saga> Sagas { get; set; }
+
         [BsonElement("sequel")]
         [JsonPropertyName("sequel")]
         [JsonProperty(PropertyName = "sequel")]
@@ -230,12 +246,44 @@ namespace Commons
         [JsonProperty(PropertyName = "score")]
         public int Score { get; set; }
 
-        public bool NSFW => Genres.Contains("Hentai");
+        [BsonElement("has_episodes")]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public bool HasEpisodes { get; set; } = false;
+
+        public bool NSFW => Genres.Contains("Hentai") || Genres.Contains("Nudity") || Genres.Contains("Ecchi");
         public bool HasCoverImage => CoverImage != "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/default.jpg";
 
         public override string ToString()
         {
-            return this.Titles[LocalizationEnum.English];
+            return this.Titles[LocalizationEnum.Romaji];
+        }
+
+        public class Saga
+        {
+            [BsonElement("titles")]
+            [JsonPropertyName("titles")]
+            [JsonProperty(PropertyName = "titles")]
+            public Dictionary<string, string> Titles { get; set; }
+
+            [BsonElement("descriptions")]
+            [JsonPropertyName("descriptions")]
+            [JsonProperty(PropertyName = "descriptions")]
+            public Dictionary<string, string> Descriptions { get; set; }
+
+            [BsonElement("episode_from")]
+            [JsonPropertyName("episode_from")]
+            [JsonProperty(PropertyName = "episode_from")]
+            public int EpisodeFrom { get; set; }
+
+            [BsonElement("episode_to")]
+            [JsonPropertyName("episode_to")]
+            [JsonProperty(PropertyName = "episode_to")]
+            public int EpisodeTo { get; set; }
+
+            [BsonElement("episodes_count")]
+            [JsonPropertyName("episodes_count")]
+            [JsonProperty(PropertyName = "episodes_count")]
+            public int EpisodesCount { get; set; }
         }
     }
 }

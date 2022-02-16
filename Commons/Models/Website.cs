@@ -28,10 +28,6 @@ namespace Commons
         [JsonPropertyName("site_url")]
         public string SiteUrl { get; set; }
 
-        [BsonElement("can_block_requests")]
-        [JsonPropertyName("can_block_requests")]
-        public bool CanBlockRequests { get; set; }
-
         [BsonElement("localization")]
         [JsonPropertyName("localization")]
         public string Localization { get; set; }

@@ -100,6 +100,9 @@ namespace Commons
             [JsonProperty("romaji")]
             public string Romaji { get; set; }
 
+            [JsonProperty("english")]
+            public string English { get; set; }
+
             [JsonProperty("native")]
             public string Native { get; set; }
         }

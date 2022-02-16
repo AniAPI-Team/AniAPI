@@ -7,9 +7,9 @@ using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using MongoDB.Driver;
+using MongoDB.Driver.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -44,33 +44,23 @@ namespace WebAPI.Controllers
         {
             try
             {
-                Func<Anime, bool> filter = null;
+                var query = this._animeCollection.Collection
+                    .AsQueryable();
 
                 if (!nsfw)
                 {
-                    filter = x => !x.Genres.Contains("Hentai") &&
+                    query = query.Where(x => 
+                        !x.Genres.Contains("Hentai") &&
                         !x.Genres.Contains("Nudity") &&
-                        !x.Genres.Contains("Ecchi");
+                        !x.Genres.Contains("Ecchi"));
                 }
-                else
-                {
-                    filter = x => true;
-                }
-
-                var query = this._animeCollection.Collection
-                    .AsQueryable()
-                    .Where(filter);
 
                 if (format.HasValue)
                 {
                     query = query.Where(x => x.Format == format.Value);
                 }
 
-                List<Anime> anime = query
-                    .ToList()
-                    .OrderBy(x => Guid.NewGuid())
-                    .Take(count > 50 ? 50 : count)
-                    .ToList();
+                List<Anime> anime = query.Sample(count > 50 ? 50 : count).ToList();
 
                 if (anime == null || anime.Count == 0)
                 {
@@ -105,9 +95,7 @@ namespace WebAPI.Controllers
             {
                 List<AnimeSong> animeSongs = this._animeSongCollection.Collection
                     .AsQueryable()
-                    .ToList()
-                    .OrderBy(x => Guid.NewGuid())
-                    .Take(count > 50 ? 50 : count)
+                    .Sample(count > 50 ? 50 : count)
                     .ToList();
 
                 if (animeSongs == null || animeSongs.Count == 0)

@@ -53,8 +53,23 @@ namespace Commons.Collections
                     document.Id = reference.Id;
                     document.CreationDate = reference.CreationDate;
                     document.UpdateDate = reference.UpdateDate;
-                    document.Titles = reference.Titles;
-                    document.Descriptions = reference.Descriptions;
+                    document.HasEpisodes = reference.HasEpisodes;
+
+                    foreach(var locale in document.Titles.Keys)
+                    {
+                        if (reference.Titles.ContainsKey(locale) && !string.IsNullOrEmpty(reference.Titles[locale]))
+                        {
+                            document.Titles[locale] = reference.Titles[locale];
+                        }
+                    }
+
+                    foreach (var locale in document.Descriptions.Keys)
+                    {
+                        if (reference.Descriptions.ContainsKey(locale) && !string.IsNullOrEmpty(reference.Descriptions[locale]))
+                        {
+                            document.Descriptions[locale] = reference.Descriptions[locale];
+                        }
+                    }
                 }
 
                 return true;
@@ -87,6 +102,11 @@ namespace Commons.Collections
                 queryFilter &= builder.Eq("mal_id", animeFilter.mal_id);
             }
 
+            if(animeFilter.tmbd_id != null)
+            {
+                queryFilter &= builder.Eq("tmdb_id", animeFilter.tmbd_id);
+            }
+
             if(animeFilter.formats.Count > 0)
             {
                 queryFilter &= builder.AnyIn("format", animeFilter.formats);
@@ -115,6 +135,11 @@ namespace Commons.Collections
             if(animeFilter.nsfw == false)
             {
                 queryFilter &= builder.Nin("genres", new System.Collections.Generic.List<string> { "Hentai", "Nudity", "Ecchi" });
+            }
+
+            if(animeFilter.with_episodes == true)
+            {
+                queryFilter &= builder.Eq("has_episodes", true);
             }
 
             if (!string.IsNullOrEmpty(animeFilter.locale))

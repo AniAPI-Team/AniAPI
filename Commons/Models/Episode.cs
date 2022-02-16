@@ -32,6 +32,11 @@ namespace Commons
         [JsonProperty(PropertyName = "video")]
         public string Video { get; set; }
 
+        [BsonElement("video_headers")]
+        [JsonPropertyName("video_headers")]
+        [JsonProperty(PropertyName = "video_headers")]
+        public Dictionary<string, string> VideoHeaders { get; set; }
+
         [BsonElement("quality")]
         [JsonPropertyName("quality")]
         [JsonProperty(PropertyName = "quality")]

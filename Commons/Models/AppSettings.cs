@@ -44,6 +44,9 @@ namespace Commons
         [BsonElement("apilytics_key")]
         public string ApilyticsKey { get; set; }
 
+        [BsonElement("tmdb_key")]
+        public string TmdbKey { get; set; }
+
         public class SmtpConfig
         {
             [BsonElement("host")]
