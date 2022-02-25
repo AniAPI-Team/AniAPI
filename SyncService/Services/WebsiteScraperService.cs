@@ -249,7 +249,11 @@ namespace SyncService.Services
 
                 if (website.Official)
                 {
-                    if (string.IsNullOrEmpty(_anime.Titles[website.Localization]))
+                    if (!_anime.Titles.ContainsKey(website.Localization))
+                    {
+                        _anime.Titles[website.Localization] = matching.Title;
+                    }
+                    else if (string.IsNullOrEmpty(_anime.Titles[website.Localization]))
                     {
                         _anime.Titles[website.Localization] = matching.Title;
                     }

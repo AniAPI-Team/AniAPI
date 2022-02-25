@@ -59,7 +59,7 @@ namespace Commons.Collections
                     {
                         if (reference.Titles.ContainsKey(locale) && 
                             !string.IsNullOrEmpty(reference.Titles[locale]) &&
-                            reference.Titles[locale] == document.Titles[locale])
+                            !document.Titles.ContainsKey(locale))
                         {
                             document.Titles[locale] = reference.Titles[locale];
                         }
@@ -69,7 +69,7 @@ namespace Commons.Collections
                     {
                         if (reference.Descriptions.ContainsKey(locale) && 
                             !string.IsNullOrEmpty(reference.Descriptions[locale]) &&
-                            reference.Descriptions[locale] == document.Descriptions[locale])
+                            !document.Titles.ContainsKey(locale))
                         {
                             document.Descriptions[locale] = reference.Descriptions[locale];
                         }
