@@ -384,7 +384,7 @@ namespace SyncService.Services
                         }
                     }
                 }
-
+       
                 url = $"/3/tv/{anime.TmdbId}/translations";
                 using (var response = await this._tmdbClient.GetAsync(url))
                 {
