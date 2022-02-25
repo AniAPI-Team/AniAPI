@@ -57,7 +57,9 @@ namespace Commons.Collections
 
                     foreach(var locale in document.Titles.Keys)
                     {
-                        if (reference.Titles.ContainsKey(locale) && !string.IsNullOrEmpty(reference.Titles[locale]))
+                        if (reference.Titles.ContainsKey(locale) && 
+                            !string.IsNullOrEmpty(reference.Titles[locale]) &&
+                            reference.Titles[locale] == document.Titles[locale])
                         {
                             document.Titles[locale] = reference.Titles[locale];
                         }
@@ -65,7 +67,9 @@ namespace Commons.Collections
 
                     foreach (var locale in document.Descriptions.Keys)
                     {
-                        if (reference.Descriptions.ContainsKey(locale) && !string.IsNullOrEmpty(reference.Descriptions[locale]))
+                        if (reference.Descriptions.ContainsKey(locale) && 
+                            !string.IsNullOrEmpty(reference.Descriptions[locale]) &&
+                            reference.Descriptions[locale] == document.Descriptions[locale])
                         {
                             document.Descriptions[locale] = reference.Descriptions[locale];
                         }

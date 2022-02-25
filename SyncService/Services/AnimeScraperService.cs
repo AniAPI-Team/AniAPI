@@ -365,6 +365,26 @@ namespace SyncService.Services
                     }
                 }
 
+                url = $"/3/tv/{anime.TmdbId}/alternative_titles";
+                using (var response = await this._tmdbClient.GetAsync(url))
+                {
+                    response.EnsureSuccessStatusCode();
+
+                    TmdbAlternativeTitlesResponse titlesResponse = JsonConvert.DeserializeObject<TmdbAlternativeTitlesResponse>(await response.Content.ReadAsStringAsync());
+                    
+                    foreach(var t in titlesResponse.Results.GroupBy(x => x.Iso3166))
+                    {
+                        string locale = LocalizationEnum.FormatIsoToLocale(t.Key);
+
+                        if(locale != LocalizationEnum.English && 
+                            locale != LocalizationEnum.Japanese && 
+                            LocalizationEnum.IsLocaleSupported(locale))
+                        {
+                            anime.Titles[locale] = t.FirstOrDefault().Title;
+                        }
+                    }
+                }
+       
                 url = $"/3/tv/{anime.TmdbId}/translations";
                 using (var response = await this._tmdbClient.GetAsync(url))
                 {
@@ -377,7 +397,6 @@ namespace SyncService.Services
                         string locale = LocalizationEnum.FormatIsoToLocale(t.Iso639);
                         if (locale != LocalizationEnum.English && LocalizationEnum.IsLocaleSupported(locale))
                         {
-                            anime.Titles[locale] = t.Data.Name;
                             anime.Descriptions[locale] = t.Data.Overview;
                         }
                     }

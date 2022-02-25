@@ -49,7 +49,7 @@ namespace Commons.Enums
                 return LocalizationEnum.Japanese;
             }
 
-            return iso;
+            return iso.ToLower();
         }
 
         public static bool IsLocaleSupported(string locale)
