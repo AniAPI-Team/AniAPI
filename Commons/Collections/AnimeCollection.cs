@@ -138,7 +138,7 @@ namespace Commons.Collections
 
             if(animeFilter.nsfw == false)
             {
-                queryFilter &= builder.Nin("genres", new System.Collections.Generic.List<string> { "Hentai", "Nudity", "Ecchi" });
+                queryFilter &= builder.Nin("genres", new System.Collections.Generic.List<string> { "Hentai", "Nudity" });
             }
 
             if(animeFilter.with_episodes == true)
