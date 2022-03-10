@@ -250,7 +250,12 @@ namespace Commons
         [System.Text.Json.Serialization.JsonIgnore]
         public bool HasEpisodes { get; set; } = false;
 
-        public bool NSFW => Genres.Contains("Hentai") || Genres.Contains("Nudity") || Genres.Contains("Ecchi");
+        [JsonPropertyName("nsfw")]
+        [JsonProperty(PropertyName = "nsfw")]
+        public bool NSFW => Genres.Contains("Hentai") || Genres.Contains("Nudity");
+
+        [JsonPropertyName("has_cover_image")]
+        [JsonProperty(PropertyName = "has_cover_image")]
         public bool HasCoverImage => CoverImage != "https://s4.anilist.co/file/anilistcdn/media/anime/cover/medium/default.jpg";
 
         public override string ToString()

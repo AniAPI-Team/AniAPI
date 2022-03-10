@@ -47,6 +47,10 @@ namespace Commons
         [JsonProperty(PropertyName = "format")]
         public string Format { get; set; }
 
+        [BsonElement("source")]
+        [System.Text.Json.Serialization.JsonIgnore]
+        public string Source { get; set; }
+
         [BsonElement("locale")]
         [JsonPropertyName("locale")]
         [JsonProperty(PropertyName = "locale")]

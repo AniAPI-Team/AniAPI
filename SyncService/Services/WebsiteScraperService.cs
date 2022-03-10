@@ -417,7 +417,8 @@ namespace SyncService.Services
                                         Quality = epQuality.Quality,
                                         Format = epQuality.Format,
                                         IsDub = matching.IsDub,
-                                        Locale = website.Localization
+                                        Locale = website.Localization,
+                                        Source = website.Name
                                     };
 
                                     if (this._episodeCollection.Exists(ref ep))
@@ -434,6 +435,14 @@ namespace SyncService.Services
                                 this.Log($"[{website.Name}] done episode {i} [{_anime}({_anime.Id})]");
 #endif
                             }
+                        }
+                        else
+                        {
+                            dbEpisodes.Where(x => x.Number == i).ToList().ForEach(ep =>
+                            {
+                                ep.Source = website.Name;
+                                this._episodeCollection.Edit(ref ep);
+                            });
                         }
                     }
 
