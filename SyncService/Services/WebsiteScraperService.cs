@@ -441,7 +441,11 @@ namespace SyncService.Services
                             dbEpisodes.Where(x => x.Number == i).ToList().ForEach(ep =>
                             {
                                 ep.Source = website.Name;
-                                this._episodeCollection.Edit(ref ep);
+
+                                if(this._episodeCollection.Exists(ref ep))
+                                {
+                                    this._episodeCollection.Edit(ref ep);
+                                }
                             });
                         }
                     }
