@@ -52,7 +52,10 @@ namespace WebAPI.Controllers
                     query = query.Where(x => 
                         !x.Genres.Contains("Hentai") &&
                         !x.Genres.Contains("Nudity") &&
-                        !x.Genres.Contains("Ecchi"));
+                        !x.Genres.Contains("Ecchi") &&
+                        !x.Genres.Contains("Drugs") &&
+                        !x.Genres.Contains("Rape") &&
+                        !x.Genres.Contains("Handjob"));
                 }
 
                 if (format.HasValue)
