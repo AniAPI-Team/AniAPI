@@ -82,6 +82,14 @@ namespace SyncService.Services
                         nextAiringEpisode {
                             episode
                         }
+                        recommendations {
+                            nodes {
+                                rating
+                                mediaRecommendation {
+                                    id
+                                }
+                            }
+                        }
                         averageScore
                     }
                 }
@@ -447,6 +455,16 @@ namespace SyncService.Services
                                 saga.Titles[locale] = t.Data.Name;
                                 saga.Descriptions[locale] = t.Data.Overview;
                             }
+                        }
+                    }
+
+                    if(i > 1)
+                    {
+                        Anime.Saga prevSaga = anime.Sagas[i - 2];
+                            
+                        if (saga.EpisodeFrom < prevSaga.EpisodeTo)
+                        {
+                            break;
                         }
                     }
 
