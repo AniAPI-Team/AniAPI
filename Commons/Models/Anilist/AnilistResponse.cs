@@ -93,6 +93,9 @@ namespace Commons
 
             [JsonProperty("nextAiringEpisode")]
             public MediaAiringEpisode? AiringEpisode { get; set; }
+
+            [JsonProperty("recommendations")]
+            public MediaRecommendation Recommendations { get; set; }
         }
 
         public class MediaTitle
@@ -171,6 +174,27 @@ namespace Commons
         {
             [JsonProperty("episode")]
             public int Episode { get; set; }
+        }
+
+        public class MediaRecommendation
+        {
+            [JsonProperty("nodes")]
+            public List<MediaRecommendationNode> Nodes { get; set; }
+        }
+
+        public class MediaRecommendationNode
+        {
+            [JsonProperty("rating")]
+            public int Rating { get; set; }
+
+            [JsonProperty("mediaRecommendation")]
+            public MediaRecommendationMedia Media { get; set; }
+        }
+
+        public class MediaRecommendationMedia
+        {
+            [JsonProperty("id")]
+            public long Id { get; set; }
         }
     }
 }

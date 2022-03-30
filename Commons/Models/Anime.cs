@@ -7,6 +7,8 @@ using Commons.Enums;
 using MongoDB.Bson.Serialization.Attributes;
 using System.Text.Json.Serialization;
 using Newtonsoft.Json;
+using MongoDB.Driver;
+using System.Linq;
 
 namespace Commons
 {
@@ -87,30 +89,46 @@ namespace Commons
 
             foreach (var edge in media.Relations.Edges)
             {
-                if (edge.Node.Format != "TV")
-                {
-                    continue;
-                }
-
                 if (edge.Type == "SEQUEL" || edge.Type == "PREQUEL")
                 {
-                    var query = this._animeCollection.GetList(new AnimeFilter()
-                    {
-                        anilist_id = edge.Node.Id,
-                        page = 1
-                    });
+                    var builder = Builders<Anime>.Filter;
+                    FilterDefinition<Anime> filter = builder.Eq("anilist_id", edge.Node.Id);
 
-                    if (query.Count > 0)
+                    var connected = this._animeCollection.Collection.Find(filter).FirstOrDefault();
+
+                    if(connected != null)
                     {
-                        long id = query.Documents[0].Id;
                         if (edge.Type == "SEQUEL")
                         {
-                            this.Sequel = id;
+                            this.Sequel = connected.Id;
                         }
                         else
                         {
-                            this.Prequel = id;
+                            this.Prequel = connected.Id;
                         }
+                    }
+                }
+            }
+
+            if(media.Recommendations.Nodes.Count > 0)
+            {
+                int recommendationAvgRating = media.Recommendations.Nodes.Sum(x => x.Rating) / media.Recommendations.Nodes.Count;
+
+                foreach (var node in media.Recommendations.Nodes.Where(x => x.Rating > recommendationAvgRating).OrderByDescending(x => x.Rating))
+                {
+                    if (Recommendations == null)
+                    {
+                        Recommendations = new List<long>();
+                    }
+
+                    var builder = Builders<Anime>.Filter;
+                    FilterDefinition<Anime> filter = builder.Eq("anilist_id", node.Media.Id);
+
+                    var recommendation = this._animeCollection.Collection.Find(filter).FirstOrDefault();
+
+                    if (recommendation != null)
+                    {
+                        Recommendations.Add(recommendation.Id);
                     }
                 }
             }
@@ -249,6 +267,11 @@ namespace Commons
         [BsonElement("has_episodes")]
         [System.Text.Json.Serialization.JsonIgnore]
         public bool HasEpisodes { get; set; } = false;
+
+        [BsonElement("recommendations")]
+        [JsonPropertyName("recommendations")]
+        [JsonProperty(PropertyName = "recommendations")]
+        public List<long> Recommendations { get; set; }
 
         [JsonPropertyName("nsfw")]
         [JsonProperty(PropertyName = "nsfw")]
