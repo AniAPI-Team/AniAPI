@@ -8,6 +8,8 @@ from resources.animepisode import AnimepisodeResource
 
 from resources.aniplaylist import AniplaylistResource
 
+from resources.desuonline import DesuonlineResource
+
 app = falcon.asgi.App()
 
 DreamsubResource(app)
@@ -17,3 +19,5 @@ AnimepisodeResource(app)
 GogoanimeResource(app)
 
 AniplaylistResource(app)
+
+DesuonlineResource(app)
