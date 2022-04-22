@@ -1,4 +1,4 @@
-﻿using Commons;
+using Commons;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace SyncService.Models.Websites
 {
-    public class DesuonlineWebsite : IWebsite
+    public class AnimepisodeWebsite : IWebsite
     {
-        public DesuonlineWebsite(Website website) : base(website)
+        public AnimepisodeWebsite(Website website) : base(website)
         {
         }
 
