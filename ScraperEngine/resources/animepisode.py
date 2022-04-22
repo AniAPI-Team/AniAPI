@@ -65,11 +65,10 @@ class AnimepisodeResource(ScraperResource):
         episodes = []
         url = f"{self.base_url}{path}"
         try:
-			# Btw im going on a trip, so ill be in car with shitty internet in like 20mins, so you should copy your code
-            # Yeah, i can commit
-            # could you commit your code to your github? and add me as a collaborator?
             page = await execute_proxied_request(self, url)
-            article  = page.select_one("#main").find("article")
+            video_container  = page.select_one("#anime-embed-container")
+            
+
             
 
         except Exception as e:
