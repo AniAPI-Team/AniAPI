@@ -24,24 +24,12 @@ class AnimepisodeResource(ScraperResource):
         episode_number = re.findall(r'\d+', title)[-1]
         title = title.replace(episode_number, "").strip()
 
-        
-
         return {
             "title": title,
             "is_dubbed": is_dubbed,
             "episode_number": episode_number
         }
 
-        
-
-
-
-        
-
-
-
-        
-        
     async def get_possible_matchings(self, res: falcon.Response, title: str) -> List[Matching]:
         matchings = []
         url = f"{self.base_url}/?s={uri.encode(title)}"

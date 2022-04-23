@@ -4,3 +4,4 @@ aiohttp
 brotli
 ujson
 pymongo
+cda_downloader
