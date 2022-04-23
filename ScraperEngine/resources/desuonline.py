@@ -152,9 +152,12 @@ class DesuonlineResource(ScraperResource):
             embedPage = await execute_proxied_request(self, cdaEmbedLink)
             cdaVidLink = str(embedPage.find("h1", class_="title").find("a")["href"])
 
-            dlLink = await get_mp4_link(cdaVidLink, VideoQuality.p1080)
-
-            episodes.append(Episode(f"Odcinek {number}", url, dlLink, 1080, "mp4"))
+            for quality in VideoQuality:
+                if quality == VideoQuality.auto:
+                    continue
+                dlLink = await get_mp4_link(cdaVidLink, quality)
+                if dlLink != None:
+                    episodes.append(Episode(f"Odcinek {number}", url, dlLink, quality.value, "mp4"))
 
         except Exception as e:
             print(str(e))
