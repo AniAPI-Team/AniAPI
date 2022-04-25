@@ -56,7 +56,6 @@ class DesuonlineResource(ScraperResource):
         matchings = []
 
         url = f"{self.base_url}?s={uri.encode(title)}"
-        print(url)
 
         try:
             has_ended = False
@@ -72,7 +71,7 @@ class DesuonlineResource(ScraperResource):
                         raise Exception
 
                     for show_element in show_elements:
-                        path = str(show_element.find_next("a")["href"]).replace(self.base_url, "")
+                        path = str(show_element.find_next("a")["href"]).replace(f"{self.base_url}/anime", "")[:-1]
 
                         match = show_element.find("div", class_="tt").find_next("h2").string
                         matchings.append(Matching(match, path))
@@ -136,7 +135,6 @@ class DesuonlineResource(ScraperResource):
 
                     for quality in VideoQuality:
                         dlLink = await self.get_mp4_link(cdaVidLink, quality, False)
-                        print(dlLink)
                         if dlLink != None:
                             episodes.append(Episode(f"Odcinek {number}", url, dlLink, quality.value, "mp4"))
 
