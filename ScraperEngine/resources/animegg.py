@@ -35,15 +35,27 @@ class AnimeggResource(ScraperResource):
     async def get_episode(self, res: falcon.Response, path: str, number: int) -> List[Episode]:
         episodes = []
         series_name = path.split("/")[-1]
+
+        # Thats just some weird shit anime.gg does
+        if number == 1:
+            number = 0 
+        
         url = f"{self.base_url}/{series_name}-episode-{number}"
+        print(url)
         try:
             page = await execute_proxied_request(self, url)
             title = page.select_one(".e4tit").text
+            print(title)
             iframe = page.find("iframe", class_="video")
-            page = await execute_proxied_request(self, f"{self.base_url}{iframe.get('src')}")
-            video = page.select_one("video")
-            url = video.get("src")
-            episodes.append(Episode(title, url, url, format="mp4"))
+            print(iframe)
+            print(f"{self.base_url}{iframe.get('src')}")
+            embedPage = await execute_proxied_request(self, f"{self.base_url}{iframe.get('src')}")
+            print(embedPage)
+            video = embedPage.find_next("video")
+            print(video)
+            dlUrl = video["src"]
+            print(dlUrl)
+            episodes.append(Episode(title, url, dlUrl, format="mp4"))
              
         except Exception as e:
             print(str(e))

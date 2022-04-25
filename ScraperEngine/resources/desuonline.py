@@ -21,8 +21,6 @@ from utils.session import execute_proxied_request, get_proxied_response_json_get
 from cda_downloader import CDA
 
 class VideoQuality(Enum):
-    auto = 0
-    p360 = 360
     p480 = 480
     p720 = 720
     p1080 = 1080
@@ -30,10 +28,9 @@ class VideoQuality(Enum):
 class DesuonlineResource(ScraperResource):
 
     def __init__(self, app: falcon.App) -> None:
-        print("DesuOnline initialized!")
         super().__init__(app, "desuonline")
     
-    async def get_mp4_link(self, cda_link, quality: VideoQuality.auto, https) -> String:
+    async def get_mp4_link(self, cda_link, quality, https) -> String:
         if cda_link.endswith("/vfilm"):
             cda_link = cda_link[:len(cda_link)-5]
         
@@ -51,10 +48,9 @@ class DesuonlineResource(ScraperResource):
             
             cda_link = "https://www." + cutLink
         
-        if quality != VideoQuality.auto:
-            cda_link = cda_link + f"?wersja={quality.value}p"
+        cda_link = cda_link + f"?wersja={quality.value}p"
         
-        return CDA().get_video_urls(urls=cda_link, only_urls=True, quality=quality.value)
+        return CDA(use_api=False).get_video_urls(urls=cda_link, only_urls=True, quality=quality.value)[0]
 
     async def get_possible_matchings(self, res: falcon.Response, title: str) -> List[Matching]:
         matchings = []
@@ -98,48 +94,51 @@ class DesuonlineResource(ScraperResource):
     async def get_episode(self, res: falcon.Response, path: str, number: int) -> List[Episode]:
         episodes = []
 
-        url = f"{self.base_url}{path}"
+        url = f"{self.base_url}{path}-odcinek-{number}"
 
         try:
-            page = await execute_proxied_request(self, url)
-            epList = page.find("div", class_="eplister").find_next("ul").find_all("li")
-            episodeList = []
+            # This here works, but theres a faster method
+            # But in case there are any bugs with current approach u you can use this
 
-            for i in reversed(range(len(epList))):
-                episodeList.append(epList[i])
+            # url = f"{self.base_url}{path}"
+            # page = await execute_proxied_request(self, url)
+            # epList = page.find("div", class_="eplister").find_next("ul").find_all("li")
+            # episodeList = []
 
-            episodeLink = str(episodeList[number - 1].find("a")["href"])
-            episodePage = await execute_proxied_request(self, episodeLink)
+            # for i in reversed(range(len(epList))):
+            #     episodeList.append(epList[i])
+
+            # episodeLink = str(episodeList[number - 1].find("a")["href"])
+            # episodePage = await execute_proxied_request(self, episodeLink)
+
+            episodePage = await execute_proxied_request(self, url)
+
             sourcesList = episodePage.find("select", class_="mirror").find_all("option")
 
             cdaVidLink = ''
 
             for option in sourcesList:
                 decodedString = base64.b64decode(str(option["value"])).decode('ascii')
-                cdaEmbedLink = ''
+                embedLink = ''
+                
                 if "https://ebd.cda.pl/" in decodedString:
-                    for x in range(13, len(decodedString)):
-                        if decodedString[x] == '"':
-                            break
-                        else:
-                            cdaEmbedLink += decodedString[x]
+                    bs = BeautifulSoup(decodedString, 'html.parser')
+                    embedLink = bs.find('iframe')["src"]
                     
-                    if cdaEmbedLink == '':
+                    if embedLink == '':
                         raise Exception("Failed to get CDA Embed Link!")
                     
-                    videoID = cdaEmbedLink.split('/')[-1]
+                    videoID = embedLink.split('/')[-1]
                     cdaVidLink = f"https://cda.pl/video/{videoID}"
 
-            if cdaVidLink == '':
-                raise Exception("Failed to get CDA Link!")
+                    if cdaVidLink == '':
+                        raise Exception("Failed to get CDA Link!")
 
-            for quality in VideoQuality:
-                if quality == VideoQuality.auto:
-                    continue
-                dlLink = await self.get_mp4_link(cdaVidLink, quality, False)
-                print(dlLink)
-                if dlLink != None:
-                    episodes.append(Episode(f"Odcinek {number}", url, dlLink, quality.value, "mp4"))
+                    for quality in VideoQuality:
+                        dlLink = await self.get_mp4_link(cdaVidLink, quality, False)
+                        print(dlLink)
+                        if dlLink != None:
+                            episodes.append(Episode(f"Odcinek {number}", url, dlLink, quality.value, "mp4"))
 
         except Exception as e:
             print(str(e))

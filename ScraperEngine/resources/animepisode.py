@@ -40,7 +40,7 @@ class AnimepisodeResource(ScraperResource):
                 content = article.find(class_="blog-entry-inner").find(class_="blog-entry-content")
                 link = content.find("header").find().find("a")
                 title = link.text
-                url = link.get("href")
+                url = link["href"]
                 matchings.append(Matching(title, url))
         
         except Exception as e:
@@ -54,12 +54,12 @@ class AnimepisodeResource(ScraperResource):
         url = f"{self.base_url}{path}"
         try:
             page = await execute_proxied_request(self, url)
-            embed_url = str(page.find("iframe").get("src"))
+            embed_url = str(page.find("iframe")["src"])
             page = await execute_proxied_request(self, embed_url, {
                 "Referer": "https://animepisode.com/"
             })
             video = page.select_one("video")
-            video_url = video.select_one('source').get('src')
+            video_url = video.select_one('source').get['src']
             episodes.append(Episode(f"Episode {number}", video_url, video_url, format="mp4", quality=None))
 
 
