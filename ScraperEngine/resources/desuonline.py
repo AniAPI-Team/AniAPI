@@ -94,6 +94,7 @@ class DesuonlineResource(ScraperResource):
         episodes = []
 
         url = f"{self.base_url}{path}-odcinek-{number}"
+        print(url)
 
         try:
             # This here works, but theres a faster method
@@ -114,12 +115,18 @@ class DesuonlineResource(ScraperResource):
 
             sourcesList = episodePage.find("select", class_="mirror").find_all("option")
 
-            cdaVidLink = ''
-
             for option in sourcesList:
                 decodedString = base64.b64decode(str(option["value"])).decode('ascii')
-                embedLink = ''
-                
+
+                if "https://drive.google.com/" in decodedString:
+                    bs = BeautifulSoup(decodedString, 'html.parser')
+                    embedLink = bs.find('iframe')["src"]
+
+                    videoID = embedLink.split('/')[-2]
+                    
+                    dlLink = f"https://drive.google.com/u/0/uc?id={videoID}&export=download&confirm=t"
+                    episodes.append(Episode(f"Odcinek {number}", url, dlLink, None, "mp4"))
+
                 if "https://ebd.cda.pl/" in decodedString:
                     bs = BeautifulSoup(decodedString, 'html.parser')
                     embedLink = bs.find('iframe')["src"]
