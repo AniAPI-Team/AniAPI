@@ -84,6 +84,9 @@ namespace SyncService.Services
                     case "gogoanime":
                         iWeb = new GogoanimeWebsite(website);
                         break;
+                    case "desuonline":
+                        iWeb = new DesuonlineWebsite(website);
+                        break;
 
                     default:
                         throw new Exception($"Website {website.Name} not handled!");
@@ -258,7 +261,11 @@ namespace SyncService.Services
                         _anime.Titles[website.Localization] = matching.Title;
                     }
 
-                    if (string.IsNullOrEmpty(_anime.Descriptions[website.Localization]))
+                    if (!_anime.Descriptions.ContainsKey(website.Localization))
+                    {
+                        _anime.Descriptions[website.Localization] = matching.Description;
+                    }
+                    else if (string.IsNullOrEmpty(_anime.Descriptions[website.Localization]))
                     {
                         _anime.Descriptions[website.Localization] = matching.Description;
                     }
