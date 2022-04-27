@@ -7,6 +7,10 @@
     {
       "i18n": "it",
       "label": "Italian"
+    },
+    {
+      "i18n": "pl",
+      "label": "Polish"
     }
   ]
 }
