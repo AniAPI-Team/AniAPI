@@ -84,6 +84,9 @@ namespace SyncService.Services
                     case "gogoanime":
                         iWeb = new GogoanimeWebsite(website);
                         break;
+                    case "animegg":
+                        iWeb = new AnimeggWebsite(website);
+                        break;
 
                     default:
                         throw new Exception($"Website {website.Name} not handled!");
