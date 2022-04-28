@@ -15,11 +15,7 @@ app = falcon.asgi.App()
 
 DreamsubResource(app)
 AnimeworldResource(app)
-AnimepisodeResource(app)
 AnimeggResource(app)
-
 GogoanimeResource(app)
-
 AniplaylistResource(app)
-
 DesuonlineResource(app)
