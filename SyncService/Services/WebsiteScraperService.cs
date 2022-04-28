@@ -87,6 +87,12 @@ namespace SyncService.Services
                     case "animegg":
                         iWeb = new AnimeggWebsite(website);
                         break;
+                    case "animepisode":
+                        iWeb = new AnimepisodeWebsite(website);
+                        break;
+                    case "desuonline":
+                        iWeb = new DesuonlineWebsite(website);
+                        break;
 
                     default:
                         throw new Exception($"Website {website.Name} not handled!");
