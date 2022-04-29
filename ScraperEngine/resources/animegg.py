@@ -14,7 +14,7 @@ class AnimeggResource(ScraperResource):
 
     def __init__(self, app: falcon.App) -> None:
 		# On this line, use the name you used inside MongoDB's websites collection
-        super().__init__(app, "yourwebsitenamehere")
+        super().__init__(app, "animegg")
 
     async def get_possible_matchings(self, res: falcon.Response, title: str) -> List[Matching]:
         matchings = []
@@ -38,16 +38,16 @@ class AnimeggResource(ScraperResource):
         video_url = f"{self.base_url}/{series_name}-episode-{number}"
         try:
             page = await execute_proxied_request(self, video_url)
-            # Search results class is "mse"
-            iframe = page.find("iframe", class_="video")
-            for video in page.select("ul#videos > li.active > a"):
+            links = page.find("ul", id="videos").find_next("li").find_all("a")
+            for video in links:
                 embed_id = video["data-id"]
                 is_dub = video["data-version"] == "dubbed"
                 quality_text = video.select_one("span.btn-hd").text
                 quality = 1080 if quality_text == "HD" else 480
                 embed_url = f"{self.base_url}/embed/{embed_id}"
                 page = await execute_proxied_request(self, embed_url)
-                video_url = page.select_one("meta[property='og:video']")["content"]
+                video_path = page.select_one("meta[property='og:video']")["content"]
+                video_url = f"{self.base_url}{video_path}"
                 episodes.append(Episode(f"Episode {number}", embed_url, video_url, quality, "mp4"))
             
         except Exception as e:

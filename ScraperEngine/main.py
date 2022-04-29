@@ -5,7 +5,6 @@ from resources.animeworld import AnimeworldResource
 
 from resources.dreamsub import DreamsubResource
 from resources.gogoanime import GogoanimeResource
-from resources.animepisode import AnimepisodeResource
 
 from resources.aniplaylist import AniplaylistResource
 
