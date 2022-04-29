@@ -15,7 +15,9 @@ namespace SyncService.Models.Websites
 
         public override bool AnalyzeMatching(Anime anime, AnimeMatching matching, string sourceTitle)
         {
-
+            if(matching.EpisodePath.Contains("#dubbed")) {
+                matching.isDub = true;
+            }
             return base.AnalyzeMatching(anime, matching, sourceTitle);
         }
 
@@ -23,7 +25,7 @@ namespace SyncService.Models.Websites
         {
             return new Dictionary<string, string>
             {
-                { "referer", matching.EpisodePath }
+                { "referer", matching.EpisodePath.Replace("#dubbed", "").Replace("#subbed", "") }
             };
         }
     }
