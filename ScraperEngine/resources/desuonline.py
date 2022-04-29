@@ -56,10 +56,6 @@ class DesuonlineResource(ScraperResource):
         matchings = []
 
         url = f"{self.base_url}?s={uri.encode(title)}"
-<<<<<<< HEAD
-        print(url)
-=======
->>>>>>> d7199668263eb2b75d9a3687805f2f1593ab84ff
 
         try:
             has_ended = False
@@ -75,11 +71,7 @@ class DesuonlineResource(ScraperResource):
                         raise Exception
 
                     for show_element in show_elements:
-<<<<<<< HEAD
-                        path = str(show_element.find_next("a")["href"]).replace(self.base_url, "")
-=======
                         path = str(show_element.find_next("a")["href"]).replace(f"{self.base_url}/anime", "")[:-1]
->>>>>>> d7199668263eb2b75d9a3687805f2f1593ab84ff
 
                         match = show_element.find("div", class_="tt").find_next("h2").string
                         matchings.append(Matching(match, path))
@@ -102,11 +94,7 @@ class DesuonlineResource(ScraperResource):
         episodes = []
 
         url = f"{self.base_url}{path}-odcinek-{number}"
-<<<<<<< HEAD
-=======
-        print(url)
->>>>>>> d7199668263eb2b75d9a3687805f2f1593ab84ff
-
+        
         try:
             # This here works, but theres a faster method
             # But in case there are any bugs with current approach u you can use this
@@ -126,14 +114,6 @@ class DesuonlineResource(ScraperResource):
 
             sourcesList = episodePage.find("select", class_="mirror").find_all("option")
 
-<<<<<<< HEAD
-            cdaVidLink = ''
-
-            for option in sourcesList:
-                decodedString = base64.b64decode(str(option["value"])).decode('ascii')
-                embedLink = ''
-                
-=======
             for option in sourcesList:
                 decodedString = base64.b64decode(str(option["value"])).decode('ascii')
 
@@ -146,7 +126,6 @@ class DesuonlineResource(ScraperResource):
                     dlLink = f"https://drive.google.com/u/0/uc?id={videoID}&export=download&confirm=t"
                     episodes.append(Episode(f"Odcinek {number}", url, dlLink, None, "mp4"))
 
->>>>>>> d7199668263eb2b75d9a3687805f2f1593ab84ff
                 if "https://ebd.cda.pl/" in decodedString:
                     bs = BeautifulSoup(decodedString, 'html.parser')
                     embedLink = bs.find('iframe')["src"]
@@ -162,10 +141,6 @@ class DesuonlineResource(ScraperResource):
 
                     for quality in VideoQuality:
                         dlLink = await self.get_mp4_link(cdaVidLink, quality, False)
-<<<<<<< HEAD
-                        print(dlLink)
-=======
->>>>>>> d7199668263eb2b75d9a3687805f2f1593ab84ff
                         if dlLink != None:
                             episodes.append(Episode(f"Odcinek {number}", url, dlLink, quality.value, "mp4"))
 
