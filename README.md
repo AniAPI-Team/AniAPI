@@ -9,7 +9,7 @@ All songs are imported scraping **[AniPlaylist](https://aniplaylist.com/)**.
 
 *Our scope is to provide a free-to-use API and let other developers care about relevant things for their applications* 😄
 
-**[You can find the documentation on the APIs here](https://aniapi.com/docs)**
+**[You can find the documentation on the APIs here](https://github.com/AniAPI-Team/AniAPI-Docs)**
 
 ## Resources
 
@@ -62,8 +62,6 @@ If you wanna help us to provide an even better service, you can contribute on th
 
 * [Roadmap](https://github.com/AniAPI-Team/AniAPI/projects/4)
 * [Discussions](https://github.com/AniAPI-Team/AniAPI/discussions)
-* [Blog](https://aniapi.com/blog/)
-* [Help us](https://patreon.com/aniapi)
 
 ## Disclaimer
 
