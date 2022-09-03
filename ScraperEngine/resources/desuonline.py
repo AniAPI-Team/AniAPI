@@ -94,8 +94,7 @@ class DesuonlineResource(ScraperResource):
         episodes = []
 
         url = f"{self.base_url}{path}-odcinek-{number}"
-        print(url)
-
+        
         try:
             # This here works, but theres a faster method
             # But in case there are any bugs with current approach u you can use this

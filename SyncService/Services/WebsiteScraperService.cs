@@ -84,6 +84,9 @@ namespace SyncService.Services
                     case "gogoanime":
                         iWeb = new GogoanimeWebsite(website);
                         break;
+                    case "animegg":
+                        iWeb = new AnimeggWebsite(website);
+                        break;
                     case "desuonline":
                         iWeb = new DesuonlineWebsite(website);
                         break;
